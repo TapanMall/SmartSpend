@@ -1,0 +1,4699 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>SmartSpend — Dashboard</title>
+    <script>
+        if (!localStorage.getItem('ss_token')) {
+            window.location.replace('/?auth=login');
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ══════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════ */
+        :root {
+            --bg: #060d12;
+            --surf: #0c1a22;
+            --card: #0f1e28;
+            --card2: #132330;
+            --border: rgba(255, 255, 255, 0.065);
+            --border2: rgba(255, 255, 255, 0.12);
+            --text: #dff0ea;
+            --muted: #6a9080;
+            --muted2: #4a6a5a;
+
+            --g: #39ff7e;
+            --g-glow: rgba(57, 255, 126, 0.22);
+            --g-dim: rgba(57, 255, 126, 0.08);
+            --g-dim2: rgba(57, 255, 126, 0.14);
+            --g500: #22c55e;
+            --g600: #16a34a;
+            --g700: #15803d;
+
+            --red: #ff5f5f;
+            --red-dim: rgba(255, 95, 95, 0.1);
+            --amber: #fbbf24;
+            --blue: #60a5fa;
+
+            --sidebar-w: 260px;
+            --sidebar-w-col: 72px;
+            --topbar-h: 64px;
+
+            --clay: 6px 6px 20px rgba(0, 0, 0, 0.55), -3px -3px 10px rgba(255, 255, 255, 0.035), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+            --clay-lg: 12px 12px 40px rgba(0, 0, 0, 0.65), -6px -6px 20px rgba(255, 255, 255, 0.025), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+            --clay-in: inset 4px 4px 12px rgba(0, 0, 0, 0.45), inset -2px -2px 8px rgba(255, 255, 255, 0.03);
+
+            --r: 20px;
+            --r-sm: 14px;
+            --r-xs: 10px;
+
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --fast: 0.18s;
+            --med: 0.35s;
+        }
+
+        [data-theme="light"] {
+            --bg: #edf6f0;
+            --surf: #f8fdf9;
+            --card: #ffffff;
+            --card2: #f0f9f3;
+            --border: rgba(0, 0, 0, 0.07);
+            --border2: rgba(0, 0, 0, 0.12);
+            --text: #0b1a12;
+            --muted: #5a7a68;
+            --muted2: #8aaa98;
+            --clay: 6px 6px 20px rgba(0, 0, 0, 0.1), -3px -3px 10px rgba(255, 255, 255, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            --clay-lg: 12px 12px 40px rgba(0, 0, 0, 0.13), -6px -6px 20px rgba(255, 255, 255, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            --clay-in: inset 4px 4px 12px rgba(0, 0, 0, 0.07), inset -2px -2px 8px rgba(255, 255, 255, 0.6);
+        }
+
+        /* ══════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background var(--med), color var(--med);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            background: none;
+            outline: none;
+        }
+
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--g700);
+            border-radius: 2px;
+        }
+
+        ::selection {
+            background: rgba(57, 255, 126, 0.25);
+        }
+
+        /* ══════════════════════════════════════
+   LAYOUT SHELL
+══════════════════════════════════════ */
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-w);
+            min-height: 100vh;
+            background: var(--surf);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 200;
+            transition: width var(--med) var(--ease), transform var(--med) var(--ease);
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-w-col);
+        }
+
+        .sb-top {
+            padding: 1.25rem 1rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .sb-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -0.03em;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sb-logo .li {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--g), var(--g600));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            box-shadow: 0 0 16px var(--g-glow);
+        }
+
+        .sb-logo span {
+            color: var(--g);
+            transition: opacity var(--fast);
+        }
+
+        .sidebar.collapsed .sb-logo span {
+            opacity: 0;
+            width: 0;
+        }
+
+        .sb-collapse {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 0.8rem;
+            transition: all var(--fast);
+            flex-shrink: 0;
+            box-shadow: var(--clay);
+        }
+
+        .sb-collapse:hover {
+            background: var(--g);
+            color: #060d12;
+            border-color: var(--g);
+        }
+
+        .sidebar.collapsed .sb-collapse {
+            transform: rotate(180deg);
+        }
+
+        .sb-user {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .sb-av {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--g600), var(--g700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 2px solid var(--border2);
+            box-shadow: 0 0 12px var(--g-glow);
+        }
+
+        .sb-user-info {
+            overflow: hidden;
+        }
+
+        .sb-user-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .sb-user-plan {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--g);
+            background: var(--g-dim);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+            border-radius: 100px;
+            padding: 2px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+
+        .sb-nav {
+            flex: 1;
+            padding: 1rem 0.75rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sb-section-title {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted2);
+            padding: 0.75rem 0.5rem 0.4rem;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: opacity var(--fast);
+        }
+
+        .sidebar.collapsed .sb-section-title {
+            opacity: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.625rem 0.75rem;
+            border-radius: var(--r-xs);
+            color: var(--muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+            cursor: pointer;
+            transition: all var(--fast);
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: var(--g-dim);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--g-dim2);
+            color: var(--g);
+            border: 1px solid rgba(57, 255, 126, 0.18);
+            box-shadow: var(--clay);
+        }
+
+        .nav-item .ni-icon {
+            width: 22px;
+            flex-shrink: 0;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-item .ni-label {
+            transition: opacity var(--fast);
+        }
+
+        .sidebar.collapsed .nav-item .ni-label {
+            opacity: 0;
+        }
+
+        .nav-item .ni-badge {
+            margin-left: auto;
+            background: var(--red);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 100px;
+            transition: opacity var(--fast);
+        }
+
+        .sidebar.collapsed .nav-item .ni-badge {
+            opacity: 0;
+        }
+
+        .sb-bottom {
+            padding: 0.75rem;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sb-logout {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.625rem 0.75rem;
+            border-radius: var(--r-xs);
+            width: 100%;
+            color: var(--muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all var(--fast);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sb-logout:hover {
+            background: rgba(255, 95, 95, 0.1);
+            color: var(--red);
+        }
+
+        .sb-logout .ni-label {
+            transition: opacity var(--fast);
+        }
+
+        .sidebar.collapsed .sb-logout .ni-label {
+            opacity: 0;
+        }
+
+        /* ══════════════════════════════════════
+   MAIN AREA
+══════════════════════════════════════ */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: margin-left var(--med) var(--ease);
+        }
+
+        .main.expanded {
+            margin-left: var(--sidebar-w-col);
+        }
+
+        /* TOPBAR */
+        .topbar {
+            height: var(--topbar-h);
+            background: var(--surf);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .topbar-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .topbar-breadcrumb .sep {
+            opacity: 0.4;
+        }
+
+        .topbar-breadcrumb .cur {
+            color: var(--g);
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            padding: 0.5rem 0.875rem;
+            box-shadow: var(--clay);
+            width: 220px;
+            transition: all var(--fast);
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px var(--g-dim);
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 0.82rem;
+            width: 100%;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-bar .si {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .topbar-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--r-xs);
+            background: var(--card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 0.95rem;
+            box-shadow: var(--clay);
+            transition: all var(--fast);
+            position: relative;
+        }
+
+        .topbar-icon-btn:hover {
+            border-color: var(--g);
+            color: var(--g);
+        }
+
+        .notif-dot {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--red);
+            border: 1.5px solid var(--surf);
+        }
+
+        .avatar-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .avatar-btn:hover {
+            border-color: var(--g);
+            transform: scale(1.05);
+        }
+
+        .avatar-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-panel {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 250px;
+            background: var(--card);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--border2);
+            border-radius: 18px;
+            box-shadow: var(--clay-lg), 0 20px 40px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px) scale(0.95);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .profile-panel {
+            background: rgba(15, 30, 40, 0.85);
+        }
+
+        [data-theme="light"] .profile-panel {
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .profile-panel.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .profile-header {
+            padding: 0.875rem 1rem 0.625rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(180deg, rgba(57, 255, 126, 0.04), transparent);
+        }
+
+        .profile-av-big {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--g), var(--g600));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: #060d12;
+            box-shadow: 0 4px 10px var(--g-glow);
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-header-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-email {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            padding: 2px 8px;
+            background: var(--g-dim);
+            color: var(--g);
+            border-radius: 100px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(57, 255, 126, 0.15);
+        }
+
+        .profile-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 0;
+        }
+
+        .profile-menu {
+            padding: 0.6rem;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s var(--ease);
+            color: var(--text);
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .profile-menu-item .m-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            transition: all 0.25s var(--ease);
+        }
+
+        .profile-menu-item:hover {
+            background: var(--g-dim);
+            color: var(--g);
+            transform: translateX(4px);
+        }
+
+        .profile-menu-item:hover .m-icon {
+            background: var(--g);
+            color: #060d12;
+            border-color: var(--g);
+            transform: scale(1.1);
+        }
+
+        .profile-menu-item.logout {
+            color: var(--red);
+            margin-top: 0.4rem;
+        }
+
+        .profile-menu-item.logout .m-icon {
+            color: var(--red);
+        }
+
+        .profile-menu-item.logout:hover {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        .profile-menu-item.logout:hover .m-icon {
+            background: var(--red);
+            color: #fff;
+            border-color: var(--red);
+        }
+
+        .topbar-right {
+            position: relative;
+        }
+
+        .theme-pill {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 3px;
+            box-shadow: var(--clay);
+        }
+
+        .theme-opt {
+            width: 28px;
+            height: 28px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            transition: all var(--fast);
+            cursor: pointer;
+        }
+
+        .theme-opt.active {
+            background: var(--g);
+            color: #060d12;
+        }
+
+        /* ══════════════════════════════════════
+   PAGE CONTENT
+══════════════════════════════════════ */
+        .content {
+            flex: 1;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* VIEWS */
+        .view {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeIn 0.3s var(--ease);
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* ══════════════════════════════════════
+   SHARED COMPONENTS
+══════════════════════════════════════ */
+        .card-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            box-shadow: var(--clay);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .card-sub {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-body.p0 {
+            padding: 0;
+        }
+
+        .section-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 0.875rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .badge-green {
+            background: var(--g-dim);
+            color: var(--g);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+        }
+
+        .badge-red {
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(255, 95, 95, 0.2);
+        }
+
+        .badge-amber {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--amber);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .badge-blue {
+            background: rgba(96, 165, 250, 0.1);
+            color: var(--blue);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0.55rem 1.1rem;
+            border-radius: var(--r-sm);
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: all var(--fast) var(--ease);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--g), var(--g500));
+            color: #060d12;
+            box-shadow: 0 4px 18px var(--g-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px var(--g-glow);
+        }
+
+        .btn-ghost {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            box-shadow: var(--clay);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--g);
+            color: var(--g);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--r-xs);
+            background: var(--card2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 0.85rem;
+            box-shadow: var(--clay);
+            transition: all var(--fast);
+        }
+
+        .btn-icon:hover {
+            background: var(--g-dim);
+            border-color: var(--g);
+            color: var(--g);
+        }
+
+        /* ══════════════════════════════════════
+   DASHBOARD VIEW
+══════════════════════════════════════ */
+        .dash-row1 {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        /* Stat Cards */
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.4rem;
+            box-shadow: var(--clay);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--med) var(--ease);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--clay-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--g), transparent);
+            opacity: 0;
+            transition: opacity var(--fast);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card.featured {
+            background: linear-gradient(135deg, rgba(57, 255, 126, 0.07), var(--card));
+            border-color: rgba(57, 255, 126, 0.2);
+        }
+
+        .sc-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .sc-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .sc-icon-green {
+            background: var(--g-dim);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+        }
+
+        .sc-icon-red {
+            background: var(--red-dim);
+            border: 1px solid rgba(255, 95, 95, 0.2);
+        }
+
+        .sc-icon-amber {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .sc-icon-blue {
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+        }
+
+        .sc-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .sc-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 0.375rem;
+        }
+
+        .sc-value.big {
+            font-size: 2.2rem;
+        }
+
+        .sc-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sc-change {
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .sc-change.up {
+            color: var(--g);
+        }
+
+        .sc-change.down {
+            color: var(--red);
+        }
+
+        .sc-change-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .sc-mini-chart {
+            height: 40px;
+            margin-top: 0.75rem;
+        }
+
+        .dash-row2 {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .dash-row3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .dash-row4 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        /* Transaction List */
+        .tx-row {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            transition: background var(--fast);
+            cursor: default;
+        }
+
+        .tx-row:last-child {
+            border-bottom: none;
+        }
+
+        .tx-row:hover {
+            background: var(--g-dim);
+        }
+
+        .tx-emo {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            box-shadow: var(--clay);
+        }
+
+        .tx-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tx-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tx-cat {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .tx-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .tx-amt {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .tx-amt.credit {
+            color: var(--g);
+        }
+
+        .tx-amt.debit {
+            color: var(--text);
+        }
+
+        .tx-date {
+            font-size: 0.67rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* Budget Bars */
+        .budget-item {
+            margin-bottom: 1.1rem;
+        }
+
+        .budget-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .budget-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .budget-cat {
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .budget-cat .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .budget-nums {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: var(--card2);
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            box-shadow: var(--clay-in);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 1.2s var(--ease);
+        }
+
+        /* Quick Stats Row */
+        .quick-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.25rem;
+            box-shadow: var(--clay);
+            text-align: center;
+            transition: all var(--med);
+        }
+
+        .quick-stat:hover {
+            transform: translateY(-3px);
+            border-color: rgba(57, 255, 126, 0.2);
+        }
+
+        .qs-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .qs-val {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--g);
+        }
+
+        .qs-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* AI Insight Card */
+        .insight-card {
+            background: linear-gradient(135deg, rgba(57, 255, 126, 0.06), var(--card));
+            border: 1px solid rgba(57, 255, 126, 0.22);
+            border-radius: var(--r);
+            padding: 1.4rem;
+            box-shadow: var(--clay);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insight-card::after {
+            content: '🤖';
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 4rem;
+            opacity: 0.06;
+        }
+
+        .insight-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 100px;
+            background: var(--g-dim2);
+            border: 1px solid rgba(57, 255, 126, 0.25);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--g);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.875rem;
+        }
+
+        .insight-text {
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: var(--text);
+        }
+
+        .insight-text strong {
+            color: var(--g);
+        }
+
+        /* ══════════════════════════════════════
+   TRANSACTIONS VIEW
+══════════════════════════════════════ */
+        .tx-filters {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-chip {
+            padding: 0.35rem 0.875rem;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            transition: all var(--fast);
+            box-shadow: var(--clay);
+        }
+
+        .filter-chip.active,
+        .filter-chip:hover {
+            background: var(--g);
+            color: #060d12;
+            border-color: var(--g);
+        }
+
+        .filter-input {
+            padding: 0.35rem 0.875rem;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            box-shadow: var(--clay);
+            outline: none;
+            transition: border-color var(--fast);
+        }
+
+        .filter-input:focus {
+            border-color: var(--g);
+        }
+
+        .tx-table-header {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1fr 1fr 80px;
+            gap: 1rem;
+            padding: 0.625rem 1.5rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+            background: var(--card2);
+        }
+
+        .tx-table-row {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1fr 1fr 80px;
+            gap: 1rem;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            transition: background var(--fast);
+            cursor: default;
+        }
+
+        .tx-table-row:last-child {
+            border-bottom: none;
+        }
+
+        .tx-table-row:hover {
+            background: var(--g-dim);
+        }
+
+        .tx-cell {
+            font-size: 0.85rem;
+        }
+
+        .tx-cell.mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+        }
+
+        .tx-cell-name {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ══════════════════════════════════════
+   ANALYTICS VIEW
+══════════════════════════════════════ */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .analytics-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+            position: relative;
+        }
+
+        /* ══════════════════════════════════════
+   ADD TRANSACTION MODAL
+══════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(6, 13, 18, 0.82);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--med);
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--clay-lg), 0 0 60px rgba(57, 255, 126, 0.08);
+            transform: translateY(20px) scale(0.97);
+            transition: transform var(--med) var(--ease);
+            position: relative;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 2rem;
+            right: 2rem;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, var(--g), transparent);
+            border-radius: 1px;
+        }
+
+        .modal-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .modal-sub {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1.75rem;
+        }
+
+        /* Type Toggle */
+        .type-toggle {
+            display: flex;
+            background: var(--card2);
+            border-radius: var(--r-sm);
+            padding: 4px;
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border);
+        }
+
+        .type-opt {
+            flex: 1;
+            padding: 0.55rem;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all var(--fast);
+        }
+
+        .type-opt.active-expense {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .type-opt.active-income {
+            background: var(--g);
+            color: #060d12;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            color: var(--text);
+            font-size: 0.88rem;
+            outline: none;
+            box-shadow: var(--clay-in);
+            transition: border-color var(--fast);
+        }
+
+        .form-input:focus {
+            border-color: var(--g);
+            box-shadow: 0 0 0 3px var(--g-dim), var(--clay-in);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .amount-input-wrap {
+            position: relative;
+        }
+
+        .amount-input-wrap::before {
+            content: '₹';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .amount-input-wrap .form-input {
+            padding-left: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Voice + OCR btns */
+        .input-methods {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .method-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: var(--clay);
+            transition: all var(--fast);
+        }
+
+        .method-btn:hover {
+            border-color: var(--g);
+            color: var(--g);
+            background: var(--g-dim);
+        }
+
+        .method-btn.recording {
+            border-color: var(--red);
+            color: var(--red);
+            background: var(--red-dim);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 95, 95, 0)
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(255, 95, 95, 0.15)
+            }
+        }
+
+        /* ══════════════════════════════════════
+   BUDGET VIEW
+══════════════════════════════════════ */
+        .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .budget-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.4rem;
+            box-shadow: var(--clay);
+            transition: all var(--med);
+        }
+
+        .budget-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--clay-lg);
+        }
+
+        .bc-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .bc-cat-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .bc-emoji {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .bc-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .bc-pct {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .bc-bar-track {
+            height: 10px;
+            background: var(--card2);
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--clay-in);
+            margin: 0.875rem 0;
+        }
+
+        .bc-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 1.2s var(--ease);
+        }
+
+        .bc-amounts {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bc-spent {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .bc-limit {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .bc-remaining {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* ══════════════════════════════════════
+   GOALS VIEW
+══════════════════════════════════════ */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .goal-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.5rem;
+            box-shadow: var(--clay);
+            transition: all var(--med);
+        }
+
+        .goal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--clay-lg);
+        }
+
+        .gc-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .gc-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .gc-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .gc-deadline {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .gc-progress {
+            margin-bottom: 1rem;
+        }
+
+        .gc-bar-track {
+            height: 12px;
+            background: var(--card2);
+            border-radius: 100px;
+            overflow: hidden;
+            box-shadow: var(--clay-in);
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .gc-bar-fill {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 1.4s var(--ease);
+        }
+
+        .gc-amounts {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .gc-current {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .gc-target {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .gc-monthly {
+            background: var(--g-dim);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+            border-radius: var(--r-xs);
+            padding: 0.625rem 0.875rem;
+            margin-top: 0.875rem;
+        }
+
+        .gc-monthly-label {
+            font-size: 0.68rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .gc-monthly-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--g);
+        }
+
+        /* ══════════════════════════════════════
+   AI INSIGHTS VIEW
+══════════════════════════════════════ */
+        .ai-insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .ai-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.4rem;
+            box-shadow: var(--clay);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--med);
+        }
+
+        .ai-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--clay-lg);
+        }
+
+        .ai-card.critical {
+            border-color: rgba(255, 95, 95, 0.3);
+            background: linear-gradient(135deg, rgba(255, 95, 95, 0.04), var(--card));
+        }
+
+        .ai-card.positive {
+            border-color: rgba(57, 255, 126, 0.25);
+            background: linear-gradient(135deg, rgba(57, 255, 126, 0.05), var(--card));
+        }
+
+        .ai-card.warning {
+            border-color: rgba(251, 191, 36, 0.25);
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), var(--card));
+        }
+
+        .ai-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.875rem;
+        }
+
+        .ai-type {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .ai-icon {
+            font-size: 1.6rem;
+        }
+
+        .ai-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-body {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .ai-body strong {
+            color: var(--text);
+        }
+
+        .ai-action {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--g);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ai-action:hover {
+            text-decoration: underline;
+        }
+
+        /* ══════════════════════════════════════
+   PROFILE VIEW
+══════════════════════════════════════ */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1.25rem;
+        }
+
+        .profile-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            box-shadow: var(--clay);
+            overflow: hidden;
+        }
+
+        .profile-banner {
+            height: 80px;
+            background: linear-gradient(135deg, var(--g700), var(--g600));
+        }
+
+        .profile-av-wrap {
+            padding: 0 1.5rem;
+            margin-top: -30px;
+            margin-bottom: 1rem;
+        }
+
+        .profile-av-big {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--g), var(--g600));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            border: 3px solid var(--card);
+            box-shadow: 0 0 20px var(--g-glow);
+        }
+
+        .profile-info {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .profile-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .profile-email {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .ps-item {
+            text-align: center;
+        }
+
+        .ps-val {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--g);
+        }
+
+        .ps-label {
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .profile-plan {
+            margin-top: 1.25rem;
+            background: var(--g-dim);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+            border-radius: var(--r-xs);
+            padding: 1rem;
+        }
+
+        .pp-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .pp-plan {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--g);
+        }
+
+        .pp-renew {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .pp-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .pp-features li {
+            font-size: 0.75rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pp-features li::before {
+            content: '✓';
+            color: var(--g);
+            font-size: 0.7rem;
+        }
+
+        /* Settings form */
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+
+        .settings-section h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.875rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .setting-info p {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: var(--card2);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+            cursor: pointer;
+            transition: all var(--fast);
+            flex-shrink: 0;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--muted);
+            transition: all var(--fast);
+        }
+
+        .toggle-switch.on {
+            background: var(--g);
+            border-color: var(--g);
+        }
+
+        .toggle-switch.on::after {
+            transform: translateX(20px);
+            background: #060d12;
+        }
+
+        /* ══════════════════════════════════════
+   NOTIFICATION PANEL
+══════════════════════════════════════ */
+        .notif-panel {
+            position: fixed;
+            top: var(--topbar-h);
+            right: 0;
+            width: 340px;
+            height: calc(100vh - var(--topbar-h));
+            background: var(--surf);
+            border-left: 1px solid var(--border);
+            z-index: 150;
+            transform: translateX(100%);
+            transition: transform var(--med) var(--ease);
+            overflow-y: auto;
+        }
+
+        .notif-panel.open {
+            transform: translateX(0);
+        }
+
+        .notif-panel-header {
+            padding: 1.25rem 1.25rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notif-panel-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .notif-item {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 0.875rem;
+            cursor: default;
+            transition: background var(--fast);
+        }
+
+        .notif-item:hover {
+            background: var(--g-dim);
+        }
+
+        .notif-item.unread {
+            background: rgba(57, 255, 126, 0.03);
+        }
+
+        .ni-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .ni-content {
+            flex: 1;
+        }
+
+        .ni-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .ni-body {
+            font-size: 0.75rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .ni-time {
+            font-size: 0.65rem;
+            color: var(--muted2);
+            margin-top: 4px;
+        }
+
+        /* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+        @media (max-width: 1200px) {
+            .dash-row1 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .dash-row3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main {
+                margin-left: 0 !important;
+            }
+
+            .dash-row2 {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .budget-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .goals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .dash-row1 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .budget-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tx-table-header {
+                display: none;
+            }
+
+            .tx-table-row {
+                grid-template-columns: 1fr auto;
+            }
+
+            .tx-table-row>*:nth-child(2),
+            .tx-table-row>*:nth-child(3),
+            .tx-table-row>*:nth-child(5) {
+                display: none;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+        }
+
+        /* Spinner */
+        .spin {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--g);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--r-sm);
+            padding: 0.875rem 1.25rem;
+            box-shadow: var(--clay-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            animation: slideInRight 0.3s var(--ease);
+            max-width: 320px;
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--g);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--red);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: none;
+                opacity: 1;
+            }
+        }
+
+        /* ══════════════════════════════════════
+           INVESTMENTS VIEW
+        ══════════════════════════════════════ */
+        .inv-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .inv-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.5rem;
+            box-shadow: var(--clay);
+        }
+
+        .inv-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* ══════════════════════════════════════
+           LOANS & EMI VIEW
+        ══════════════════════════════════════ */
+        .loan-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .loan-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.4rem;
+            box-shadow: var(--clay);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loan-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 100px;
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(255, 95, 95, 0.2);
+        }
+
+        /* ══════════════════════════════════════
+           AI CHAT ASSISTANT
+        ══════════════════════════════════════ */
+        .ai-chat-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--g);
+            color: #060d12;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 8px 32px var(--g-glow), 0 0 0 4px var(--g-dim);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-chat-btn:hover {
+            transform: scale(1.1) rotate(12deg);
+            box-shadow: 0 12px 40px var(--g-glow), 0 0 0 6px var(--g-dim2);
+        }
+
+        .ai-chat-panel {
+            position: fixed;
+            bottom: 6.5rem;
+            right: 2rem;
+            width: 380px;
+            height: 500px;
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: 24px;
+            box-shadow: var(--clay-lg), 0 20px 80px rgba(0, 0, 0, 0.4);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ai-chat-panel.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .chat-header {
+            padding: 1.25rem;
+            background: var(--surf);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .msg.bot {
+            align-self: flex-start;
+            background: var(--card2);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: var(--g);
+            color: #060d12;
+            border-bottom-right-radius: 4px;
+            font-weight: 500;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            color: var(--text);
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .chat-send {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--g);
+            color: #060d12;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- ═══════════ SIDEBAR ═══════════ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sb-top">
+                <div class="sb-logo">
+                    <img src="../static/images/SmartSpend.png" alt="SmartSpend"
+                        style="width: 32px; height: 32px; border-radius: 8px;">
+                    <span>SmartSpend</span>
+                </div>
+                <button class="sb-collapse" id="sbCollapse" title="Collapse sidebar">◀</button>
+            </div>
+
+
+            <nav class="sb-nav">
+                <div class="sb-section-title">Main</div>
+                <div class="nav-item active" onclick="switchView('dashboard',this)">
+                    <span class="ni-icon">📊</span><span class="ni-label">Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="switchView('transactions',this)">
+                    <span class="ni-icon">💳</span><span class="ni-label">Transactions</span>
+                </div>
+                <div class="nav-item" onclick="switchView('analytics',this)">
+                    <span class="ni-icon">📈</span><span class="ni-label">Analytics</span>
+                </div>
+                <div class="nav-item" onclick="switchView('budget',this)">
+                    <span class="ni-icon">🎯</span><span class="ni-label">Budgets</span>
+                </div>
+                <div class="nav-item" onclick="switchView('goals',this)">
+                    <span class="ni-icon">🏆</span><span class="ni-label">Goals</span>
+                </div>
+
+                <div class="sb-section-title">Wealth</div>
+                <div class="nav-item" onclick="switchView('investments',this)">
+                    <span class="ni-icon">📈</span><span class="ni-label">Investments</span>
+                    <span class="ni-badge" style="background:var(--g);color:#060d12">NEW</span>
+                </div>
+                <div class="nav-item" onclick="switchView('loans',this)">
+                    <span class="ni-icon">🏦</span><span class="ni-label">Loans & EMI</span>
+                    <span class="ni-badge" style="background:var(--g);color:#060d12">NEW</span>
+                </div>
+                <div class="nav-item" onclick="switchView('networth',this)">
+                    <span class="ni-icon">💎</span><span class="ni-label">Net Worth</span>
+                    <span class="ni-badge" style="background:var(--g);color:#060d12">NEW</span>
+                </div>
+
+                <div class="sb-section-title">Intelligence</div>
+                <div class="nav-item" onclick="switchView('insights',this)">
+                    <span class="ni-icon">🤖</span><span class="ni-label">AI Insights</span>
+                    <span class="ni-badge">4</span>
+                </div>
+                <div class="nav-item" onclick="switchView('reports',this)">
+                    <span class="ni-icon">📄</span><span class="ni-label">Reports</span>
+                </div>
+
+                <div class="sb-section-title">Account</div>
+                <div class="nav-item" onclick="switchView('profile',this)">
+                    <span class="ni-icon">👤</span><span class="ni-label">Profile</span>
+                </div>
+                <div class="nav-item" onclick="switchView('settings',this)">
+                    <span class="ni-icon">⚙️</span><span class="ni-label">Settings</span>
+                </div>
+            </nav>
+
+        </aside>
+
+        <!-- ═══════════ MAIN ═══════════ -->
+        <div class="main" id="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div>
+                        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+                        <div class="topbar-breadcrumb">
+                            <span>SmartSpend</span>
+                            <span class="sep">/</span>
+                            <span class="cur" id="topbarCrumb">Overview</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="search-bar">
+                        <span class="si">🔍</span>
+                        <input type="text" placeholder="Search transactions..." />
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal()">＋ Add Transaction</button>
+                    <button class="topbar-icon-btn" id="notifBtn" onclick="toggleNotif()" title="Notifications">
+                        🔔<span class="notif-dot"></span>
+                    </button>
+                    <div class="theme-pill">
+                        <div class="theme-opt active" id="darkOpt" onclick="setTheme('dark')" title="Dark">🌙</div>
+                        <div class="theme-opt" id="lightOpt" onclick="setTheme('light')" title="Light">☀️</div>
+                    </div>
+                    <button class="avatar-btn" onclick="toggleProfilePanel()" title="Profile">
+                        <img src="/static/images/3D_Portrait_Avatar_1.png" alt="Profile Avatar" class="avatar-img">
+                    </button>
+                    <!-- Profile Dropdown Panel -->
+                    <div class="profile-panel" id="profilePanel">
+                        <div class="profile-header">
+                            <div class="profile-av-big">AK</div>
+                            <div class="profile-header-info">
+                                <div class="profile-name" id="pn-display">Arjun Kapoor</div>
+                                <div class="profile-tag" id="pt-display">⚡ Pro Plan</div>
+                            </div>
+                        </div>
+                        <div class="profile-divider"></div>
+                        <div class="profile-menu">
+                            <div class="profile-menu-item" id="upgradeToProItem" onclick="upgradeToPro()">
+                                <div class="m-icon">🚀</div>
+                                <span>Upgrade to Pro</span>
+                            </div>
+                            <div class="profile-menu-item" onclick="showPlansBilling()">
+                                <div class="m-icon">💳</div>
+                                <span>Plans & Billing</span>
+                            </div>
+                            <div class="profile-menu-item" onclick="showHelpSupport()">
+                                <div class="m-icon">🎧</div>
+                                <span>Help & Support</span>
+                            </div>
+                            <div class="profile-divider"></div>
+                            <div class="profile-menu-item logout" onclick="logout()">
+                                <div class="m-icon">🚪</div>
+                                <span>Logout</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENT -->
+            <main class="content">
+
+                <!-- ═══ DASHBOARD VIEW ═══ -->
+                <div class="view active" id="view-dashboard">
+
+                    <!-- ROW 1: STAT CARDS -->
+                    <div class="dash-row1">
+                        <!-- Balance -->
+                        <div class="stat-card featured">
+                            <div class="sc-top">
+                                <div>
+                                    <div class="sc-label">Total Balance</div>
+                                </div>
+                                <div class="sc-icon sc-icon-green">💰</div>
+                            </div>
+                            <div class="sc-value big" id="statBalance" style="color:var(--g)">₹0</div>
+                            <div class="sc-meta" style="margin-top:.4rem">
+                                <span class="sc-change up">↑ 18.4%</span>
+                                <span class="sc-change-label">vs last month</span>
+                            </div>
+                            <div class="sc-mini-chart"><canvas id="balChart"></canvas></div>
+                        </div>
+                        <!-- Income -->
+                        <div class="stat-card">
+                            <div class="sc-top">
+                                <div class="sc-label">Monthly Income</div>
+                                <div class="sc-icon sc-icon-green">📥</div>
+                            </div>
+                            <div class="sc-value" id="statIncome" style="color:var(--g)">₹0</div>
+                            <div class="sc-meta" style="margin-top:.4rem">
+                                <span class="sc-change up">↑ 6.2%</span>
+                                <span class="sc-change-label">vs last month</span>
+                            </div>
+                            <div class="sc-mini-chart"><canvas id="incChart"></canvas></div>
+                        </div>
+                        <!-- Expense -->
+                        <div class="stat-card">
+                            <div class="sc-top">
+                                <div class="sc-label">Monthly Expenses</div>
+                                <div class="sc-icon sc-icon-red">📤</div>
+                            </div>
+                            <div class="sc-value" id="statExpenses" style="color:var(--red)">₹0</div>
+                            <div class="sc-meta" style="margin-top:.4rem">
+                                <span class="sc-change down">↑ 3.1%</span>
+                                <span class="sc-change-label">vs last month</span>
+                            </div>
+                            <div class="sc-mini-chart"><canvas id="expChart"></canvas></div>
+                        </div>
+                        <!-- Savings Rate -->
+                        <div class="stat-card">
+                            <div class="sc-top">
+                                <div class="sc-label">Savings Rate</div>
+                                <div class="sc-icon sc-icon-amber">🎯</div>
+                            </div>
+                            <div class="sc-value" id="statSavings" style="color:var(--amber)">0%</div>
+                            <div class="sc-meta" style="margin-top:.4rem">
+                                <span class="sc-change up">↑ 2.8%</span>
+                                <span class="sc-change-label">vs last month</span>
+                            </div>
+                            <div class="sc-mini-chart"><canvas id="savChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <!-- ROW 2: CHART + RECENT TXN -->
+                    <div class="dash-row2">
+                        <!-- Income vs Expense Chart -->
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Income vs Expenses</div>
+                                    <div class="card-sub">Monthly comparison — April 2026</div>
+                                </div>
+                                <div style="display:flex;gap:.5rem">
+                                    <button class="btn-icon" onclick="switchPeriod('6m',this)">6M</button>
+                                    <button class="btn-icon" onclick="switchPeriod('1y',this)">1Y</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height:240px"><canvas id="mainBarChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Transactions -->
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Recent Transactions</div>
+                                    <div class="card-sub">Last 7 days</div>
+                                </div>
+                                <button class="btn btn-ghost"
+                                    onclick="switchView('transactions', document.querySelector('[onclick*=transactions]'))">View
+                                    All</button>
+                            </div>
+                            <div class="card-body p0">
+                                <div class="tx-row">
+                                    <div class="tx-emo">🛒</div>
+                                    <div class="tx-info">
+                                        <div class="tx-name">Zepto — Groceries</div>
+                                        <div class="tx-cat">Food & Essentials · Apr 6</div>
+                                    </div>
+                                    <div class="tx-right">
+                                        <div class="tx-amt debit">−₹1,240</div><span
+                                            class="badge badge-red">Expense</span>
+                                    </div>
+                                </div>
+                                <div class="tx-row">
+                                    <div class="tx-emo">💼</div>
+                                    <div class="tx-info">
+                                        <div class="tx-name">Freelance — Acme Corp</div>
+                                        <div class="tx-cat">Income · Apr 5</div>
+                                    </div>
+                                    <div class="tx-right">
+                                        <div class="tx-amt credit">+₹25,000</div><span
+                                            class="badge badge-green">Income</span>
+                                    </div>
+                                </div>
+                                <div class="tx-row">
+                                    <div class="tx-emo">☕</div>
+                                    <div class="tx-info">
+                                        <div class="tx-name">Blue Tokai Coffee</div>
+                                        <div class="tx-cat">Dining · Apr 5</div>
+                                    </div>
+                                    <div class="tx-right">
+                                        <div class="tx-amt debit">−₹620</div><span
+                                            class="badge badge-red">Expense</span>
+                                    </div>
+                                </div>
+                                <div class="tx-row">
+                                    <div class="tx-emo">🏋️</div>
+                                    <div class="tx-info">
+                                        <div class="tx-name">Cult.fit Membership</div>
+                                        <div class="tx-cat">Health & Fitness · Apr 4</div>
+                                    </div>
+                                    <div class="tx-right">
+                                        <div class="tx-amt debit">−₹2,499</div><span
+                                            class="badge badge-red">Expense</span>
+                                    </div>
+                                </div>
+                                <div class="tx-row">
+                                    <div class="tx-emo">📺</div>
+                                    <div class="tx-info">
+                                        <div class="tx-name">Netflix Premium</div>
+                                        <div class="tx-cat">Entertainment · Apr 4</div>
+                                    </div>
+                                    <div class="tx-right">
+                                        <div class="tx-amt debit">−₹649</div><span
+                                            class="badge badge-amber">Recurring</span>
+                                    </div>
+                                </div>
+                                <div class="tx-row">
+                                    <div class="tx-emo">🚗</div>
+                                    <div class="tx-info">
+                                        <div class="tx-name">Rapido Cab</div>
+                                        <div class="tx-cat">Transport · Apr 3</div>
+                                    </div>
+                                    <div class="tx-right">
+                                        <div class="tx-amt debit">−₹280</div><span
+                                            class="badge badge-red">Expense</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROW 3: DONUT + BUDGETS + AI INSIGHT -->
+                    <div class="dash-row3">
+                        <!-- Spending by Category -->
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Spending Breakdown</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height:200px"><canvas id="doughnutChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Budget Progress -->
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Budget Status</div>
+                                    <div class="card-sub">April 2026</div>
+                                </div>
+                                <button class="btn btn-ghost"
+                                    onclick="switchView('budget',document.querySelector('[onclick*=budget]'))">Manage</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="budget-item">
+                                    <div class="budget-top">
+                                        <div class="budget-cat">
+                                            <div class="dot" style="background:#39ff7e"></div>Food & Dining
+                                        </div>
+                                        <div class="budget-nums">₹8,420 / ₹12,000</div>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill"
+                                            style="width:70%;background:linear-gradient(90deg,#39ff7e,#22c55e)"></div>
+                                    </div>
+                                </div>
+                                <div class="budget-item">
+                                    <div class="budget-top">
+                                        <div class="budget-cat">
+                                            <div class="dot" style="background:#fbbf24"></div>Transport
+                                        </div>
+                                        <div class="budget-nums">₹4,200 / ₹5,000</div>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill"
+                                            style="width:84%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
+                                    </div>
+                                </div>
+                                <div class="budget-item">
+                                    <div class="budget-top">
+                                        <div class="budget-cat">
+                                            <div class="dot" style="background:#ff5f5f"></div>Shopping
+                                        </div>
+                                        <div class="budget-nums">₹9,800 / ₹8,000</div>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill"
+                                            style="width:100%;background:linear-gradient(90deg,#ff5f5f,#ef4444)"></div>
+                                    </div>
+                                </div>
+                                <div class="budget-item">
+                                    <div class="budget-top">
+                                        <div class="budget-cat">
+                                            <div class="dot" style="background:#60a5fa"></div>Entertainment
+                                        </div>
+                                        <div class="budget-nums">₹2,100 / ₹4,000</div>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill"
+                                            style="width:52%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
+                                    </div>
+                                </div>
+                                <div class="budget-item" style="margin-bottom:0">
+                                    <div class="budget-top">
+                                        <div class="budget-cat">
+                                            <div class="dot" style="background:#a78bfa"></div>Health & Fitness
+                                        </div>
+                                        <div class="budget-nums">₹3,500 / ₹6,000</div>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill"
+                                            style="width:58%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Insight -->
+                        <div style="display:flex;flex-direction:column;gap:1.25rem">
+                            <div class="insight-card">
+                                <div class="insight-chip">🤖 AI Insight</div>
+                                <div class="insight-text">
+                                    You've spent <strong>₹8,420</strong> on dining this month — 40% above your ₹6,000
+                                    goal. Your biggest splurges were <strong>restaurants on weekends</strong>. Try
+                                    meal-prepping Sunday to save ~₹2,000/month.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROW 4: QUICK STATS -->
+                    <div class="dash-row4">
+                        <div class="card-box" style="padding:1.25rem">
+                            <div class="section-label">Quick Stats</div>
+                            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">
+                                <div class="quick-stat">
+                                    <div class="qs-icon">📅</div>
+                                    <div class="qs-val">18</div>
+                                    <div class="qs-label">Days this month</div>
+                                </div>
+                                <div class="quick-stat">
+                                    <div class="qs-icon">🔄</div>
+                                    <div class="qs-val">₹3,847</div>
+                                    <div class="qs-label">Recurring monthly</div>
+                                </div>
+                                <div class="quick-stat">
+                                    <div class="qs-icon">💹</div>
+                                    <div class="qs-val">₹41,760</div>
+                                    <div class="qs-label">Net savings</div>
+                                </div>
+                                <div class="quick-stat">
+                                    <div class="qs-icon">🏦</div>
+                                    <div class="qs-val">5</div>
+                                    <div class="qs-label">Linked accounts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ TRANSACTIONS VIEW ═══ -->
+                <div class="view" id="view-transactions">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">All Transactions
+                            </h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">247 transactions · April 2026
+                            </p>
+                        </div>
+                        <div style="display:flex;gap:.75rem">
+                            <button class="btn btn-ghost">⬇ Export CSV</button>
+                            <button class="btn btn-primary" onclick="openModal()">＋ Add Transaction</button>
+                        </div>
+                    </div>
+
+                    <div class="card-box">
+                        <div class="tx-filters">
+                            <button class="filter-chip active">All</button>
+                            <button class="filter-chip">Income</button>
+                            <button class="filter-chip">Expense</button>
+                            <button class="filter-chip">Recurring</button>
+                            <input type="month" class="filter-input" value="2026-04" />
+                            <select class="filter-input">
+                                <option>All Categories</option>
+                                <option>Food & Dining</option>
+                                <option>Transport</option>
+                                <option>Shopping</option>
+                                <option>Entertainment</option>
+                                <option>Health</option>
+                                <option>Bills</option>
+                            </select>
+                            <input type="text" class="filter-input" placeholder="Search..."
+                                style="flex:1;min-width:150px" />
+                        </div>
+
+                        <div class="tx-table-header">
+                            <div>Transaction</div>
+                            <div>Category</div>
+                            <div>Date</div>
+                            <div>Amount</div>
+                            <div>Status</div>
+                        </div>
+
+                        <div id="txList">
+                            <!-- rows injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ ANALYTICS VIEW ═══ -->
+                <div class="view" id="view-analytics">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Analytics</h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">Deep insights into your
+                                financial patterns</p>
+                        </div>
+                        <div style="display:flex;gap:.5rem">
+                            <button class="filter-chip active" onclick="setAnalyticsPeriod('3m',this)">3M</button>
+                            <button class="filter-chip" onclick="setAnalyticsPeriod('6m',this)">6M</button>
+                            <button class="filter-chip" onclick="setAnalyticsPeriod('1y',this)">1Y</button>
+                        </div>
+                    </div>
+
+                    <!-- KPIs -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+                        <div class="stat-card">
+                            <div class="sc-label">Avg Daily Spend</div>
+                            <div class="sc-value" style="font-size:1.5rem;color:var(--amber);margin-top:.5rem">₹2,402
+                            </div>
+                            <div class="sc-change down" style="margin-top:4px">↑ vs last month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="sc-label">Highest Spend Day</div>
+                            <div class="sc-value" style="font-size:1.5rem;color:var(--red);margin-top:.5rem">₹18,490
+                            </div>
+                            <div style="font-size:.72rem;color:var(--muted);margin-top:4px">Mar 22 — Online Shopping
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="sc-label">Total Transactions</div>
+                            <div class="sc-value" style="font-size:1.5rem;margin-top:.5rem">247</div>
+                            <div class="sc-change up" style="margin-top:4px">↑ 12% vs last month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="sc-label">Net Worth Growth</div>
+                            <div class="sc-value" style="font-size:1.5rem;color:var(--g);margin-top:.5rem">+18.4%</div>
+                            <div class="sc-change up" style="margin-top:4px">Since Jan 2026</div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Cash Flow Trend</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height:240px"><canvas id="cashFlowChart"></canvas></div>
+                            </div>
+                        </div>
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Category Distribution</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height:240px"><canvas id="catChart"></canvas></div>
+                            </div>
+                        </div>
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Spending Heatmap</div>
+                                <div class="card-sub">By day of week</div>
+                            </div>
+                            <div class="card-body" id="heatmapContainer"></div>
+                        </div>
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Savings Progress</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height:240px"><canvas id="savingsLineChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ BUDGET VIEW ═══ -->
+                <div class="view" id="view-budget">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Budget Manager
+                            </h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">April 2026 · 6 active budgets
+                            </p>
+                        </div>
+                        <button class="btn btn-primary">＋ New Budget</button>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+                        <div class="stat-card">
+                            <div class="sc-label">Total Budget</div>
+                            <div class="sc-value" style="color:var(--g);font-size:1.6rem;margin-top:.5rem">₹42,000</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="sc-label">Total Spent</div>
+                            <div class="sc-value" style="color:var(--red);font-size:1.6rem;margin-top:.5rem">₹35,020
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="sc-label">Remaining</div>
+                            <div class="sc-value" style="color:var(--amber);font-size:1.6rem;margin-top:.5rem">₹6,980
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="budget-grid">
+                        <div class="budget-card">
+                            <div class="bc-top">
+                                <div class="bc-cat-info">
+                                    <div class="bc-emoji" style="background:rgba(57,255,126,.1)">🍕</div>
+                                    <div>
+                                        <div class="bc-name">Food & Dining</div><span class="badge badge-amber">70%
+                                            used</span>
+                                    </div>
+                                </div>
+                                <button class="btn-icon">✏️</button>
+                            </div>
+                            <div class="bc-bar-track">
+                                <div class="bc-bar-fill"
+                                    style="width:70%;background:linear-gradient(90deg,#39ff7e,#22c55e)"></div>
+                            </div>
+                            <div class="bc-amounts">
+                                <div>
+                                    <div class="bc-spent">₹8,420 spent</div>
+                                    <div class="bc-remaining">₹3,580 remaining</div>
+                                </div>
+                                <div class="bc-limit">of ₹12,000</div>
+                            </div>
+                        </div>
+                        <div class="budget-card">
+                            <div class="bc-top">
+                                <div class="bc-cat-info">
+                                    <div class="bc-emoji" style="background:rgba(251,191,36,.1)">🚗</div>
+                                    <div>
+                                        <div class="bc-name">Transport</div><span class="badge badge-amber">84%
+                                            used</span>
+                                    </div>
+                                </div>
+                                <button class="btn-icon">✏️</button>
+                            </div>
+                            <div class="bc-bar-track">
+                                <div class="bc-bar-fill"
+                                    style="width:84%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
+                            </div>
+                            <div class="bc-amounts">
+                                <div>
+                                    <div class="bc-spent">₹4,200 spent</div>
+                                    <div class="bc-remaining">₹800 remaining</div>
+                                </div>
+                                <div class="bc-limit">of ₹5,000</div>
+                            </div>
+                        </div>
+                        <div class="budget-card" style="border-color:rgba(255,95,95,.25)">
+                            <div class="bc-top">
+                                <div class="bc-cat-info">
+                                    <div class="bc-emoji" style="background:rgba(255,95,95,.1)">🛍️</div>
+                                    <div>
+                                        <div class="bc-name">Shopping</div><span class="badge badge-red">Over
+                                            budget!</span>
+                                    </div>
+                                </div>
+                                <button class="btn-icon">✏️</button>
+                            </div>
+                            <div class="bc-bar-track">
+                                <div class="bc-bar-fill"
+                                    style="width:100%;background:linear-gradient(90deg,#ff5f5f,#ef4444)"></div>
+                            </div>
+                            <div class="bc-amounts">
+                                <div>
+                                    <div class="bc-spent" style="color:var(--red)">₹9,800 spent</div>
+                                    <div class="bc-remaining" style="color:var(--red)">₹1,800 over limit</div>
+                                </div>
+                                <div class="bc-limit">of ₹8,000</div>
+                            </div>
+                        </div>
+                        <div class="budget-card">
+                            <div class="bc-top">
+                                <div class="bc-cat-info">
+                                    <div class="bc-emoji" style="background:rgba(96,165,250,.1)">🎮</div>
+                                    <div>
+                                        <div class="bc-name">Entertainment</div><span class="badge badge-green">52%
+                                            used</span>
+                                    </div>
+                                </div>
+                                <button class="btn-icon">✏️</button>
+                            </div>
+                            <div class="bc-bar-track">
+                                <div class="bc-bar-fill"
+                                    style="width:52%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
+                            </div>
+                            <div class="bc-amounts">
+                                <div>
+                                    <div class="bc-spent">₹2,100 spent</div>
+                                    <div class="bc-remaining">₹1,900 remaining</div>
+                                </div>
+                                <div class="bc-limit">of ₹4,000</div>
+                            </div>
+                        </div>
+                        <div class="budget-card">
+                            <div class="bc-top">
+                                <div class="bc-cat-info">
+                                    <div class="bc-emoji" style="background:rgba(167,139,250,.1)">🏋️</div>
+                                    <div>
+                                        <div class="bc-name">Health & Fitness</div><span class="badge badge-green">58%
+                                            used</span>
+                                    </div>
+                                </div>
+                                <button class="btn-icon">✏️</button>
+                            </div>
+                            <div class="bc-bar-track">
+                                <div class="bc-bar-fill"
+                                    style="width:58%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div>
+                            </div>
+                            <div class="bc-amounts">
+                                <div>
+                                    <div class="bc-spent">₹3,500 spent</div>
+                                    <div class="bc-remaining">₹2,500 remaining</div>
+                                </div>
+                                <div class="bc-limit">of ₹6,000</div>
+                            </div>
+                        </div>
+                        <div class="budget-card">
+                            <div class="bc-top">
+                                <div class="bc-cat-info">
+                                    <div class="bc-emoji" style="background:rgba(251,191,36,.1)">⚡</div>
+                                    <div>
+                                        <div class="bc-name">Bills & Utilities</div><span class="badge badge-green">72%
+                                            used</span>
+                                    </div>
+                                </div>
+                                <button class="btn-icon">✏️</button>
+                            </div>
+                            <div class="bc-bar-track">
+                                <div class="bc-bar-fill"
+                                    style="width:72%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
+                            </div>
+                            <div class="bc-amounts">
+                                <div>
+                                    <div class="bc-spent">₹5,000 spent</div>
+                                    <div class="bc-remaining">₹1,950 remaining</div>
+                                </div>
+                                <div class="bc-limit">of ₹7,000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ GOALS VIEW ═══ -->
+                <div class="view" id="view-goals">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Financial Goals
+                            </h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">4 active goals · You're on
+                                track!</p>
+                        </div>
+                        <button class="btn btn-primary">＋ New Goal</button>
+                    </div>
+                    <div class="goals-grid">
+                        <div class="goal-card">
+                            <div class="gc-header">
+                                <div class="gc-icon" style="background:rgba(57,255,126,.1)">🏖️</div>
+                                <div>
+                                    <div class="gc-name">Goa Vacation</div>
+                                    <div class="gc-deadline">Target: June 2026</div>
+                                </div><span class="badge badge-green">On Track</span>
+                            </div>
+                            <div class="gc-progress">
+                                <div class="gc-bar-track">
+                                    <div class="gc-bar-fill"
+                                        style="width:72%;background:linear-gradient(90deg,#39ff7e,#22c55e)"></div>
+                                </div>
+                                <div class="gc-amounts">
+                                    <div class="gc-current">₹36,000 saved</div>
+                                    <div class="gc-target">of ₹50,000</div>
+                                </div>
+                            </div>
+                            <div class="gc-monthly">
+                                <div class="gc-monthly-label">Monthly contribution</div>
+                                <div class="gc-monthly-val">₹7,000 / month</div>
+                            </div>
+                        </div>
+                        <div class="goal-card">
+                            <div class="gc-header">
+                                <div class="gc-icon" style="background:rgba(96,165,250,.1)">💻</div>
+                                <div>
+                                    <div class="gc-name">MacBook Pro M4</div>
+                                    <div class="gc-deadline">Target: August 2026</div>
+                                </div><span class="badge badge-green">On Track</span>
+                            </div>
+                            <div class="gc-progress">
+                                <div class="gc-bar-track">
+                                    <div class="gc-bar-fill"
+                                        style="width:56%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
+                                </div>
+                                <div class="gc-amounts">
+                                    <div class="gc-current">₹1,12,000 saved</div>
+                                    <div class="gc-target">of ₹2,00,000</div>
+                                </div>
+                            </div>
+                            <div class="gc-monthly">
+                                <div class="gc-monthly-label">Monthly contribution</div>
+                                <div class="gc-monthly-val">₹20,000 / month</div>
+                            </div>
+                        </div>
+                        <div class="goal-card">
+                            <div class="gc-header">
+                                <div class="gc-icon" style="background:rgba(251,191,36,.1)">🚨</div>
+                                <div>
+                                    <div class="gc-name">Emergency Fund</div>
+                                    <div class="gc-deadline">Target: December 2026</div>
+                                </div><span class="badge badge-amber">Needs Attention</span>
+                            </div>
+                            <div class="gc-progress">
+                                <div class="gc-bar-track">
+                                    <div class="gc-bar-fill"
+                                        style="width:35%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
+                                </div>
+                                <div class="gc-amounts">
+                                    <div class="gc-current">₹70,000 saved</div>
+                                    <div class="gc-target">of ₹2,00,000</div>
+                                </div>
+                            </div>
+                            <div class="gc-monthly">
+                                <div class="gc-monthly-label">Monthly contribution</div>
+                                <div class="gc-monthly-val">₹12,000 / month</div>
+                            </div>
+                        </div>
+                        <div class="goal-card">
+                            <div class="gc-header">
+                                <div class="gc-icon" style="background:rgba(167,139,250,.1)">🏠</div>
+                                <div>
+                                    <div class="gc-name">Home Down Payment</div>
+                                    <div class="gc-deadline">Target: March 2028</div>
+                                </div><span class="badge badge-blue">Long Term</span>
+                            </div>
+                            <div class="gc-progress">
+                                <div class="gc-bar-track">
+                                    <div class="gc-bar-fill"
+                                        style="width:18%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div>
+                                </div>
+                                <div class="gc-amounts">
+                                    <div class="gc-current">₹1,80,000 saved</div>
+                                    <div class="gc-target">of ₹10,00,000</div>
+                                </div>
+                            </div>
+                            <div class="gc-monthly">
+                                <div class="gc-monthly-label">Monthly contribution</div>
+                                <div class="gc-monthly-val">₹25,000 / month</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ INVESTMENTS VIEW ═══ -->
+                <div class="view" id="view-investments">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Investments</h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">Portfolio Performance ·
+                                FY2025-26</p>
+                        </div>
+                        <button class="btn btn-primary">＋ New Investment</button>
+                    </div>
+                    <div class="inv-grid">
+                        <div class="inv-card">
+                            <div class="inv-stat-grid">
+                                <div>
+                                    <div class="sc-label">Portfolio Value</div>
+                                    <div class="sc-value" style="color:var(--g)">₹8,42,000</div>
+                                </div>
+                                <div>
+                                    <div class="sc-label">Invested Amount</div>
+                                    <div class="sc-value">₹6,20,000</div>
+                                </div>
+                                <div>
+                                    <div class="sc-label">Total G/L</div>
+                                    <div class="sc-value" style="color:var(--g)">+₹2,22,000</div>
+                                </div>
+                            </div>
+                            <div style="height:300px"><canvas id="portfolioChart"></canvas></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:1.25rem">
+                            <div class="card-box" style="padding:1.4rem">
+                                <div class="card-title" style="margin-bottom:1rem">Asset Allocation</div>
+                                <div style="height:200px"><canvas id="assetDoughnut"></canvas></div>
+                            </div>
+                            <div class="card-box" style="padding:1.25rem">
+                                <div class="card-title" style="margin-bottom:1rem">Quick Actions</div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+                                    <button class="method-btn">💧 SIP Calculator</button>
+                                    <button class="method-btn">📑 Tax Saving</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ LOANS & EMI VIEW ═══ -->
+                <div class="view" id="view-loans">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Loans & EMIs</h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">Manage your liabilities and
+                                repayments</p>
+                        </div>
+                        <button class="btn btn-primary">＋ Add Loan</button>
+                    </div>
+                    <div class="loan-grid">
+                        <div class="loan-card">
+                            <div class="loan-badge">HOME LOAN</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem">
+                                HDFC Housing Loan</div>
+                            <div style="font-size:2rem;font-weight:800;color:var(--red);margin-bottom:.25rem">₹42,50,000
+                            </div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.5rem">Principal Outstanding ·
+                                8.4% ROI</div>
+                            <div class="bc-bar-track" style="margin-bottom:.5rem">
+                                <div class="bc-bar-fill" style="width:24%;background:var(--red)"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)">
+                                <span>₹14L Paid</span><span>₹56L Total</span></div>
+                            <div
+                                style="margin-top:1.5rem;padding:1rem;background:var(--card2);border-radius:12px;display:flex;justify-content:space-between;align-items:center">
+                                <div>
+                                    <div style="font-size:.7rem;color:var(--muted)">Next EMI</div>
+                                    <div style="font-weight:700">May 5, 2026</div>
+                                </div>
+                                <div style="text-align:right">
+                                    <div style="font-size:.7rem;color:var(--muted)">Amount</div>
+                                    <div style="font-weight:700;color:var(--red)">₹42,800</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="loan-card">
+                            <div class="loan-badge"
+                                style="background:rgba(96,165,250,0.1);color:var(--blue);border-color:rgba(96,165,250,0.2)">
+                                CAR LOAN</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem">
+                                ICICI Auto Loan</div>
+                            <div style="font-size:2rem;font-weight:800;color:var(--text);margin-bottom:.25rem">₹4,20,000
+                            </div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.5rem">Remaining · 9.2% ROI
+                            </div>
+                            <div class="bc-bar-track" style="margin-bottom:.5rem">
+                                <div class="bc-bar-fill" style="width:68%;background:var(--blue)"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)">
+                                <span>₹8.8L Paid</span><span>₹13L Total</span></div>
+                            <div
+                                style="margin-top:1.5rem;padding:1rem;background:var(--card2);border-radius:12px;display:flex;justify-content:space-between;align-items:center">
+                                <div>
+                                    <div style="font-size:.7rem;color:var(--muted)">Next EMI</div>
+                                    <div style="font-weight:700">May 12, 2026</div>
+                                </div>
+                                <div style="text-align:right">
+                                    <div style="font-size:.7rem;color:var(--muted)">Amount</div>
+                                    <div style="font-weight:700;color:var(--text)">₹18,200</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ NET WORTH VIEW ═══ -->
+                <div class="view" id="view-networth">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Net Worth</h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">Your complete financial
+                                position</p>
+                        </div>
+                        <div class="theme-pill">
+                            <div class="theme-opt active">1Y</div>
+                            <div class="theme-opt">ALL</div>
+                        </div>
+                    </div>
+                    <div class="card-box"
+                        style="padding:2rem;text-align:center;background:linear-gradient(180deg,var(--surf),var(--card))">
+                        <div class="sc-label" style="font-size:.8rem">Estimated Net Worth</div>
+                        <div
+                            style="font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;color:var(--g);letter-spacing:-0.05em;margin:.5rem 0">
+                            ₹54,28,450</div>
+                        <div class="sc-meta" style="justify-content:center"><span class="sc-change up"
+                                style="font-size:.9rem">↑ ₹4.2L</span><span class="sc-change-label">this year</span>
+                        </div>
+                    </div>
+                    <div class="inv-grid" style="margin-top:1.25rem">
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Wealth Growth</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height:320px"><canvas id="netWorthChart"></canvas></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:1.25rem">
+                            <div class="card-box" style="padding:1.4rem">
+                                <div class="card-title" style="margin-bottom:1.25rem">Balance Sheet</div>
+                                <div style="display:flex;flex-direction:column;gap:1rem">
+                                    <div
+                                        style="display:flex;justify-content:space-between;padding-bottom:.5rem;border-bottom:1px solid var(--border)">
+                                        <span style="font-weight:600;color:var(--g)">Assets</span><span
+                                            style="font-family:'JetBrains Mono';font-weight:700">₹1,00,98,450</span>
+                                    </div>
+                                    <div
+                                        style="display:flex;justify-content:space-between;padding-bottom:.5rem;border-bottom:1px solid var(--border)">
+                                        <span style="font-weight:600;color:var(--red)">Liabilities</span><span
+                                            style="font-family:'JetBrains Mono';font-weight:700">₹46,70,000</span></div>
+                                    <div style="display:flex;justify-content:space-between;padding-top:.5rem"><span
+                                            style="font-weight:800">Net Position</span><span
+                                            style="font-family:'JetBrains Mono';font-weight:800;color:var(--g)">₹54,28,450</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="insight-card" style="border-color:var(--blue);background:rgba(96,165,250,0.05)">
+                                <div class="insight-chip"
+                                    style="background:rgba(96,165,250,0.1);color:var(--blue);border-color:rgba(96,165,250,0.2)">
+                                    💎 Wealth Fact</div>
+                                <div class="insight-text">Your net worth has grown by <strong>12.5%</strong> in the last
+                                    6 months. At this rate, you'll hit your <strong>₹1Cr milestone</strong> by Jan 2029.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ AI INSIGHTS VIEW ═══ -->
+                <div class="view" id="view-insights">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div>
+                            <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">🤖 AI Insights
+                            </h2>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">4 new insights generated ·
+                                Last updated 2 hours ago</p>
+                        </div>
+                        <button class="btn btn-primary" id="refreshBtn" onclick="refreshInsights()">↻ Refresh
+                            Insights</button>
+                    </div>
+
+                    <div class="card-box"
+                        style="padding:1.25rem;border-color:rgba(57,255,126,.2);background:linear-gradient(135deg,rgba(57,255,126,.04),var(--card))">
+                        <div style="display:flex;align-items:center;gap:1rem">
+                            <div
+                                style="width:48px;height:48px;border-radius:14px;background:var(--g-dim);border:1px solid rgba(57,255,126,.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">
+                                🤖</div>
+                            <div>
+                                <div
+                                    style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.25rem">
+                                    SmartSpend AI Summary</div>
+                                <div style="font-size:.875rem;color:var(--muted);line-height:1.6">This month you've
+                                    spent <strong style="color:var(--text)">₹43,240</strong> across 127 transactions.
+                                    Your spending is <strong style="color:var(--amber)">8.3% higher</strong> than last
+                                    month, mainly due to increased dining and shopping. Your savings rate of <strong
+                                        style="color:var(--g)">34.2%</strong> is excellent — keep it up!</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-insights-grid">
+                        <div class="ai-card critical">
+                            <div class="ai-card-top">
+                                <div><span class="badge badge-red">⚠ Alert</span></div>
+                                <div class="ai-icon">🛍️</div>
+                            </div>
+                            <div class="ai-title">Shopping budget exceeded</div>
+                            <div class="ai-body">You've spent <strong>₹9,800</strong> on shopping this month —
+                                <strong>₹1,800 over</strong> your ₹8,000 limit. Your largest purchase was a gadget on
+                                Flipkart (₹6,499). Consider returning it or adjusting next month's budget.
+                            </div>
+                            <div class="ai-action">See Shopping Transactions →</div>
+                        </div>
+                        <div class="ai-card positive">
+                            <div class="ai-card-top">
+                                <div><span class="badge badge-green">✓ Win</span></div>
+                                <div class="ai-icon">💰</div>
+                            </div>
+                            <div class="ai-title">Record savings this month!</div>
+                            <div class="ai-body">You saved <strong>₹41,760</strong> this month — your highest ever.
+                                That's <strong>₹12,000 more</strong> than last month. Your Goa vacation goal will be
+                                fully funded 3 weeks ahead of schedule at this rate.</div>
+                            <div class="ai-action">View Goal Progress →</div>
+                        </div>
+                        <div class="ai-card warning">
+                            <div class="ai-card-top">
+                                <div><span class="badge badge-amber">💡 Tip</span></div>
+                                <div class="ai-icon">☕</div>
+                            </div>
+                            <div class="ai-title">Coffee habit costing ₹4,200/month</div>
+                            <div class="ai-body">You visited Blue Tokai and Starbucks <strong>18 times</strong> this
+                                month, spending an average of <strong>₹233 per visit</strong>. Cutting to 3x per week
+                                saves ₹1,800/month — that's ₹21,600/year.</div>
+                            <div class="ai-action">Set a Coffee Budget →</div>
+                        </div>
+                        <div class="ai-card positive">
+                            <div class="ai-card-top">
+                                <div><span class="badge badge-blue">📊 Trend</span></div>
+                                <div class="ai-icon">📉</div>
+                            </div>
+                            <div class="ai-title">Transport costs down 22%</div>
+                            <div class="ai-body">Your transport spending dropped from <strong>₹5,380 to ₹4,200</strong>
+                                since you started using the Metro pass. You're saving <strong>₹1,180/month</strong> — a
+                                great decision!</div>
+                            <div class="ai-action">View Transport History →</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ REPORTS VIEW ═══ -->
+                <div class="view" id="view-reports">
+                    <div>
+                        <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Reports & Export</h2>
+                        <p style="font-size:.82rem;color:var(--muted);margin-top:3px">Download your financial data</p>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem">
+                        <div class="card-box"
+                            style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
+                            onmouseover="this.style.transform='translateY(-4px)'"
+                            onmouseout="this.style.transform='none'">
+                            <div style="font-size:2.5rem;margin-bottom:1rem">📄</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem">
+                                Monthly Report</div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Full income & expense
+                                breakdown for any month</div>
+                            <button class="btn btn-primary" style="width:100%">Generate PDF →</button>
+                        </div>
+                        <div class="card-box"
+                            style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
+                            onmouseover="this.style.transform='translateY(-4px)'"
+                            onmouseout="this.style.transform='none'">
+                            <div style="font-size:2.5rem;margin-bottom:1rem">📊</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem">
+                                Annual Summary</div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Year-over-year
+                                financial performance report</div>
+                            <button class="btn btn-primary" style="width:100%">Generate PDF →</button>
+                        </div>
+                        <div class="card-box"
+                            style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
+                            onmouseover="this.style.transform='translateY(-4px)'"
+                            onmouseout="this.style.transform='none'">
+                            <div style="font-size:2.5rem;margin-bottom:1rem">🧾</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem">
+                                Tax Report</div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">FY2025-26 income
+                                summary for ITR filing</div>
+                            <button class="btn btn-primary" style="width:100%">Generate PDF →</button>
+                        </div>
+                        <div class="card-box"
+                            style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
+                            onmouseover="this.style.transform='translateY(-4px)'"
+                            onmouseout="this.style.transform='none'">
+                            <div style="font-size:2.5rem;margin-bottom:1rem">📁</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem">
+                                Raw Data Export</div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">All transactions in
+                                CSV format</div>
+                            <button class="btn btn-ghost" style="width:100%">Download CSV →</button>
+                        </div>
+                        <div class="card-box"
+                            style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
+                            onmouseover="this.style.transform='translateY(-4px)'"
+                            onmouseout="this.style.transform='none'">
+                            <div style="font-size:2.5rem;margin-bottom:1rem">💼</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem">
+                                Budget Report</div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Budget vs actual
+                                spending analysis</div>
+                            <button class="btn btn-ghost" style="width:100%">Download CSV →</button>
+                        </div>
+                        <div class="card-box"
+                            style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
+                            onmouseover="this.style.transform='translateY(-4px)'"
+                            onmouseout="this.style.transform='none'">
+                            <div style="font-size:2.5rem;margin-bottom:1rem">🎯</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem">
+                                Goals Progress</div>
+                            <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Track your savings
+                                goals over time</div>
+                            <button class="btn btn-ghost" style="width:100%">Download CSV →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ PROFILE VIEW ═══ -->
+                <div class="view" id="view-profile">
+                    <div>
+                        <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">My Profile</h2>
+                    </div>
+                    <div class="profile-grid">
+                        <div>
+                            <div class="profile-card">
+                                <div class="profile-banner"></div>
+                                <div class="profile-av-wrap">
+                                    <div class="profile-av-big">AK</div>
+                                </div>
+                                <div class="profile-info">
+                                    <div class="profile-name">Arjun Kapoor</div>
+                                    <div class="profile-email">arjun.kapoor@gmail.com</div>
+                                    <div class="profile-stats">
+                                        <div class="ps-item">
+                                            <div class="ps-val">247</div>
+                                            <div class="ps-label">Transactions</div>
+                                        </div>
+                                        <div class="ps-item">
+                                            <div class="ps-val">4</div>
+                                            <div class="ps-label">Goals</div>
+                                        </div>
+                                        <div class="ps-item">
+                                            <div class="ps-val">6</div>
+                                            <div class="ps-label">Budgets</div>
+                                        </div>
+                                    </div>
+                                    <div class="profile-plan">
+                                        <div class="pp-top">
+                                            <div class="pp-plan">⚡ Pro Plan</div>
+                                            <div class="pp-renew">Renews May 1, 2026</div>
+                                        </div>
+                                        <ul class="pp-features">
+                                            <li>Unlimited transactions</li>
+                                            <li>AI Insights & nudges</li>
+                                            <li>OCR Receipt scanning</li>
+                                            <li>Voice entry</li>
+                                            <li>Priority support</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:1.25rem">
+                            <div class="card-box">
+                                <div class="card-header">
+                                    <div class="card-title">Personal Information</div><button class="btn btn-ghost">Save
+                                        Changes</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-row" style="margin-bottom:1rem">
+                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">First
+                                                Name</label><input class="form-input" value="Arjun" /></div>
+                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">Last
+                                                Name</label><input class="form-input" value="Kapoor" /></div>
+                                    </div>
+                                    <div class="form-group"><label class="form-label">Email Address</label><input
+                                            class="form-input" value="arjun.kapoor@gmail.com" type="email" /></div>
+                                    <div class="form-group"><label class="form-label">Phone Number</label><input
+                                            class="form-input" value="+91 98765 43210" type="tel" /></div>
+                                    <div class="form-group" style="margin-bottom:0"><label
+                                            class="form-label">Currency</label><select class="form-input">
+                                            <option selected>₹ INR — Indian Rupee</option>
+                                            <option>$ USD</option>
+                                            <option>€ EUR</option>
+                                        </select></div>
+                                </div>
+                            </div>
+                            <div class="card-box">
+                                <div class="card-header">
+                                    <div class="card-title">Security</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group"><label class="form-label">Current Password</label><input
+                                            class="form-input" type="password" placeholder="••••••••" /></div>
+                                    <div class="form-row">
+                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">New
+                                                Password</label><input class="form-input" type="password"
+                                                placeholder="Min 8 characters" /></div>
+                                        <div class="form-group" style="margin-bottom:0"><label
+                                                class="form-label">Confirm Password</label><input class="form-input"
+                                                type="password" placeholder="••••••••" /></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ SETTINGS VIEW ═══ -->
+                <div class="view" id="view-settings">
+                    <div>
+                        <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Settings</h2>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Notifications</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="settings-section">
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Budget Alerts</h4>
+                                            <p>Notify when you approach budget limits</p>
+                                        </div>
+                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Weekly Summary</h4>
+                                            <p>Weekly spending report every Sunday</p>
+                                        </div>
+                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Goal Milestones</h4>
+                                            <p>Celebrate when you hit a savings goal</p>
+                                        </div>
+                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Large Transactions</h4>
+                                            <p>Alert for transactions over ₹5,000</p>
+                                        </div>
+                                        <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>AI Insight Digest</h4>
+                                            <p>Monthly AI-generated financial analysis</p>
+                                        </div>
+                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Preferences</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="settings-section">
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Dark Mode</h4>
+                                            <p>Toggle dark / light interface theme</p>
+                                        </div>
+                                        <div class="toggle-switch on" id="darkModeToggle"
+                                            onclick="this.classList.toggle('on');setTheme(this.classList.contains('on')?'dark':'light')">
+                                        </div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Compact View</h4>
+                                            <p>Show more data with reduced spacing</p>
+                                        </div>
+                                        <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Auto-categorize</h4>
+                                            <p>AI auto-assigns categories to new transactions</p>
+                                        </div>
+                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Show Balance in Sidebar</h4>
+                                            <p>Display balance in the nav</p>
+                                        </div>
+                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="setting-row">
+                                        <div class="setting-info">
+                                            <h4>Voice Entry Language</h4>
+                                            <p>Language for voice transactions</p>
+                                        </div><select class="filter-input"
+                                            style="border-radius:8px;padding:.35rem .75rem">
+                                            <option>English (India)</option>
+                                            <option>Hindi</option>
+                                            <option>Hinglish</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Data & Privacy</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <h4>Export All Data</h4>
+                                        <p>Download a complete copy of your data</p>
+                                    </div><button class="btn btn-ghost" style="font-size:.8rem">Export JSON</button>
+                                </div>
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <h4>Delete Account</h4>
+                                        <p>Permanently delete your account and all data</p>
+                                    </div><button class="btn"
+                                        style="background:rgba(255,95,95,.1);color:var(--red);border:1px solid rgba(255,95,95,.25);border-radius:var(--r-sm);font-size:.8rem;padding:.4rem .875rem">Delete
+                                        Account</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-box">
+                            <div class="card-header">
+                                <div class="card-title">Subscription</div>
+                            </div>
+                            <div class="card-body">
+                                <div
+                                    style="background:var(--g-dim);border:1px solid rgba(57,255,126,.2);border-radius:var(--r-sm);padding:1.25rem;margin-bottom:1rem">
+                                    <div
+                                        style="font-family:'Syne',sans-serif;font-weight:700;color:var(--g);margin-bottom:.25rem">
+                                        ⚡ Pro Plan — ₹299/month</div>
+                                    <div style="font-size:.8rem;color:var(--muted)">Next billing: May 1, 2026</div>
+                                </div>
+                                <div class="setting-row">
+                                    <div class="setting-info">
+                                        <h4>Billing History</h4>
+                                        <p>View past invoices</p>
+                                    </div><button class="btn btn-ghost" style="font-size:.8rem">View →</button>
+                                </div>
+                                <div class="setting-row" style="border:none">
+                                    <div class="setting-info">
+                                        <h4>Cancel Subscription</h4>
+                                        <p>Cancels at end of billing period</p>
+                                    </div><button class="btn btn-ghost"
+                                        style="font-size:.8rem;color:var(--red)">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div><!-- end .main -->
+
+    </div><!-- end .app -->
+
+    <!-- ═══ AI CHAT ASSISTANT ═══ -->
+    <button class="ai-chat-btn" id="aiChatOpenBtn" onclick="toggleAiChat()" title="Talk to SmartSpend AI">🤖</button>
+
+    <div class="ai-chat-panel" id="aiChatPanel">
+        <div class="chat-header">
+            <div style="display:flex;align-items:center;gap:.75rem">
+                <div
+                    style="width:36px;height:36px;border-radius:10px;background:var(--g-dim);display:flex;align-items:center;justify-content:center;font-size:1.2rem;border:1px solid rgba(57,255,126,0.2)">
+                    🤖</div>
+                <div>
+                    <div style="font-weight:700;font-size:.9rem">SmartSpend AI</div>
+                    <div style="font-size:.65rem;color:var(--g)">Online · Powered by Claude</div>
+                </div>
+            </div>
+            <button class="btn-icon" onclick="toggleAiChat()">✕</button>
+        </div>
+        <div class="chat-messages" id="chatMsgs">
+            <div class="msg bot">Hello Arjun! I'm your SmartSpend assistant. How can I help you with your finances
+                today?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..."
+                onkeydown="if(event.key==='Enter') sendAiMessage()" />
+            <button class="chat-send" onclick="sendAiMessage()">▲</button>
+        </div>
+    </div>
+
+    <!-- ═══ NOTIFICATION PANEL ═══ -->
+    <div class="notif-panel" id="notifPanel">
+        <div class="notif-panel-header">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div class="notif-panel-title">Notifications</div>
+                <button class="btn-icon" onclick="toggleNotif()">✕</button>
+            </div>
+        </div>
+        <div class="notif-item unread">
+            <div class="ni-icon" style="background:rgba(255,95,95,.1)">🛍️</div>
+            <div class="ni-content">
+                <div class="ni-title">Shopping budget exceeded!</div>
+                <div class="ni-body">You've spent ₹9,800 on shopping — ₹1,800 over your limit.</div>
+                <div class="ni-time">2 hours ago</div>
+            </div>
+        </div>
+        <div class="notif-item unread">
+            <div class="ni-icon" style="background:rgba(57,255,126,.1)">💰</div>
+            <div class="ni-content">
+                <div class="ni-title">Record savings this month!</div>
+                <div class="ni-body">You saved ₹41,760 — your highest ever. Goa goal on track!</div>
+                <div class="ni-time">4 hours ago</div>
+            </div>
+        </div>
+        <div class="notif-item unread">
+            <div class="ni-icon" style="background:rgba(57,255,126,.1)">💳</div>
+            <div class="ni-content">
+                <div class="ni-title">Transaction logged</div>
+                <div class="ni-body">₹25,000 income from Acme Corp detected and categorized.</div>
+                <div class="ni-time">Yesterday</div>
+            </div>
+        </div>
+        <div class="notif-item unread">
+            <div class="ni-icon" style="background:rgba(251,191,36,.1)">🎯</div>
+            <div class="ni-content">
+                <div class="ni-title">Transport budget at 84%</div>
+                <div class="ni-body">You have only ₹800 left in your transport budget.</div>
+                <div class="ni-time">2 days ago</div>
+            </div>
+        </div>
+        <div class="notif-item">
+            <div class="ni-icon" style="background:rgba(96,165,250,.1)">📊</div>
+            <div class="ni-content">
+                <div class="ni-title">Weekly summary ready</div>
+                <div class="ni-body">Your week 13 report is ready. You spent ₹14,200.</div>
+                <div class="ni-time">3 days ago</div>
+            </div>
+        </div>
+        <div class="notif-item">
+            <div class="ni-icon" style="background:rgba(57,255,126,.1)">🏆</div>
+            <div class="ni-content">
+                <div class="ni-title">Goal milestone reached!</div>
+                <div class="ni-body">Goa Vacation goal hit 70% — you're on fire!</div>
+                <div class="ni-time">5 days ago</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ ADD TRANSACTION MODAL ═══ -->
+    <div class="modal-overlay" id="modalOverlay" onclick="handleOverlay(event)">
+        <div class="modal">
+            <button
+                style="position:absolute;top:1rem;right:1rem;width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s"
+                onclick="closeModal()" onmouseover="this.style.background='var(--g)';this.style.color='#060d12'"
+                onmouseout="this.style.background='var(--card2)';this.style.color='var(--muted)'">✕</button>
+            <div class="modal-title">Add Transaction</div>
+            <div class="modal-sub">Log manually, scan a receipt, or use voice</div>
+
+            <!-- Type Toggle -->
+            <div class="type-toggle">
+                <div class="type-opt active-expense" id="typeExpense" onclick="setType('expense')">📤 Expense</div>
+                <div class="type-opt" id="typeIncome" onclick="setType('income')">📥 Income</div>
+            </div>
+
+            <!-- Voice + OCR -->
+            <div class="input-methods">
+                <button class="method-btn" id="voiceBtn" onclick="toggleVoice()">🎙️ Voice Entry</button>
+                <button class="method-btn" onclick="showToast('📸 OCR feature — snap a receipt photo!','success')">📸
+                    Scan Receipt</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div class="amount-input-wrap"><input class="form-input" type="number" placeholder="0.00"
+                        id="amtInput" /></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <input class="form-input" type="text" placeholder="e.g. Zepto Groceries" id="descInput" />
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Category</label>
+                    <select class="form-input" id="catInput">
+                        <option>🍕 Food & Dining</option>
+                        <option>🚗 Transport</option>
+                        <option>🛍️ Shopping</option>
+                        <option>🎮 Entertainment</option>
+                        <option>🏋️ Health & Fitness</option>
+                        <option>⚡ Bills & Utilities</option>
+                        <option>📚 Education</option>
+                        <option>💼 Income</option>
+                        <option>🏠 Home</option>
+                        <option>✈️ Travel</option>
+                        <option>🔁 Recurring</option>
+                        <option>💡 Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Date</label>
+                    <input class="form-input" type="date" id="dateInput" />
+                </div>
+            </div>
+            <button class="btn btn-primary"
+                style="width:100%;margin-top:1.25rem;padding:.875rem;font-size:.95rem;border-radius:var(--r-sm);justify-content:center"
+                onclick="addTransaction()">
+                ✓ Add Transaction
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ═══════════════════════════════════════
+        // API HELPER
+        // ═══════════════════════════════════════
+        const SS_API = {
+            token: () => localStorage.getItem('ss_token') || '',
+            headers() {
+                return {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token()}`
+                };
+            },
+            async get(path) {
+                const r = await fetch(path, { headers: this.headers() });
+                if (r.status === 401) { window.location.href = '/?auth=login'; return null; }
+                return r.json();
+            },
+            async post(path, body) {
+                const r = await fetch(path, { method: 'POST', headers: this.headers(), body: JSON.stringify(body) });
+                if (r.status === 401) { window.location.href = '/?auth=login'; return null; }
+                return r.json();
+            },
+            async del(path) {
+                const r = await fetch(path, { method: 'DELETE', headers: this.headers() });
+                if (r.status === 401) { window.location.href = '/?auth=login'; return null; }
+                return r.json();
+            }
+        };
+
+        // ═══════════════════════════════════════
+        // DATA  (loaded from API on init)
+        // ═══════════════════════════════════════
+        let TRANSACTIONS = [];
+
+        // Load user info into sidebar
+        (function loadUser() {
+            try {
+                const u = JSON.parse(localStorage.getItem('ss_user') || '{}');
+                if (u.full_name) {
+                    const nameEl = document.querySelector('.sb-user-name');
+                    const avEl = document.querySelector('.sb-av');
+                    const pnDisplay = document.getElementById('pn-display');
+                    const ptDisplay = document.getElementById('pt-display');
+                    const upgradeItem = document.getElementById('upgradeToProItem');
+                    const pavBig = document.querySelector('.profile-av-big');
+
+                    if (nameEl) nameEl.textContent = u.full_name;
+                    if (avEl) avEl.textContent = u.full_name.charAt(0).toUpperCase();
+                    if (pnDisplay) pnDisplay.textContent = u.full_name;
+                    if (pavBig) pavBig.textContent = u.full_name.charAt(0).toUpperCase();
+                    
+                    if (u.plan === 'pro') {
+                        if (ptDisplay) ptDisplay.textContent = '⚡ PRO PLAN';
+                        if (upgradeItem) upgradeItem.style.display = 'none';
+                    } else {
+                        if (ptDisplay) ptDisplay.textContent = 'FREE PLAN';
+                        if (upgradeItem) upgradeItem.style.display = 'flex';
+                    }
+                }
+                if (!SS_API.token()) window.location.href = '/?auth=login';
+            } catch (e) { }
+        })();
+
+        // ─── Load analytics summary into stat cards ─────────────────────
+        async function loadSummary() {
+            const data = await SS_API.get('/api/analytics/summary');
+            if (!data) return false;
+            const fmt = v => '₹' + Math.abs(v).toLocaleString('en-IN');
+            const balEl = document.getElementById('statBalance');
+            const incEl = document.getElementById('statIncome');
+            const expEl = document.getElementById('statExpenses');
+            const savEl = document.getElementById('statSavings');
+            if (balEl) balEl.textContent = fmt(data.balance);
+            if (incEl) incEl.textContent = fmt(data.income);
+            if (expEl) expEl.textContent = fmt(data.expenses);
+            if (savEl) savEl.textContent = data.savings_rate + '%';
+            return true;
+        }
+
+        // ─── Load transactions from API ────────────────────────────────
+        async function loadTransactions() {
+            const data = await SS_API.get('/api/transactions/');
+            if (!data) return;
+            TRANSACTIONS = (data.transactions || []).map(tx => ({
+                id: tx.id,
+                name: tx.name,
+                cat: tx.category,
+                date: new Date(tx.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+                amt: tx.type === 'debit' ? -Math.abs(tx.amount) : Math.abs(tx.amount),
+                type: tx.type,
+                icon: tx.icon || '💡'
+            }));
+            renderTransactions();
+        }
+
+        // Init on load
+        loadSummary().then(success => {
+            if (success) loadTransactions();
+        });
+
+        // ═══════════════════════════════════════
+        // SIDEBAR COLLAPSE
+        // ═══════════════════════════════════════
+        const sidebar = document.getElementById('sidebar');
+        const mainEl = document.getElementById('main');
+        document.getElementById('sbCollapse').onclick = () => {
+            sidebar.classList.toggle('collapsed');
+            mainEl.classList.toggle('expanded');
+        };
+
+        // ═══════════════════════════════════════
+        // VIEW SWITCHING
+        // ═══════════════════════════════════════
+        const topbarTitles = {
+            dashboard: 'Dashboard', transactions: 'Transactions',
+            analytics: 'Analytics', budget: 'Budgets', goals: 'Goals',
+            investments: 'Investments', loans: 'Loans & EMI', networth: 'Net Worth',
+            insights: 'AI Insights', reports: 'Reports',
+            profile: 'My Profile', settings: 'Settings'
+        };
+        const crumbs = {
+            dashboard: 'Overview', transactions: 'All Transactions',
+            analytics: 'Charts & Reports', budget: 'Budget Manager',
+            goals: 'Financial Goals', investments: 'Portfolio',
+            loans: 'Liabilities', networth: 'Financial Position',
+            insights: 'Smart Analysis', reports: 'Export',
+            profile: 'Account', settings: 'Preferences'
+        };
+
+        function switchView(viewId, navEl) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            if (navEl) navEl.classList.add('active');
+            document.getElementById('topbarTitle').textContent = topbarTitles[viewId] || viewId;
+            document.getElementById('topbarCrumb').textContent = crumbs[viewId] || viewId;
+            if (viewId === 'transactions') renderTransactions();
+            if (viewId === 'analytics') setTimeout(renderAnalyticsCharts, 50);
+            if (viewId === 'investments') setTimeout(renderInvestmentCharts, 50);
+            if (viewId === 'networth') setTimeout(renderNetWorthChart, 50);
+        }
+
+        // ═══════════════════════════════════════
+        // THEME
+        // ═══════════════════════════════════════
+        function setTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            document.getElementById('darkOpt').classList.toggle('active', t === 'dark');
+            document.getElementById('lightOpt').classList.toggle('active', t === 'light');
+        }
+
+
+        function toggleProfilePanel() {
+            const panel = document.getElementById('profilePanel');
+            panel.classList.toggle('active');
+
+            // Close panel when clicking outside
+            document.addEventListener('click', function closePanel(e) {
+                if (!e.target.closest('.avatar-btn') && !e.target.closest('.profile-panel')) {
+                    panel.classList.remove('active');
+                    document.removeEventListener('click', closePanel);
+                }
+            });
+        }
+
+        function upgradeToPro() {
+            alert('Upgrade to Pro functionality coming soon!');
+        }
+
+        function showPlansBilling() {
+            alert('Plans & Billing functionality coming soon!');
+        }
+
+        function showHelpSupport() {
+            alert('Help & Support functionality coming soon!');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('ss_token');
+                window.location.href = '/?auth=login';
+            }
+        }
+        // ═══════════════════════════════════════
+        // MODAL
+        // ═══════════════════════════════════════
+        const overlay = document.getElementById('modalOverlay');
+        function openModal() {
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            // Set today's date
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        }
+        function closeModal() {
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        function handleOverlay(e) { if (e.target === overlay) closeModal(); }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        let txType = 'expense';
+        function setType(t) {
+            txType = t;
+            document.getElementById('typeExpense').className = 'type-opt' + (t === 'expense' ? ' active-expense' : '');
+            document.getElementById('typeIncome').className = 'type-opt' + (t === 'income' ? ' active-income' : '');
+        }
+
+        async function addTransaction() {
+            const amt = parseFloat(document.getElementById('amtInput').value);
+            const desc = document.getElementById('descInput').value.trim();
+            if (!amt || !desc) { showToast('Please fill in amount and description', 'error'); return; }
+            const cats = ['🍕', '🚗', '🛍️', '🎮', '🏋️', '⚡', '📚', '💼', '🏠', '✈️', '🔁', '💡'];
+            const catEl = document.getElementById('catInput');
+            const catIdx = catEl.selectedIndex;
+            const icon = cats[catIdx] || '💡';
+            const category = catEl.options[catEl.selectedIndex].text.replace(/^\S+ /, '');
+            const type = txType === 'expense' ? 'debit' : 'credit';
+            const dateVal = document.getElementById('dateInput')?.value || new Date().toISOString().split('T')[0];
+
+            try {
+                const data = await SS_API.post('/api/transactions/', {
+                    name: desc, category, amount: amt, type, icon, date: dateVal
+                });
+                if (data && data.transaction) {
+                    const tx = data.transaction;
+                    TRANSACTIONS.unshift({
+                        id: tx.id,
+                        name: tx.name,
+                        cat: tx.category,
+                        date: new Date(tx.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        amt: tx.type === 'debit' ? -Math.abs(tx.amount) : Math.abs(tx.amount),
+                        type: tx.type,
+                        icon: tx.icon
+                    });
+                    renderTransactions();
+                    closeModal();
+                    showToast('✓ Transaction saved to database!', 'success');
+                    loadSummary(); // refresh stat cards
+                } else {
+                    showToast(data?.error || 'Failed to add transaction', 'error');
+                }
+            } catch (e) {
+                showToast('Network error — could not save transaction', 'error');
+            }
+            document.getElementById('amtInput').value = '';
+            document.getElementById('descInput').value = '';
+        }
+
+        // Voice Entry
+        let recording = false;
+        function toggleVoice() {
+            const btn = document.getElementById('voiceBtn');
+            recording = !recording;
+            if (recording) {
+                btn.classList.add('recording');
+                btn.textContent = '⏹ Recording...';
+                setTimeout(() => {
+                    recording = false;
+                    btn.classList.remove('recording');
+                    btn.textContent = '🎙️ Voice Entry';
+                    document.getElementById('descInput').value = 'Blue Tokai Coffee';
+                    document.getElementById('amtInput').value = '580';
+                    showToast('🎙️ Voice transcribed: "Blue Tokai Coffee ₹580"', 'success');
+                }, 2500);
+            } else {
+                btn.classList.remove('recording');
+                btn.textContent = '🎙️ Voice Entry';
+            }
+        }
+
+        // ═══════════════════════════════════════
+        // NOTIFICATIONS
+        // ═══════════════════════════════════════
+        const notifPanel = document.getElementById('notifPanel');
+        function toggleNotif() {
+            notifPanel.classList.toggle('open');
+            document.querySelector('.notif-dot').style.display = 'none';
+        }
+
+        // ═══════════════════════════════════════
+        // TOAST
+        // ═══════════════════════════════════════
+        function showToast(msg, type = 'success') {
+            const tc = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<span>${msg}</span>`;
+            tc.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; t.style.transition = 'all .3s'; setTimeout(() => t.remove(), 300); }, 3200);
+        }
+
+        // ═══════════════════════════════════════
+        // TRANSACTIONS TABLE
+        // ═══════════════════════════════════════
+        function renderTransactions() {
+            const list = document.getElementById('txList');
+            if (!list) return;
+            list.innerHTML = TRANSACTIONS.map((tx, idx) => `
+    <div class="tx-table-row">
+      <div class="tx-cell tx-cell-name">
+        <div class="tx-emo">${tx.icon}</div>
+        <div><div class="tx-name">${tx.name}</div><div class="tx-cat">${tx.cat}</div></div>
+      </div>
+      <div class="tx-cell"><span class="badge ${tx.cat === 'Income' ? 'badge-green' : 'badge-red'}">${tx.cat}</span></div>
+      <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${tx.date}</div>
+      <div class="tx-cell mono ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
+      <div class="tx-cell"><button class="btn-icon" onclick="deleteTransaction(${tx.id}, ${idx})">🗑</button></div>
+    </div>
+  `).join('');
+        }
+
+        async function deleteTransaction(txId, idx) {
+            try {
+                const data = await SS_API.del(`/api/transactions/${txId}`);
+                if (data && (data.message || !data.error)) {
+                    TRANSACTIONS.splice(idx, 1);
+                    renderTransactions();
+                    showToast('Transaction deleted', 'error');
+                    loadSummary();
+                } else {
+                    showToast(data?.error || 'Failed to delete', 'error');
+                }
+            } catch (e) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // ═══════════════════════════════════════
+        // FILTER CHIPS
+        // ═══════════════════════════════════════
+        document.querySelectorAll('.filter-chip').forEach(b => {
+            b.addEventListener('click', () => {
+                b.closest('.tx-filters')?.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                b.classList.add('active');
+            });
+        });
+
+        // ═══════════════════════════════════════
+        // CHARTS
+        // ═══════════════════════════════════════
+        const CHART_DEFAULTS = {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            animation: { duration: 800, easing: 'easeInOutQuart' }
+        };
+
+        function sparkline(id, data, color) {
+            const ctx = document.getElementById(id)?.getContext('2d');
+            if (!ctx) return;
+            new Chart(ctx, {
+                type: 'line',
+                data: { labels: data.map((_, i) => i), datasets: [{ data, borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0 }] },
+                options: { ...CHART_DEFAULTS, scales: { x: { display: false }, y: { display: false } } }
+            });
+        }
+
+        // Dashboard sparklines
+        sparkline('balChart', [80, 90, 88, 95, 102, 115, 128], '#39ff7e');
+        sparkline('incChart', [60, 65, 70, 68, 75, 80, 85], '#39ff7e');
+        sparkline('expChart', [38, 42, 45, 40, 38, 44, 43], '#ff5f5f');
+        sparkline('savChart', [28, 30, 29, 32, 34, 31, 34], '#fbbf24');
+
+        // Main bar chart
+        const barCtx = document.getElementById('mainBarChart')?.getContext('2d');
+        if (barCtx) {
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                    datasets: [
+                        { label: 'Income', data: [72000, 68000, 85000, 78000, 82000, 80000, 85000], backgroundColor: 'rgba(57,255,126,0.75)', borderRadius: 8, borderSkipped: false },
+                        { label: 'Expenses', data: [51000, 43000, 59000, 48000, 41000, 42000, 43240], backgroundColor: 'rgba(255,95,95,0.55)', borderRadius: 8, borderSkipped: false }
+                    ]
+                },
+                options: {
+                    ...CHART_DEFAULTS,
+                    plugins: { legend: { display: true, labels: { color: '#7a9e8a', font: { family: 'DM Sans', size: 11 }, boxWidth: 10, boxHeight: 10 } } },
+                    scales: {
+                        x: { ticks: { color: '#6a9080', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        y: { ticks: { color: '#6a9080', font: { size: 11 }, callback: v => '₹' + (v / 1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    }
+                }
+            });
+        }
+
+        // Doughnut
+        const dCtx = document.getElementById('doughnutChart')?.getContext('2d');
+        if (dCtx) {
+            new Chart(dCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Food', 'Transport', 'Shopping', 'Bills', 'Health', 'Entertainment'],
+                    datasets: [{ data: [28, 15, 22, 12, 8, 15], backgroundColor: ['#39ff7e', '#fbbf24', '#ff5f5f', '#60a5fa', '#a78bfa', '#f472b6'], borderWidth: 0, hoverOffset: 8 }]
+                },
+                options: {
+                    ...CHART_DEFAULTS,
+                    cutout: '65%',
+                    plugins: { legend: { display: true, position: 'bottom', labels: { color: '#6a9080', font: { size: 10 }, boxWidth: 10, boxHeight: 10, padding: 8 } } }
+                }
+            });
+        }
+
+        // Analytics charts
+        function renderAnalyticsCharts() {
+            const cfCtx = document.getElementById('cashFlowChart')?.getContext('2d');
+            if (cfCtx && !cfCtx.__chartRendered) {
+                cfCtx.__chartRendered = true;
+                new Chart(cfCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                        datasets: [
+                            { label: 'Income', data: [72000, 68000, 85000, 78000, 82000, 80000, 85000], borderColor: '#39ff7e', backgroundColor: 'rgba(57,255,126,0.08)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#39ff7e' },
+                            { label: 'Expenses', data: [51000, 43000, 59000, 48000, 41000, 42000, 43240], borderColor: '#ff5f5f', backgroundColor: 'rgba(255,95,95,0.06)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#ff5f5f' }
+                        ]
+                    },
+                    options: {
+                        ...CHART_DEFAULTS,
+                        plugins: { legend: { display: true, labels: { color: '#6a9080', font: { size: 11 }, boxWidth: 12, boxHeight: 12 } } },
+                        scales: { x: { ticks: { color: '#6a9080' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color: '#6a9080', callback: v => '₹' + (v / 1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.04)' } } }
+                    }
+                });
+            }
+            const catCtx = document.getElementById('catChart')?.getContext('2d');
+            if (catCtx && !catCtx.__chartRendered) {
+                catCtx.__chartRendered = true;
+                new Chart(catCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Food', 'Transport', 'Shopping', 'Bills', 'Health', 'Entertainment', 'Other'],
+                        datasets: [{ data: [8420, 4200, 9800, 5000, 3500, 2100, 2400], backgroundColor: ['#39ff7e', '#fbbf24', '#ff5f5f', '#60a5fa', '#a78bfa', '#f472b6', '#34d399'], borderRadius: 8, borderSkipped: false }]
+                    },
+                    options: {
+                        ...CHART_DEFAULTS,
+                        indexAxis: 'y',
+                        scales: { x: { ticks: { color: '#6a9080', callback: v => '₹' + (v / 1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color: '#6a9080' }, grid: { display: false } } }
+                    }
+                });
+            }
+            const savCtx = document.getElementById('savingsLineChart')?.getContext('2d');
+            if (savCtx && !savCtx.__chartRendered) {
+                savCtx.__chartRendered = true;
+                new Chart(savCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                        datasets: [{ label: 'Cumulative Savings', data: [18000, 43000, 69000, 1e5, 141000, 182000, 224000], borderColor: '#39ff7e', backgroundColor: 'rgba(57,255,126,0.1)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#39ff7e', pointBorderColor: '#060d12', pointBorderWidth: 2 }]
+                    },
+                    options: {
+                        ...CHART_DEFAULTS,
+                        plugins: { legend: { display: false } },
+                        scales: { x: { ticks: { color: '#6a9080' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color: '#6a9080', callback: v => '₹' + (v / 1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.04)' } } }
+                    }
+                });
+            }
+            renderHeatmap();
+        }
+
+        function renderHeatmap() {
+            const c = document.getElementById('heatmapContainer');
+            if (!c || c.__rendered) return;
+            c.__rendered = true;
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const vals = [2400, 1800, 3100, 2200, 4500, 6800, 3200];
+            const max = Math.max(...vals);
+            c.innerHTML = `<div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+    ${days.map((d, i) => {
+                const pct = vals[i] / max;
+                const opacity = 0.15 + pct * 0.85;
+                return `<div style="flex:1;min-width:60px;text-align:center">
+        <div style="height:${40 + pct * 60}px;background:rgba(57,255,126,${opacity});border-radius:8px;margin-bottom:.5rem;box-shadow:0 0 ${pct * 20}px rgba(57,255,126,${pct * 0.3});transition:all .4s"></div>
+        <div style="font-size:.7rem;color:var(--muted)">${d}</div>
+        <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--g);margin-top:2px">₹${(vals[i] / 1000).toFixed(1)}k</div>
+      </div>`;
+            }).join('')}
+  </div>`;
+        }
+
+        function setAnalyticsPeriod(p, btn) {
+            document.querySelectorAll('#view-analytics .filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function switchPeriod(p, btn) {
+            document.querySelectorAll('.card-box .btn-icon').forEach(b => b.style.background = '');
+            btn.style.background = 'var(--g)';
+            btn.style.color = '#060d12';
+            btn.style.borderColor = 'var(--g)';
+        }
+
+        // Refresh insights
+        function refreshInsights() {
+            const btn = document.getElementById('refreshBtn');
+            btn.innerHTML = '<div class="spin"></div> Analyzing...';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerHTML = '↻ Refresh Insights';
+                btn.disabled = false;
+                showToast('🤖 AI insights refreshed!', 'success');
+            }, 2200);
+        }
+
+        // ═══════════════════════════════════════
+        // WEALTH CHARTS
+        // ═══════════════════════════════════════
+        function renderInvestmentCharts() {
+            const pCtx = document.getElementById('portfolioChart')?.getContext('2d');
+            if (pCtx && !pCtx.__rendered) {
+                pCtx.__rendered = true;
+                new Chart(pCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                        datasets: [{ label: 'Portfolio Value', data: [510000, 545000, 592000, 640000, 710000, 785000, 842000], borderColor: '#39ff7e', backgroundColor: 'rgba(57,255,126,0.1)', fill: true, tension: 0.4, borderWidth: 3, pointRadius: 5, pointHoverRadius: 8 }]
+                    },
+                    options: CHART_DEFAULTS
+                });
+            }
+            const aCtx = document.getElementById('assetDoughnut')?.getContext('2d');
+            if (aCtx && !aCtx.__rendered) {
+                aCtx.__rendered = true;
+                new Chart(aCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Stocks', 'Mutual Funds', 'Crypto', 'Gold', 'Cash'],
+                        datasets: [{ data: [45, 25, 10, 10, 10], backgroundColor: ['#39ff7e', '#60a5fa', '#a78bfa', '#fbbf24', '#6a9080'], borderWidth: 0 }]
+                    },
+                    options: { ...CHART_DEFAULTS, cutout: '70%', plugins: { legend: { display: true, position: 'bottom' } } }
+                });
+            }
+        }
+
+        function renderNetWorthChart() {
+            const nCtx = document.getElementById('netWorthChart')?.getContext('2d');
+            if (nCtx && !nCtx.__rendered) {
+                nCtx.__rendered = true;
+                new Chart(nCtx, {
+                    type: 'area',
+                    data: {
+                        labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                        datasets: [{ label: 'Net Worth', data: [3200000, 3500000, 3900000, 4200000, 4600000, 5100000, 5428450], borderColor: '#39ff7e', backgroundColor: 'rgba(57,255,126,0.1)', fill: true, tension: 0.4 }]
+                    },
+                    options: CHART_DEFAULTS
+                });
+            }
+        }
+
+        // ═══════════════════════════════════════
+        // AI CHAT LOGIC
+        // ═══════════════════════════════════════
+        function toggleAiChat() {
+            const panel = document.getElementById('aiChatPanel');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) {
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        async function sendAiMessage() {
+            const input = document.getElementById('chatInput');
+            const msgs = document.getElementById('chatMsgs');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const uMsg = document.createElement('div');
+            uMsg.className = 'msg user';
+            uMsg.textContent = text;
+            msgs.appendChild(uMsg);
+            input.value = '';
+            msgs.scrollTop = msgs.scrollHeight;
+
+            const tMsg = document.createElement('div');
+            tMsg.className = 'msg bot';
+            tMsg.innerHTML = '<span class="spin" style="width:12px;height:12px"></span> Thinking...';
+            msgs.appendChild(tMsg);
+            msgs.scrollTop = msgs.scrollHeight;
+
+            try {
+                const data = await SS_API.post('/api/chat/', { message: text });
+                tMsg.innerHTML = data?.reply || getMockAiResponse(text);
+            } catch (err) {
+                tMsg.textContent = getMockAiResponse(text);
+            }
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function getMockAiResponse(query) {
+            const q = query.toLowerCase();
+            if (q.includes('balance')) return "Your total balance is ₹1,28,450. You've saved 34% of your income this month!";
+            if (q.includes('spend') || q.includes('expense')) return "You've spent ₹43,240 so far in April. Your biggest expense is Shopping (₹9,800).";
+            if (q.includes('invest') || q.includes('portfolio')) return "Your investment portfolio is valued at ₹8.42L, with a total gain of ₹2.22L (+35.8%).";
+            if (q.includes('loan') || q.includes('emi')) return "You have 2 active loans. Your next EMI is ₹42,800 for the Home Loan on May 5th.";
+            return "That's a great question! Based on your spending patterns, you're doing well with your savings. Would you like a breakdown of your top categories?";
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/?auth=login';
+        }
+
+        // Init date
+        if (document.getElementById('dateInput')) {
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        }
+    </script>
+</body>
+
+</html>
