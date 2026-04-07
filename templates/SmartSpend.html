@@ -1049,8 +1049,6 @@
             box-shadow: 0 0 16px var(--accent-glow);
         }
 
-        .how-step-content {}
-
         .how-step-title {
             font-family: 'Syne', sans-serif;
             font-size: 1.05rem;
@@ -1984,6 +1982,73 @@
         /* ===========================
    SELECTION
    =========================== */
+
+        /* FORGOT PASSWORD ANIMATIONS */
+        @keyframes fp-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fp-shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-6px);
+            }
+
+            40% {
+                transform: translateX(6px);
+            }
+
+            60% {
+                transform: translateX(-4px);
+            }
+
+            80% {
+                transform: translateX(4px);
+            }
+        }
+
+        @keyframes slideInR {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: none;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fp-pop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #fpModal {
+            background: var(--base-card);
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
         ::selection {
             background: rgba(57, 255, 126, 0.3);
             color: var(--base-text);
@@ -1996,7 +2061,7 @@
     <!-- NAV -->
     <nav id="navbar">
         <div class="nav-logo">
-            <div class="logo-icon">💸</div>
+            <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 8px;">
             Smart<span>Spend</span>
         </div>
         <ul class="nav-links">
@@ -2600,7 +2665,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <div class="nav-logo" style="margin-bottom:1rem">
-                        <div class="logo-icon">💸</div>
+                        <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 8px;">
                         Smart<span>Spend</span>
                     </div>
                     <p>Your intelligent expense companion. Built to make financial clarity accessible to everyone — from
@@ -2633,21 +2698,21 @@
                 <div>
                     <div class="footer-col-title">Company</div>
                     <ul class="footer-links">
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press Kit</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="press.html">Press Kit</a></li>
+                        <li><a href="contact.html">Contact</a></li>
                     </ul>
                 </div>
                 <div>
                     <div class="footer-col-title">Legal</div>
                     <ul class="footer-links">
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">GDPR</a></li>
-                        <li><a href="#">Security</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="cookies.html">Cookie Policy</a></li>
+                        <li><a href="gdpr.html">GDPR</a></li>
+                        <li><a href="security.html">Security</a></li>
                     </ul>
                 </div>
             </div>
@@ -2659,12 +2724,136 @@
         </div>
     </footer>
 
+    <!-- FORGOT PASSWORD OVERLAY -->
+    <div class="modal-overlay" id="fpOverlay" onclick="handleFpOverlayClick(event)" style="z-index:3000">
+        <div class="modal" id="fpModal" style="max-width:440px">
+
+            <!-- STATE 1: FORM -->
+            <div id="fpStateForm">
+                <button class="modal-close" onclick="closeForgotPassword()">&#x2715;</button>
+                <div style="text-align:center;margin-bottom:1.5rem">
+                    <div
+                        style="width:54px;height:54px;border-radius:16px;background:var(--accent-dim);border:1px solid rgba(57,255,126,.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem">
+                        &#x1F511;</div>
+                    <div class="modal-title" style="margin-bottom:.35rem">Reset Password</div>
+                    <div class="modal-sub" style="margin-bottom:0">Enter your email to receive password reset
+                        instructions</div>
+                </div>
+
+                <div
+                    style="background:var(--base-surface);border:1px solid var(--base-border);border-radius:var(--clay-radius);padding:1.5rem;box-shadow:var(--clay-shadow);margin-bottom:1rem">
+                    <div class="form-group" style="margin-bottom:1rem">
+                        <label class="form-label">Email Address</label>
+                        <div style="position:relative">
+                            <svg style="position:absolute;left:.875rem;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.45;pointer-events:none"
+                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="m2 7 10 7 10-7" />
+                            </svg>
+                            <input id="fpEmailInput" class="form-input" type="email"
+                                placeholder="Enter your registered email" style="padding-left:2.75rem" />
+                        </div>
+                    </div>
+                    <button onclick="sendResetLink()"
+                        style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--accent),var(--green-500));color:#060d12;font-weight:700;font-size:.95rem;border-radius:var(--clay-radius-sm);box-shadow:0 6px 24px var(--accent-glow);transition:all .2s;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.625rem;font-family:inherit">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"
+                            viewBox="0 0 24 24">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                        Send Reset Link
+                    </button>
+                    <button onclick="closeForgotPassword();openModal('login')"
+                        style="width:100%;margin-top:.875rem;padding:.6rem;background:none;border:none;font-size:.82rem;color:var(--base-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;font-family:inherit;transition:color .2s"
+                        onmouseover="this.style.color='var(--base-text)'"
+                        onmouseout="this.style.color='var(--base-muted)'">
+                        &#x2190; Back to Login
+                    </button>
+                </div>
+
+                <div
+                    style="background:var(--base-surface);border:1px solid var(--base-border);border-radius:var(--clay-radius);padding:1.25rem 1.5rem;box-shadow:var(--clay-shadow)">
+                    <div style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:.875rem">
+                        Other ways to reset</div>
+                    <button onclick="showToastFp('&#x1F4F1; SMS sent to your registered number!','success')"
+                        style="width:100%;padding:.75rem 1rem;background:var(--base-card);border:1px solid var(--base-border);border-radius:var(--clay-radius-sm);color:var(--base-text);font-size:.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:.75rem;margin-bottom:.625rem;box-shadow:var(--clay-shadow);transition:all .2s;font-family:inherit"
+                        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                        onmouseout="this.style.borderColor='var(--base-border)';this.style.color='var(--base-text)'">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                        Reset with Phone Number
+                    </button>
+                    <button onclick="showToastFp('Support team will contact you within 24h','success')"
+                        style="width:100%;padding:.75rem 1rem;background:var(--base-card);border:1px solid var(--base-border);border-radius:var(--clay-radius-sm);color:var(--base-text);font-size:.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:.75rem;box-shadow:var(--clay-shadow);transition:all .2s;font-family:inherit"
+                        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                        onmouseout="this.style.borderColor='var(--base-border)';this.style.color='var(--base-text)'">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Contact Support
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATE 2: LOADING -->
+            <div id="fpStateLoading" style="display:none;text-align:center;padding:2rem 0">
+                <div
+                    style="width:64px;height:64px;border-radius:50%;background:var(--accent-dim);border:2px solid rgba(57,255,126,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem">
+                    <div
+                        style="width:26px;height:26px;border:3px solid rgba(57,255,126,.2);border-top-color:var(--accent);border-radius:50%;animation:fp-spin .75s linear infinite">
+                    </div>
+                </div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.35rem">
+                    Sending reset link...</div>
+                <div style="font-size:.82rem;color:var(--base-muted)">Please wait a moment</div>
+            </div>
+
+            <!-- STATE 3: SUCCESS -->
+            <div id="fpStateSuccess" style="display:none;text-align:center;padding:.5rem 0">
+                <div
+                    style="width:72px;height:72px;border-radius:50%;background:rgba(57,255,126,.1);border:2px solid rgba(57,255,126,.28);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;animation:fp-pop .45s var(--ease)">
+                    <svg width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m2 7 10 7 10-7" />
+                        <polyline points="7 13 10 15.5 17 10" />
+                    </svg>
+                </div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:.5rem">Reset
+                    Link Sent!</div>
+                <div
+                    style="font-size:.875rem;color:var(--base-muted);line-height:1.65;margin-bottom:1.75rem;max-width:290px;margin-left:auto;margin-right:auto">
+                    We've sent a password reset link to your email address. Please check your inbox and follow the
+                    instructions.
+                </div>
+                <button onclick="closeForgotPassword();openModal('login')"
+                    style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--accent),var(--green-500));color:#060d12;font-weight:700;font-size:.95rem;border-radius:var(--clay-radius-sm);box-shadow:0 6px 24px var(--accent-glow);border:none;cursor:pointer;font-family:inherit">
+                    Go to Login
+                </button>
+                <div style="margin-top:1rem;font-size:.78rem;color:var(--base-muted)">
+                    Didn't receive it? <a href="#" onclick="resendResetLink(event)" style="color:var(--accent)">Resend
+                        email</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FP TOAST -->
+    <div id="fpToastContainer"
+        style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:4000;display:flex;flex-direction:column;gap:.5rem">
+    </div>
+
     <!-- AUTH MODAL -->
     <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
         <div class="modal" id="authModal">
             <button class="modal-close" onclick="closeModal()">✕</button>
             <div class="modal-logo">
-                <div class="logo-icon">💸</div>
+                <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 40px; height: 40px; border-radius: 10px;">
             </div>
             <div class="modal-title" id="modalTitle">Welcome back</div>
             <div class="modal-sub" id="modalSub">Sign in to your SmartSpend account</div>
@@ -2703,9 +2892,10 @@
                     <input class="form-input" type="password" placeholder="••••••••" />
                 </div>
                 <div style="text-align:right;margin-top:-0.5rem;margin-bottom:1rem">
-                    <a href="#" style="font-size:0.8rem;color:var(--accent)">Forgot password?</a>
+                    <a href="#" style="font-size:0.8rem;color:var(--accent)" onclick="openForgotPassword(event)">Forgot
+                        password?</a>
                 </div>
-                <button id="signInBtn" class="btn-form-submit" onclick="handleLogin(event)">Sign In to SmartSpend →</button>
+                <button class="btn-form-submit" type="button">Sign In to SmartSpend →</button>
             </div>
 
             <!-- Signup Form -->
@@ -2722,7 +2912,7 @@
                     <label class="form-label">Password</label>
                     <input class="form-input" type="password" placeholder="Min. 8 characters" />
                 </div>
-                <button id="signUpBtn" class="btn-form-submit" onclick="handleLogin(event, true)">Create Free Account →</button>
+                <button class="btn-form-submit" type="button">Create Free Account →</button>
             </div>
 
             <p class="form-footer" id="formFooter">
@@ -2822,48 +3012,6 @@
             document.getElementById('formFooter').innerHTML = isLogin
                 ? 'Don\'t have an account? <a href="#" onclick="switchAuthTab(\'signup\')">Sign up free</a>'
                 : 'Already have an account? <a href="#" onclick="switchAuthTab(\'login\')">Sign in</a>';
-        }
-
-        async function handleLogin(e, isSignup = false) {
-            e.preventDefault();
-            const btn = e.target;
-            const originalText = btn.textContent;
-            btn.innerHTML = '<span class="spin" style="width:14px;height:14px;border-width:2px;border-color:rgba(0,0,0,0.2);border-top-color:#000"></span> Authenticating...';
-            btn.disabled = true;
-
-            const formId = isSignup ? '#signupForm' : '#loginForm';
-            const email = document.querySelector(`${formId} .form-input[type="email"]`).value || 'demo@smartspend.ai';
-            const password = document.querySelector(`${formId} .form-input[type="password"]`).value || 'password123';
-
-            try {
-                const endpoint = isSignup ? '/api/auth/register' : '/api/auth/login';
-                const payload = isSignup ? {
-                    email, password, full_name: document.querySelector('#signupForm .form-input[type="text"]').value || 'New User'
-                } : { email, password };
-
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.access_token) {
-                    localStorage.setItem('ss_token', data.access_token);
-                    localStorage.setItem('ss_user', JSON.stringify(data.user));
-                    window.location.href = '/dashboard';
-                } else {
-                    alert(data.error || 'Authentication failed. Please try again.');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
-            } catch (err) {
-                console.error('Login error:', err);
-                alert('Connection error. Please try again later.');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
         }
 
         /* ===========================
@@ -2993,6 +3141,54 @@
         // Already duplicated in HTML for seamless ticker
 
         /* ===========================
+           SIGN IN REDIRECT (Event Delegation)
+           =========================== */
+        document.addEventListener('click', async function (e) {
+            // Find if the clicked element (or its parent) is the Sign In submit button
+            const btn = e.target.closest('.btn-form-submit');
+            if (btn && btn.textContent.includes('Sign In to SmartSpend')) {
+                e.preventDefault();
+                
+                // Show loading state on button
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="spin" style="width:14px;height:14px;border-width:2px"></span> Signing In...';
+                btn.disabled = true;
+
+                try {
+                    // Call the actual Login API to get a valid token
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: 'arjun@smartspend.ai', // Default mock credentials
+                            password: 'password123'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data && data.access_token) {
+                        // Set valid logic in storage
+                        localStorage.setItem('ss_user', JSON.stringify(data.user));
+                        localStorage.setItem('ss_token', data.access_token);
+                        
+                        // Navigate to dashboard
+                        window.location.href = '/dashboard';
+                    } else {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        alert('Login failed: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (err) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    console.error('Login error:', err);
+                    alert('Network error during login');
+                }
+            }
+        });
+
+        /* ===========================
            SMOOTH ACTIVE NAV
            =========================== */
         const sections = document.querySelectorAll('section[id]');
@@ -3006,6 +3202,91 @@
                 a.style.color = a.getAttribute('href') === '#' + current ? 'var(--accent)' : '';
             });
         }, { passive: true });
+
+        /* ===========================
+           FORGOT PASSWORD FLOW
+           =========================== */
+        function openForgotPassword(e) {
+            if (e) e.preventDefault();
+            closeModal();
+            // Reset to form state
+            document.getElementById('fpStateForm').style.display = 'block';
+            document.getElementById('fpStateLoading').style.display = 'none';
+            document.getElementById('fpStateSuccess').style.display = 'none';
+            document.getElementById('fpEmailInput').value = '';
+            document.getElementById('fpOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeForgotPassword() {
+            document.getElementById('fpOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function handleFpOverlayClick(e) {
+            if (e.target === document.getElementById('fpOverlay')) closeForgotPassword();
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeForgotPassword();
+        });
+
+        function sendResetLink() {
+            const email = document.getElementById('fpEmailInput').value.trim();
+            if (!email || !email.includes('@')) {
+                fpShakeInput();
+                showToastFp('Please enter a valid email address', 'error');
+                return;
+            }
+            // Show loading
+            document.getElementById('fpStateForm').style.display = 'none';
+            document.getElementById('fpStateLoading').style.display = 'block';
+            document.getElementById('fpStateSuccess').style.display = 'none';
+
+            // Simulate 2s delay then show success
+            setTimeout(function () {
+                document.getElementById('fpStateLoading').style.display = 'none';
+                document.getElementById('fpStateSuccess').style.display = 'block';
+            }, 2000);
+        }
+
+        function resendResetLink(e) {
+            e.preventDefault();
+            document.getElementById('fpStateSuccess').style.display = 'none';
+            document.getElementById('fpStateLoading').style.display = 'block';
+            setTimeout(function () {
+                document.getElementById('fpStateLoading').style.display = 'none';
+                document.getElementById('fpStateSuccess').style.display = 'block';
+                showToastFp('\u2713 Reset link resent!', 'success');
+            }, 1800);
+        }
+
+        function fpShakeInput() {
+            const inp = document.getElementById('fpEmailInput');
+            inp.style.borderColor = '#ff5f5f';
+            inp.style.animation = 'none';
+            inp.offsetHeight; // reflow
+            inp.style.animation = 'fp-shake .35s var(--ease)';
+            setTimeout(function () {
+                inp.style.borderColor = '';
+                inp.style.animation = '';
+            }, 800);
+        }
+
+        function showToastFp(msg, type) {
+            var tc = document.getElementById('fpToastContainer');
+            var t = document.createElement('div');
+            t.style.cssText = 'background:var(--base-card);border:1px solid var(--base-border);border-radius:14px;padding:.875rem 1.25rem;box-shadow:12px 12px 40px rgba(0,0,0,.6);display:flex;align-items:center;gap:.75rem;font-size:.85rem;font-weight:500;animation:slideInR .3s var(--ease);max-width:300px;' + (type === 'success' ? 'border-left:3px solid var(--accent)' : 'border-left:3px solid #ff5f5f');
+            t.innerHTML = '<span>' + msg + '</span>';
+            tc.appendChild(t);
+            setTimeout(function () {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(110%)';
+                t.style.transition = 'all .3s';
+                setTimeout(function () { t.remove(); }, 300);
+            }, 3200);
+        }
+
     </script>
 </body>
 
