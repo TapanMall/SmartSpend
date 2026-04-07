@@ -1,0 +1,3293 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartSpend — Intelligent Expense Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ===========================
+   CSS CUSTOM PROPERTIES
+   =========================== */
+        :root {
+            /* 60% — Base */
+            --base-bg: #060d12;
+            --base-surface: #0c1a22;
+            --base-card: #111f29;
+            --base-border: rgba(255, 255, 255, 0.07);
+            --base-text: #e8f5ee;
+            --base-muted: #7a9e8a;
+
+            /* 30% — Emerald Green Family */
+            --green-900: #052e16;
+            --green-800: #14532d;
+            --green-700: #15803d;
+            --green-600: #16a34a;
+            --green-500: #22c55e;
+            --green-400: #4ade80;
+            --green-300: #86efac;
+
+            /* 10% — Accent Lime */
+            --accent: #39ff7e;
+            --accent-glow: rgba(57, 255, 126, 0.25);
+            --accent-dim: rgba(57, 255, 126, 0.08);
+
+            /* Clay / Morphism */
+            --clay-shadow: 8px 8px 24px rgba(0, 0, 0, 0.5), -4px -4px 12px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            --clay-shadow-lg: 16px 16px 48px rgba(0, 0, 0, 0.6), -8px -8px 24px rgba(255, 255, 255, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            --clay-radius: 24px;
+            --clay-radius-sm: 16px;
+
+            /* Layout */
+            --max-w: 1200px;
+            --nav-h: 72px;
+
+            /* Transitions */
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --fast: 0.2s;
+            --med: 0.4s;
+            --slow: 0.7s;
+        }
+
+        [data-theme="light"] {
+            --base-bg: #f0faf4;
+            --base-surface: #ffffff;
+            --base-card: #e8f5ee;
+            --base-border: rgba(0, 0, 0, 0.08);
+            --base-text: #0a1a12;
+            --base-muted: #4a7a5a;
+            --clay-shadow: 8px 8px 24px rgba(0, 0, 0, 0.12), -4px -4px 12px rgba(255, 255, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            --clay-shadow-lg: 16px 16px 48px rgba(0, 0, 0, 0.15), -8px -8px 24px rgba(255, 255, 255, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        /* ===========================
+   RESET & BASE
+   =========================== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--base-bg);
+            color: var(--base-text);
+            overflow-x: hidden;
+            transition: background var(--med) var(--ease), color var(--med) var(--ease);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            outline: none;
+        }
+
+        /* ===========================
+   SCROLLBAR
+   =========================== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--base-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-700);
+            border-radius: 3px;
+        }
+
+        /* ===========================
+   NOISE TEXTURE OVERLAY
+   =========================== */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* ===========================
+   TYPOGRAPHY
+   =========================== */
+        .font-display {
+            font-family: 'Syne', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Syne', sans-serif;
+            line-height: 1.1;
+        }
+
+        /* ===========================
+   NAVIGATION
+   =========================== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            transition: all var(--med) var(--ease);
+            border-bottom: 1px solid transparent;
+        }
+
+        nav.scrolled {
+            background: rgba(6, 13, 18, 0.85);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom-color: var(--base-border);
+        }
+
+        [data-theme="light"] nav.scrolled {
+            background: rgba(240, 250, 244, 0.85);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: -0.03em;
+        }
+
+        .nav-logo .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--green-600));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .nav-logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--base-muted);
+            transition: color var(--fast);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform var(--fast) var(--ease);
+        }
+
+        .nav-links a:hover {
+            color: var(--base-text);
+        }
+
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 48px;
+            height: 26px;
+            background: var(--base-card);
+            border-radius: 13px;
+            border: 1px solid var(--base-border);
+            position: relative;
+            cursor: pointer;
+            box-shadow: var(--clay-shadow);
+            transition: all var(--med) var(--ease);
+        }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            transition: transform var(--med) var(--ease);
+        }
+
+        [data-theme="light"] .theme-toggle::after {
+            transform: translateX(22px);
+            background: var(--green-600);
+        }
+
+        .btn-nav-login {
+            padding: 0.5rem 1.2rem;
+            border-radius: var(--clay-radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--base-text);
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            box-shadow: var(--clay-shadow);
+            transition: all var(--fast) var(--ease);
+        }
+
+        .btn-nav-login:hover {
+            background: var(--accent);
+            color: #060d12;
+            border-color: var(--accent);
+        }
+
+        .btn-nav-cta {
+            padding: 0.5rem 1.4rem;
+            border-radius: var(--clay-radius-sm);
+            font-size: 0.875rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--green-500));
+            color: #060d12;
+            box-shadow: 0 4px 24px var(--accent-glow);
+            transition: all var(--fast) var(--ease);
+        }
+
+        .btn-nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+
+        /* ===========================
+   HERO SECTION
+   =========================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: var(--nav-h);
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--green-600), transparent);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent), transparent);
+            bottom: 0;
+            left: -80px;
+            opacity: 0.2;
+            animation-delay: 3s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--green-800), transparent);
+            top: 40%;
+            left: 40%;
+            opacity: 0.4;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, 0.25);
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px var(--accent-dim);
+        }
+
+        .hero-badge::before {
+            content: '●';
+            font-size: 0.5rem;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 5vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--green-400) 50%, var(--green-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: var(--base-muted);
+            line-height: 1.7;
+            max-width: 480px;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.9rem 2rem;
+            background: linear-gradient(135deg, var(--accent), var(--green-500));
+            color: #060d12;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-radius: var(--clay-radius);
+            box-shadow: 0 8px 32px var(--accent-glow), var(--clay-shadow);
+            transition: all var(--med) var(--ease);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.15));
+            opacity: 0;
+            transition: opacity var(--fast);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 48px var(--accent-glow);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.9rem 2rem;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            color: var(--base-text);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: var(--clay-radius);
+            box-shadow: var(--clay-shadow);
+            transition: all var(--med) var(--ease);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .hero-trust {
+            margin-top: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .hero-avatars {
+            display: flex;
+        }
+
+        .hero-avatars .av {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--base-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: -8px;
+            background: linear-gradient(135deg, var(--green-600), var(--green-800));
+        }
+
+        .hero-avatars .av:first-child {
+            margin-left: 0;
+        }
+
+        .hero-trust-text {
+            font-size: 0.82rem;
+            color: var(--base-muted);
+        }
+
+        .hero-trust-text strong {
+            color: var(--accent);
+        }
+
+        /* Dashboard Card */
+        .hero-visual {
+            position: relative;
+        }
+
+        .dashboard-card {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 28px;
+            padding: 1.5rem;
+            box-shadow: var(--clay-shadow-lg);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1200px) rotateY(-8deg) rotateX(4deg);
+            transition: transform var(--slow) var(--ease);
+        }
+
+        .dashboard-card:hover {
+            transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(57, 255, 126, 0.05), transparent 60%);
+            pointer-events: none;
+        }
+
+        .dash-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .dash-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--base-muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .dash-period {
+            font-size: 0.75rem;
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 100px;
+            border: 1px solid rgba(57, 255, 126, 0.2);
+        }
+
+        .dash-balance {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .dash-balance-label {
+            font-size: 0.78rem;
+            color: var(--base-muted);
+            margin-bottom: 1.25rem;
+        }
+
+        .dash-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .stat-pill {
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            border-radius: 14px;
+            padding: 0.875rem;
+            box-shadow: var(--clay-shadow);
+        }
+
+        .stat-pill .label {
+            font-size: 0.7rem;
+            color: var(--base-muted);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-pill .value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .income {
+            color: var(--green-400);
+        }
+
+        .expense {
+            color: #ff6b6b;
+        }
+
+        .stat-pill .icon {
+            font-size: 0.65rem;
+        }
+
+        .chart-wrap {
+            height: 120px;
+            margin-bottom: 1rem;
+        }
+
+        .tx-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tx-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            background: var(--base-surface);
+            border-radius: 12px;
+            border: 1px solid var(--base-border);
+        }
+
+        .tx-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .tx-info {
+            flex: 1;
+        }
+
+        .tx-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tx-cat {
+            font-size: 0.67rem;
+            color: var(--base-muted);
+        }
+
+        .tx-amt {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* Floating cards */
+        .float-card {
+            position: absolute;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 16px;
+            padding: 0.875rem 1.1rem;
+            box-shadow: var(--clay-shadow-lg);
+            font-size: 0.8rem;
+            backdrop-filter: blur(12px);
+            animation: float-card 4s ease-in-out infinite;
+        }
+
+        .float-card-1 {
+            top: -20px;
+            left: -40px;
+            animation-delay: 0s;
+        }
+
+        .float-card-2 {
+            bottom: 30px;
+            right: -30px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float-card {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .fc-label {
+            font-size: 0.65rem;
+            color: var(--base-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 2px;
+        }
+
+        .fc-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* ===========================
+   SECTIONS COMMON
+   =========================== */
+        section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 24px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .section-sub {
+            font-size: 1.05rem;
+            color: var(--base-muted);
+            line-height: 1.7;
+            max-width: 560px;
+        }
+
+        /* ===========================
+   STATS TICKER
+   =========================== */
+        .ticker {
+            background: var(--base-surface);
+            border-top: 1px solid var(--base-border);
+            border-bottom: 1px solid var(--base-border);
+            padding: 1rem 0;
+            overflow: hidden;
+        }
+
+        .ticker-inner {
+            display: flex;
+            gap: 4rem;
+            animation: ticker 30s linear infinite;
+            white-space: nowrap;
+            width: fit-content;
+        }
+
+        @keyframes ticker {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--base-muted);
+            font-weight: 500;
+        }
+
+        .ticker-item strong {
+            color: var(--accent);
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .ticker-sep {
+            color: var(--green-700);
+        }
+
+        /* ===========================
+   FEATURES SECTION
+   =========================== */
+        .features {
+            padding: 8rem 0;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .features-header .section-sub {
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 2rem;
+            box-shadow: var(--clay-shadow);
+            transition: all var(--med) var(--ease);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity var(--med);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--clay-shadow-lg);
+            border-color: rgba(57, 255, 126, 0.2);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card.featured {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--base-card), rgba(57, 255, 126, 0.05));
+            border-color: rgba(57, 255, 126, 0.2);
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 16px var(--accent-dim);
+            transition: all var(--med) var(--ease);
+        }
+
+        .feature-card:hover .feature-icon {
+            background: rgba(57, 255, 126, 0.15);
+            box-shadow: 0 8px 24px var(--accent-glow);
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .feature-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.875rem;
+            color: var(--base-muted);
+            line-height: 1.6;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 3px 10px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 100px;
+            border: 1px solid rgba(57, 255, 126, 0.2);
+        }
+
+        /* Bento row */
+        .features-bento {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        /* ===========================
+   HOW IT WORKS
+   =========================== */
+        .how {
+            padding: 8rem 0;
+        }
+
+        .how-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6rem;
+            align-items: center;
+        }
+
+        .how-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .how-step {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.75rem 0;
+            position: relative;
+            border-left: 2px solid var(--base-border);
+            padding-left: 2rem;
+            margin-left: 1rem;
+            transition: all var(--med) var(--ease);
+            cursor: default;
+        }
+
+        .how-step:last-child {
+            border-left-color: transparent;
+        }
+
+        .how-step.active {
+            border-left-color: var(--accent);
+        }
+
+        .how-step::before {
+            content: attr(data-num);
+            position: absolute;
+            left: -1.1rem;
+            top: 1.75rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--base-card);
+            border: 2px solid var(--base-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--base-muted);
+            transition: all var(--med) var(--ease);
+        }
+
+        .how-step.active::before {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #060d12;
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
+
+        .how-step-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            transition: color var(--fast);
+        }
+
+        .how-step.active .how-step-title {
+            color: var(--accent);
+        }
+
+        .how-step-desc {
+            font-size: 0.875rem;
+            color: var(--base-muted);
+            line-height: 1.6;
+        }
+
+        .how-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .how-card {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 1.5rem;
+            box-shadow: var(--clay-shadow);
+            transition: all var(--med) var(--ease);
+        }
+
+        /* ===========================
+   ANALYTICS / CHARTS PREVIEW
+   =========================== */
+        .analytics {
+            padding: 8rem 0;
+        }
+
+        .analytics-inner {
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            border-radius: 32px;
+            padding: 3rem;
+            box-shadow: var(--clay-shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .analytics-inner::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(57, 255, 126, 0.06), transparent);
+            pointer-events: none;
+        }
+
+        .analytics-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .analytics-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .atab {
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            color: var(--base-muted);
+            transition: all var(--fast) var(--ease);
+        }
+
+        .atab.active,
+        .atab:hover {
+            background: var(--accent);
+            color: #060d12;
+            border-color: var(--accent);
+        }
+
+        .analytics-charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-box {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 1.5rem;
+            box-shadow: var(--clay-shadow);
+        }
+
+        .chart-box-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--base-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .chart-h {
+            height: 200px;
+        }
+
+        /* ===========================
+   PRICING SECTION
+   =========================== */
+        .pricing {
+            padding: 8rem 0;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .price-card {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 2.25rem;
+            box-shadow: var(--clay-shadow);
+            transition: all var(--med) var(--ease);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .price-card.popular {
+            border-color: var(--accent);
+            background: linear-gradient(160deg, rgba(57, 255, 126, 0.07), var(--base-card));
+            box-shadow: var(--clay-shadow), 0 0 60px rgba(57, 255, 126, 0.12);
+            transform: scale(1.04);
+        }
+
+        .price-card.popular:hover {
+            transform: scale(1.04) translateY(-8px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 0;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--accent), var(--green-400));
+            color: #060d12;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 0 0 12px 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .plan-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--base-muted);
+            margin-bottom: 1rem;
+        }
+
+        .plan-price {
+            display: flex;
+            align-items: flex-start;
+            gap: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price .currency {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 6px;
+            color: var(--base-muted);
+        }
+
+        .plan-price .amount {
+            font-family: 'Syne', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+
+        .plan-price .period {
+            font-size: 0.8rem;
+            color: var(--base-muted);
+            align-self: flex-end;
+            padding-bottom: 6px;
+        }
+
+        .plan-desc {
+            font-size: 0.85rem;
+            color: var(--base-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .plan-divider {
+            height: 1px;
+            background: var(--base-border);
+            margin: 1.25rem 0;
+        }
+
+        .plan-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 0.65rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .plan-features li.unavail {
+            color: var(--base-muted);
+        }
+
+        .plan-features li.unavail::before {
+            content: '✕';
+            background: var(--base-surface);
+            color: var(--base-muted);
+            border-color: var(--base-border);
+        }
+
+        .btn-plan {
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: var(--clay-radius-sm);
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            color: var(--base-text);
+            box-shadow: var(--clay-shadow);
+            transition: all var(--fast) var(--ease);
+        }
+
+        .btn-plan:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-plan.btn-plan-pro {
+            background: linear-gradient(135deg, var(--accent), var(--green-500));
+            color: #060d12;
+            border-color: transparent;
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+
+        .btn-plan.btn-plan-pro:hover {
+            box-shadow: 0 12px 36px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* ===========================
+   TESTIMONIALS
+   =========================== */
+        .testimonials {
+            padding: 8rem 0;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .test-card {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 2rem;
+            box-shadow: var(--clay-shadow);
+            transition: all var(--med) var(--ease);
+            position: relative;
+        }
+
+        .test-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--clay-shadow-lg);
+        }
+
+        .test-card.featured-t {
+            border-color: rgba(57, 255, 126, 0.25);
+            background: linear-gradient(135deg, rgba(57, 255, 126, 0.04), var(--base-card));
+        }
+
+        .test-stars {
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .test-text {
+            font-size: 0.92rem;
+            color: var(--base-text);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .test-text::before {
+            content: '"';
+            color: var(--accent);
+            font-size: 2rem;
+            font-family: 'Syne', sans-serif;
+            line-height: 0;
+            vertical-align: -0.5rem;
+            margin-right: 2px;
+        }
+
+        .test-author {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+
+        .test-av {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, var(--green-600), var(--green-800));
+            border: 2px solid var(--base-border);
+            flex-shrink: 0;
+        }
+
+        .test-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .test-role {
+            font-size: 0.75rem;
+            color: var(--base-muted);
+        }
+
+        .test-source {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--base-muted);
+        }
+
+        /* ===========================
+   CTA SECTION
+   =========================== */
+        .cta-section {
+            padding: 8rem 0;
+        }
+
+        .cta-inner {
+            background: linear-gradient(135deg, var(--green-900), var(--base-card));
+            border: 1px solid rgba(57, 255, 126, 0.2);
+            border-radius: 36px;
+            padding: 5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--clay-shadow-lg), 0 0 100px rgba(57, 255, 126, 0.08);
+        }
+
+        .cta-inner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(57, 255, 126, 0.12), transparent);
+            pointer-events: none;
+        }
+
+        .cta-title {
+            font-size: clamp(2.2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .cta-sub {
+            font-size: 1.05rem;
+            color: var(--base-muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .cta-guarantee {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--base-muted);
+        }
+
+        .cta-guarantee span {
+            color: var(--accent);
+        }
+
+        /* ===========================
+   FOOTER
+   =========================== */
+        footer {
+            border-top: 1px solid var(--base-border);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand .nav-logo {
+            margin-bottom: 1rem;
+        }
+
+        .footer-brand p {
+            font-size: 0.85rem;
+            color: var(--base-muted);
+            line-height: 1.7;
+            max-width: 280px;
+        }
+
+        .footer-col-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--base-muted);
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .footer-links a {
+            font-size: 0.875rem;
+            color: var(--base-muted);
+            transition: color var(--fast);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 2rem;
+            border-top: 1px solid var(--base-border);
+            font-size: 0.8rem;
+            color: var(--base-muted);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom a {
+            color: var(--base-muted);
+        }
+
+        .footer-bottom a:hover {
+            color: var(--accent);
+        }
+
+        /* ===========================
+   MODAL — AUTH
+   =========================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(6, 13, 18, 0.85);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--med) var(--ease);
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 28px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--clay-shadow-lg), 0 0 80px rgba(57, 255, 126, 0.1);
+            transform: translateY(30px) scale(0.96);
+            transition: transform var(--med) var(--ease);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            color: var(--base-muted);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--fast);
+        }
+
+        .modal-close:hover {
+            background: var(--accent);
+            color: #060d12;
+            border-color: var(--accent);
+        }
+
+        .modal-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-sub {
+            font-size: 0.85rem;
+            color: var(--base-muted);
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--base-surface);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 1.75rem;
+            border: 1px solid var(--base-border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.6rem;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 9px;
+            color: var(--base-muted);
+            transition: all var(--fast) var(--ease);
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: #060d12;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            color: var(--base-muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius-sm);
+            color: var(--base-text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            box-shadow: var(--clay-shadow);
+            transition: all var(--fast) var(--ease);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim), var(--clay-shadow);
+        }
+
+        .form-input::placeholder {
+            color: var(--base-muted);
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius-sm);
+            color: var(--base-text);
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: var(--clay-shadow);
+            margin-bottom: 1.25rem;
+            transition: all var(--fast) var(--ease);
+        }
+
+        .btn-google:hover {
+            border-color: #4285f4;
+            color: #4285f4;
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1.25rem 0;
+            color: var(--base-muted);
+            font-size: 0.78rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--base-border);
+        }
+
+        .btn-form-submit {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--accent), var(--green-500));
+            color: #060d12;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-radius: var(--clay-radius-sm);
+            box-shadow: 0 6px 24px var(--accent-glow);
+            transition: all var(--fast) var(--ease);
+            margin-top: 0.5rem;
+        }
+
+        .btn-form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px var(--accent-glow);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.8rem;
+            color: var(--base-muted);
+        }
+
+        .form-footer a {
+            color: var(--accent);
+        }
+
+        /* ===========================
+   SCROLL REVEAL
+   =========================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity var(--slow) var(--ease), transform var(--slow) var(--ease);
+        }
+
+        .reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .reveal-delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .reveal-delay-3 {
+            transition-delay: 0.3s;
+        }
+
+        .reveal-delay-4 {
+            transition-delay: 0.4s;
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: opacity var(--slow) var(--ease), transform var(--slow) var(--ease);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(40px);
+            transition: opacity var(--slow) var(--ease), transform var(--slow) var(--ease);
+        }
+
+        .reveal-left.revealed,
+        .reveal-right.revealed {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ===========================
+   PARALLAX
+   =========================== */
+        .parallax-layer {
+            will-change: transform;
+        }
+
+        /* ===========================
+   MOBILE MENU
+   =========================== */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 8px;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 10px;
+            box-shadow: var(--clay-shadow);
+        }
+
+        .mobile-menu-btn span {
+            width: 20px;
+            height: 2px;
+            background: var(--base-text);
+            border-radius: 1px;
+            transition: all var(--fast);
+        }
+
+        /* ===========================
+   RESPONSIVE
+   =========================== */
+        @media (max-width: 1024px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .feature-card.featured {
+                grid-column: span 1;
+            }
+
+            .features-bento {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .nav-links,
+            .nav-actions {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .hero-visual {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-bento {
+                grid-template-columns: 1fr;
+            }
+
+            .how-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .price-card.popular {
+                transform: none;
+            }
+
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-charts {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            nav {
+                padding: 0 1.25rem;
+            }
+
+            .container {
+                padding: 0 1.25rem;
+            }
+        }
+
+        /* ===========================
+   SELECTION
+   =========================== */
+
+        /* FORGOT PASSWORD ANIMATIONS */
+        @keyframes fp-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fp-shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-6px);
+            }
+
+            40% {
+                transform: translateX(6px);
+            }
+
+            60% {
+                transform: translateX(-4px);
+            }
+
+            80% {
+                transform: translateX(4px);
+            }
+        }
+
+        @keyframes slideInR {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: none;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fp-pop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #fpModal {
+            background: var(--base-card);
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        ::selection {
+            background: rgba(57, 255, 126, 0.3);
+            color: var(--base-text);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav id="navbar">
+        <div class="nav-logo">
+            <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 8px;">
+            Smart<span>Spend</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how">How it Works</a></li>
+            <li><a href="#analytics">Analytics</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#testimonials">Reviews</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeToggle" title="Toggle theme"></button>
+            <button class="btn-nav-login" onclick="openModal('login')">Sign In</button>
+            <button class="btn-nav-cta" onclick="openModal('signup')">Get Started →</button>
+            <button class="mobile-menu-btn">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="hero-orb orb-1 parallax-layer" data-speed="0.3"></div>
+            <div class="hero-orb orb-2 parallax-layer" data-speed="0.5"></div>
+            <div class="hero-orb orb-3 parallax-layer" data-speed="0.2"></div>
+        </div>
+
+        <div class="hero-grid">
+            <div class="hero-left">
+                <div class="hero-badge">✦ Now with AI Receipt Scanning & Voice Entries</div>
+                <h1 class="hero-title">
+                    Your Money.<br>
+                    <span class="highlight">Smarter than</span><br>
+                    Ever Before.
+                </h1>
+                <p class="hero-sub">
+                    SmartSpend turns chaotic spending into crystal-clear insights. Track every rupee, understand your
+                    patterns, and make confident financial decisions — effortlessly.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="openModal('signup')">
+                        🚀 Start Free — No Card Needed
+                    </button>
+                    <button class="btn-secondary"
+                        onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">
+                        ▶ See Demo
+                    </button>
+                </div>
+                <div class="hero-trust">
+                    <div class="hero-avatars">
+                        <div class="av">AK</div>
+                        <div class="av">SR</div>
+                        <div class="av">PM</div>
+                        <div class="av">VR</div>
+                        <div class="av">+</div>
+                    </div>
+                    <p class="hero-trust-text">Trusted by <strong>24,000+</strong> users across India</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Visual -->
+            <div class="hero-visual">
+                <div class="float-card float-card-1">
+                    <div class="fc-label">💰 Savings Rate</div>
+                    <div class="fc-value">34.2%</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dash-header">
+                        <span class="dash-title">💼 Overview</span>
+                        <span class="dash-period">Apr 2026</span>
+                    </div>
+                    <div class="dash-balance">₹1,28,450</div>
+                    <div class="dash-balance-label">Total Balance</div>
+                    <div class="dash-stats">
+                        <div class="stat-pill">
+                            <div class="label"><span class="icon">↑</span> Income</div>
+                            <div class="value income">₹85,000</div>
+                        </div>
+                        <div class="stat-pill">
+                            <div class="label"><span class="icon">↓</span> Expenses</div>
+                            <div class="value expense">₹43,240</div>
+                        </div>
+                    </div>
+                    <div class="chart-wrap"><canvas id="heroChart"></canvas></div>
+                    <div class="tx-list">
+                        <div class="tx-item">
+                            <div class="tx-icon" style="background:rgba(57,255,126,0.12)">🛒</div>
+                            <div class="tx-info">
+                                <div class="tx-name">Groceries — Zepto</div>
+                                <div class="tx-cat">Food & Essentials</div>
+                            </div>
+                            <div class="tx-amt expense">-₹1,240</div>
+                        </div>
+                        <div class="tx-item">
+                            <div class="tx-icon" style="background:rgba(57,255,126,0.12)">💼</div>
+                            <div class="tx-info">
+                                <div class="tx-name">Freelance Payment</div>
+                                <div class="tx-cat">Income</div>
+                            </div>
+                            <div class="tx-amt income">+₹25,000</div>
+                        </div>
+                        <div class="tx-item">
+                            <div class="tx-icon" style="background:rgba(57,255,126,0.12)">☕</div>
+                            <div class="tx-info">
+                                <div class="tx-name">Blue Tokai Coffee</div>
+                                <div class="tx-cat">Dining Out</div>
+                            </div>
+                            <div class="tx-amt expense">-₹620</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="float-card float-card-2">
+                    <div class="fc-label">🎯 Budget Goal</div>
+                    <div class="fc-value">On Track ✓</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TICKER -->
+    <div class="ticker">
+        <div class="ticker-inner" id="ticker">
+            <div class="ticker-item"><strong>₹840 Cr+</strong> tracked monthly</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>24,000+</strong> active users</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>99.9%</strong> uptime SLA</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>OCR</strong> receipt scanning</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>AI-powered</strong> insights</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>Voice</strong> entry support</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>Bank-grade</strong> encryption</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>4.9★</strong> average rating</div>
+            <div class="ticker-sep">✦</div>
+            <!-- Duplicate for seamless loop -->
+            <div class="ticker-item"><strong>₹840 Cr+</strong> tracked monthly</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>24,000+</strong> active users</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>99.9%</strong> uptime SLA</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>OCR</strong> receipt scanning</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>AI-powered</strong> insights</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>Voice</strong> entry support</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>Bank-grade</strong> encryption</div>
+            <div class="ticker-sep">✦</div>
+            <div class="ticker-item"><strong>4.9★</strong> average rating</div>
+            <div class="ticker-sep">✦</div>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-header">
+                <div class="section-label reveal">Core Features</div>
+                <h2 class="section-title reveal reveal-delay-1">Everything you need<br>to master your money.</h2>
+                <p class="section-sub reveal reveal-delay-2" style="margin:1rem auto 0">From smart tracking to
+                    AI-powered analytics — SmartSpend gives you the full financial picture, beautifully.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card featured reveal reveal-left">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-name">AI Smart Insights</div>
+                    <div class="feature-desc">Our AI engine analyzes your spending patterns and delivers personalized
+                        recommendations. Spot anomalies, reduce waste, and get nudged before you overspend.</div>
+                    <span class="feature-tag">Powered by Claude API</span>
+                </div>
+                <div class="feature-card reveal reveal-right">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-name">Visual Analytics</div>
+                    <div class="feature-desc">Beautiful, interactive charts powered by Chart.js. Pie, bar, line, and
+                        heatmap views of your financial data.</div>
+                    <span class="feature-tag">Chart.js</span>
+                </div>
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="feature-icon">📸</div>
+                    <div class="feature-name">OCR Receipt Scan</div>
+                    <div class="feature-desc">Snap a photo of any receipt — SmartSpend extracts and logs the amount,
+                        merchant, and date instantly.</div>
+                    <span class="feature-tag">Auto-extract</span>
+                </div>
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="feature-icon">🎙️</div>
+                    <div class="feature-name">Voice Entries</div>
+                    <div class="feature-desc">Say "Spent 500 on groceries" and it's logged. Natural language processing
+                        makes expense entry hands-free.</div>
+                    <span class="feature-tag">NLP Powered</span>
+                </div>
+                <div class="feature-card reveal reveal-delay-3">
+                    <div class="feature-icon">🔐</div>
+                    <div class="feature-name">Bank-Grade Security</div>
+                    <div class="feature-desc">AES-256 encryption, secure OAuth login with Google, JWT tokens, and zero
+                        plain-text data storage.</div>
+                    <span class="feature-tag">Enterprise Security</span>
+                </div>
+            </div>
+
+            <div class="features-bento">
+                <div class="feature-card reveal reveal-left">
+                    <div class="feature-icon">💸</div>
+                    <div class="feature-name">Budget Goals</div>
+                    <div class="feature-desc">Set monthly budgets per category. Get real-time alerts as you approach
+                        limits.</div>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-name">Recurring Transactions</div>
+                    <div class="feature-desc">Auto-log EMIs, subscriptions, and SIPs. Never forget a recurring payment
+                        again with smart reminders.</div>
+                </div>
+                <div class="feature-card reveal reveal-right">
+                    <div class="feature-icon">📤</div>
+                    <div class="feature-name">Export Reports</div>
+                    <div class="feature-desc">Download detailed PDF or CSV reports — perfect for tax filing or personal
+                        audits.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how" id="how">
+        <div class="container">
+            <div class="how-grid">
+                <div>
+                    <div class="section-label reveal">How it Works</div>
+                    <h2 class="section-title reveal reveal-delay-1">Up and running<br>in 3 minutes.</h2>
+                    <p class="section-sub reveal reveal-delay-2" style="margin-bottom:3rem">No complex setup, no
+                        learning curve. SmartSpend is designed to be intuitive from day one.</p>
+
+                    <div class="how-steps">
+                        <div class="how-step active reveal" data-num="1">
+                            <div class="how-step-content">
+                                <div class="how-step-title">Create your free account</div>
+                                <div class="how-step-desc">Sign up with Google in one click, or create an account with
+                                    email. No credit card required to start.</div>
+                            </div>
+                        </div>
+                        <div class="how-step reveal reveal-delay-1" data-num="2">
+                            <div class="how-step-content">
+                                <div class="how-step-title">Add your transactions</div>
+                                <div class="how-step-desc">Manually type, scan receipts with your camera, or just speak
+                                    to add expenses. We handle the rest.</div>
+                            </div>
+                        </div>
+                        <div class="how-step reveal reveal-delay-2" data-num="3">
+                            <div class="how-step-content">
+                                <div class="how-step-title">Get smart insights</div>
+                                <div class="how-step-desc">Our AI analyzes your data and gives you actionable
+                                    recommendations to reduce waste and hit your goals.</div>
+                            </div>
+                        </div>
+                        <div class="how-step reveal reveal-delay-3" data-num="4">
+                            <div class="how-step-content">
+                                <div class="how-step-title">Watch your wealth grow</div>
+                                <div class="how-step-desc">Set savings goals, track net worth, and watch the charts
+                                    trend upward month after month.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="how-visual reveal reveal-right">
+                    <div class="how-card">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem">
+                            <div
+                                style="width:40px;height:40px;border-radius:12px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:1.2rem">
+                                🎙️</div>
+                            <div>
+                                <div style="font-size:0.8rem;font-weight:700">Voice Entry</div>
+                                <div style="font-size:0.7rem;color:var(--base-muted)">AI Transcribing...</div>
+                            </div>
+                        </div>
+                        <div
+                            style="background:var(--base-surface);border-radius:12px;padding:1rem;border:1px solid var(--base-border);font-size:0.85rem;color:var(--base-muted);font-style:italic">
+                            "Spent 850 rupees on dinner at Social"
+                        </div>
+                        <div
+                            style="margin-top:0.75rem;padding:0.75rem;background:var(--accent-dim);border-radius:12px;border:1px solid rgba(57,255,126,0.2)">
+                            <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:4px">✓
+                                Logged Successfully</div>
+                            <div style="font-size:0.8rem">Dining · ₹850 · Social Offline</div>
+                        </div>
+                    </div>
+
+                    <div class="how-card">
+                        <div
+                            style="font-size:0.78rem;font-weight:700;color:var(--base-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem">
+                            📸 OCR Scanning</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                            <div
+                                style="background:var(--base-surface);border-radius:12px;padding:0.875rem;border:1px solid var(--base-border);text-align:center">
+                                <div style="font-size:1.5rem;margin-bottom:4px">🧾</div>
+                                <div style="font-size:0.7rem;color:var(--base-muted)">Receipt Uploaded</div>
+                            </div>
+                            <div
+                                style="background:var(--accent-dim);border-radius:12px;padding:0.875rem;border:1px solid rgba(57,255,126,0.2);text-align:center">
+                                <div style="font-size:0.8rem;font-weight:700;color:var(--accent)">₹2,340</div>
+                                <div style="font-size:0.7rem;color:var(--base-muted)">Amazon Fresh · Food</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="how-card">
+                        <div
+                            style="font-size:0.78rem;font-weight:700;color:var(--base-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem">
+                            🤖 AI Insight</div>
+                        <p style="font-size:0.875rem;color:var(--base-text);line-height:1.6">You've spent <strong
+                                style="color:var(--accent)">₹8,420</strong> on dining this month — 42% above your ₹6,000
+                            goal. Try cooking at home 3× this week to get back on track.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ANALYTICS PREVIEW -->
+    <section class="analytics" id="analytics">
+        <div class="container">
+            <div class="analytics-inner reveal">
+                <div class="analytics-header">
+                    <div>
+                        <div class="section-label">Analytics Dashboard</div>
+                        <h2 class="section-title" style="font-size:2rem">Your finances, visualized.</h2>
+                    </div>
+                    <div class="analytics-tabs">
+                        <button class="atab active" onclick="switchTab(this,'weekly')">Weekly</button>
+                        <button class="atab" onclick="switchTab(this,'monthly')">Monthly</button>
+                        <button class="atab" onclick="switchTab(this,'yearly')">Yearly</button>
+                    </div>
+                </div>
+
+                <div class="analytics-charts">
+                    <div class="chart-box">
+                        <div class="chart-box-title">Income vs Expenses</div>
+                        <div class="chart-h"><canvas id="barChart"></canvas></div>
+                    </div>
+                    <div class="chart-box">
+                        <div class="chart-box-title">Spending by Category</div>
+                        <div class="chart-h"><canvas id="doughnutChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem">
+                    <div class="stat-pill reveal reveal-delay-1">
+                        <div class="label">📈 Highest Income Month</div>
+                        <div class="value income" style="font-size:1rem">March 2026</div>
+                    </div>
+                    <div class="stat-pill reveal reveal-delay-2">
+                        <div class="label">💸 Top Expense Category</div>
+                        <div class="value" style="font-size:0.9rem">Food & Dining</div>
+                    </div>
+                    <div class="stat-pill reveal reveal-delay-3">
+                        <div class="label">🎯 Savings This Month</div>
+                        <div class="value income" style="font-size:1rem">₹41,760</div>
+                    </div>
+                    <div class="stat-pill reveal reveal-delay-4">
+                        <div class="label">📊 Net Worth Growth</div>
+                        <div class="value income" style="font-size:1rem">+18.4%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="pricing-header">
+                <div class="section-label reveal">Pricing</div>
+                <h2 class="section-title reveal reveal-delay-1">Simple, transparent pricing.</h2>
+                <p class="section-sub reveal reveal-delay-2" style="margin:1rem auto 0">Start free. Upgrade when you're
+                    ready. No hidden fees, ever.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="price-card reveal reveal-left">
+                    <div class="plan-name">Starter</div>
+                    <div class="plan-price">
+                        <span class="currency">₹</span>
+                        <span class="amount">0</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <div class="plan-desc">Perfect for individuals just getting started with expense tracking.</div>
+                    <div class="plan-divider"></div>
+                    <ul class="plan-features">
+                        <li>Up to 50 transactions/month</li>
+                        <li>Basic dashboard</li>
+                        <li>3 budget categories</li>
+                        <li>CSV export</li>
+                        <li class="unavail">AI Insights</li>
+                        <li class="unavail">OCR Scanning</li>
+                        <li class="unavail">Voice entries</li>
+                    </ul>
+                    <button class="btn-plan" onclick="openModal('signup')">Get Started Free</button>
+                </div>
+
+                <div class="price-card popular reveal">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="plan-name">Pro</div>
+                    <div class="plan-price">
+                        <span class="currency">₹</span>
+                        <span class="amount">299</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <div class="plan-desc">For serious savers who want full visibility and AI-powered intelligence.
+                    </div>
+                    <div class="plan-divider"></div>
+                    <ul class="plan-features">
+                        <li>Unlimited transactions</li>
+                        <li>Full analytics dashboard</li>
+                        <li>Unlimited categories</li>
+                        <li>PDF + CSV export</li>
+                        <li>AI Insights & nudges</li>
+                        <li>OCR Receipt Scanning</li>
+                        <li>Voice entries</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <button class="btn-plan btn-plan-pro" onclick="openModal('signup')">Start 14-Day Free Trial</button>
+                </div>
+
+                <div class="price-card reveal reveal-right">
+                    <div class="plan-name">Team</div>
+                    <div class="plan-price">
+                        <span class="currency">₹</span>
+                        <span class="amount">799</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <div class="plan-desc">For households and small teams managing shared finances together.</div>
+                    <div class="plan-divider"></div>
+                    <ul class="plan-features">
+                        <li>Everything in Pro</li>
+                        <li>Up to 5 users</li>
+                        <li>Shared budgets & goals</li>
+                        <li>Role-based permissions</li>
+                        <li>Advanced AI reporting</li>
+                        <li>API access</li>
+                        <li>Dedicated account manager</li>
+                    </ul>
+                    <button class="btn-plan" onclick="openModal('signup')">Start Free Trial</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="test-header">
+                <div class="section-label reveal">Social Proof</div>
+                <h2 class="section-title reveal reveal-delay-1">Loved by 24,000+ users.</h2>
+                <p class="section-sub reveal reveal-delay-2" style="margin:1rem auto 0">Don't take our word for it —
+                    here's what real SmartSpend users are saying.</p>
+            </div>
+
+            <div class="test-grid">
+                <div class="test-card featured-t reveal reveal-left">
+                    <div class="test-stars">★★★★★</div>
+                    <div class="test-text">Honestly, SmartSpend changed how I look at money. The AI insights caught that
+                        I was spending ₹12k/month on subscriptions I forgot about. Saved me immediately.</div>
+                    <div class="test-author">
+                        <div class="test-av">AK</div>
+                        <div>
+                            <div class="test-name">Arjun Kapoor</div>
+                            <div class="test-role">Software Engineer, Bengaluru</div>
+                        </div>
+                    </div>
+                    <div class="test-source">via App Store</div>
+                </div>
+
+                <div class="test-card reveal">
+                    <div class="test-stars">★★★★★</div>
+                    <div class="test-text">The OCR receipt scanning is magic. I literally just snap a photo and it logs
+                        everything. The interface is so clean and the dark mode is gorgeous.</div>
+                    <div class="test-author">
+                        <div class="test-av">SR</div>
+                        <div>
+                            <div class="test-name">Sneha Rathi</div>
+                            <div class="test-role">Freelance Designer, Mumbai</div>
+                        </div>
+                    </div>
+                    <div class="test-source">via Google Play</div>
+                </div>
+
+                <div class="test-card reveal reveal-right">
+                    <div class="test-stars">★★★★★</div>
+                    <div class="test-text">Using the Team plan for our household. My wife and I finally have full
+                        transparency on where money goes. Arguments about money? Gone. Seriously.</div>
+                    <div class="test-author">
+                        <div class="test-av">PM</div>
+                        <div>
+                            <div class="test-name">Priyank Mehta</div>
+                            <div class="test-role">Business Owner, Ahmedabad</div>
+                        </div>
+                    </div>
+                    <div class="test-source">via Product Hunt</div>
+                </div>
+
+                <div class="test-card reveal reveal-delay-1">
+                    <div class="test-stars">★★★★★</div>
+                    <div class="test-text">As a CA, I recommend SmartSpend to all my clients. The PDF export and
+                        categorized reports make tax season so much easier. Finally, a finance app with real depth.
+                    </div>
+                    <div class="test-author">
+                        <div class="test-av">VJ</div>
+                        <div>
+                            <div class="test-name">Vinay Joshi</div>
+                            <div class="test-role">Chartered Accountant, Pune</div>
+                        </div>
+                    </div>
+                    <div class="test-source">via Twitter/X</div>
+                </div>
+
+                <div class="test-card reveal reveal-delay-2">
+                    <div class="test-stars">★★★★★</div>
+                    <div class="test-text">The voice entry feature is a game changer for someone who's always on the go.
+                        I say what I spent at the end of the day and it's done. Perfect for busy people.</div>
+                    <div class="test-author">
+                        <div class="test-av">ND</div>
+                        <div>
+                            <div class="test-name">Neha Desai</div>
+                            <div class="test-role">Marketing Manager, Delhi</div>
+                        </div>
+                    </div>
+                    <div class="test-source">via App Store</div>
+                </div>
+
+                <div class="test-card featured-t reveal reveal-delay-3">
+                    <div class="test-stars">★★★★★</div>
+                    <div class="test-text">Went from saving ₹5,000/month to ₹28,000/month in just 4 months. The budget
+                        alerts and AI nudges kept me honest. SmartSpend literally made me richer.</div>
+                    <div class="test-author">
+                        <div class="test-av">RG</div>
+                        <div>
+                            <div class="test-name">Rahul Gupta</div>
+                            <div class="test-role">Product Manager, Hyderabad</div>
+                        </div>
+                    </div>
+                    <div class="test-source">via LinkedIn</div>
+                </div>
+            </div>
+
+            <!-- Rating Bar -->
+            <div style="display:flex;align-items:center;justify-content:center;gap:3rem;margin-top:3rem;flex-wrap:wrap">
+                <div style="text-align:center">
+                    <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--accent)">4.9
+                    </div>
+                    <div style="color:var(--accent);font-size:1.2rem;margin-bottom:4px">★★★★★</div>
+                    <div style="font-size:0.8rem;color:var(--base-muted)">App Store Rating</div>
+                </div>
+                <div style="width:1px;height:60px;background:var(--base-border)"></div>
+                <div style="text-align:center">
+                    <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--accent)">4.8
+                    </div>
+                    <div style="color:var(--accent);font-size:1.2rem;margin-bottom:4px">★★★★★</div>
+                    <div style="font-size:0.8rem;color:var(--base-muted)">Google Play</div>
+                </div>
+                <div style="width:1px;height:60px;background:var(--base-border)"></div>
+                <div style="text-align:center">
+                    <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--accent)">#1
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--base-muted);margin-top:8px">Finance App of the Year</div>
+                    <div style="font-size:0.75rem;color:var(--base-muted)">Product Hunt India 2025</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-inner reveal">
+                <div class="section-label" style="justify-content:center;margin-bottom:1rem">Limited Time</div>
+                <h2 class="cta-title">Take control of your<br><span
+                        style="background:linear-gradient(135deg,var(--accent),var(--green-400));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">financial
+                        future today.</span></h2>
+                <p class="cta-sub">Join 24,000+ users already using SmartSpend to build better money habits.<br>Start
+                    free — no credit card needed.</p>
+                <div class="cta-actions">
+                    <button class="btn-primary" onclick="openModal('signup')">🚀 Start Free Trial — 14 Days</button>
+                    <button class="btn-secondary">📅 Book a Demo</button>
+                </div>
+                <p class="cta-guarantee">✓ Free forever plan available &nbsp;·&nbsp; ✓ <span>Cancel anytime</span>
+                    &nbsp;·&nbsp; ✓ 256-bit encrypted</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="nav-logo" style="margin-bottom:1rem">
+                        <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 8px;">
+                        Smart<span>Spend</span>
+                    </div>
+                    <p>Your intelligent expense companion. Built to make financial clarity accessible to everyone — from
+                        students to business owners.</p>
+                    <div style="display:flex;gap:0.75rem;margin-top:1.5rem">
+                        <a href="#"
+                            style="width:36px;height:36px;border-radius:10px;background:var(--base-card);border:1px solid var(--base-border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.2s"
+                            onmouseover="this.style.borderColor='var(--accent)'"
+                            onmouseout="this.style.borderColor='var(--base-border)'">𝕏</a>
+                        <a href="#"
+                            style="width:36px;height:36px;border-radius:10px;background:var(--base-card);border:1px solid var(--base-border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.2s"
+                            onmouseover="this.style.borderColor='var(--accent)'"
+                            onmouseout="this.style.borderColor='var(--base-border)'">in</a>
+                        <a href="#"
+                            style="width:36px;height:36px;border-radius:10px;background:var(--base-card);border:1px solid var(--base-border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.2s"
+                            onmouseover="this.style.borderColor='var(--accent)'"
+                            onmouseout="this.style.borderColor='var(--base-border)'">▶</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-col-title">Product</div>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#">Changelog</a></li>
+                        <li><a href="#">Roadmap</a></li>
+                        <li><a href="#">API Docs</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">Company</div>
+                    <ul class="footer-links">
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="press.html">Press Kit</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">Legal</div>
+                    <ul class="footer-links">
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="cookies.html">Cookie Policy</a></li>
+                        <li><a href="gdpr.html">GDPR</a></li>
+                        <li><a href="security.html">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 SmartSpend Technologies Pvt. Ltd. All rights reserved.</p>
+                <p>Made with 💚 in India &nbsp;·&nbsp; <a href="#">Status</a> &nbsp;·&nbsp; <a href="#">System Status
+                        ✓</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- FORGOT PASSWORD OVERLAY -->
+    <div class="modal-overlay" id="fpOverlay" onclick="handleFpOverlayClick(event)" style="z-index:3000">
+        <div class="modal" id="fpModal" style="max-width:440px">
+
+            <!-- STATE 1: FORM -->
+            <div id="fpStateForm">
+                <button class="modal-close" onclick="closeForgotPassword()">&#x2715;</button>
+                <div style="text-align:center;margin-bottom:1.5rem">
+                    <div
+                        style="width:54px;height:54px;border-radius:16px;background:var(--accent-dim);border:1px solid rgba(57,255,126,.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem">
+                        &#x1F511;</div>
+                    <div class="modal-title" style="margin-bottom:.35rem">Reset Password</div>
+                    <div class="modal-sub" style="margin-bottom:0">Enter your email to receive password reset
+                        instructions</div>
+                </div>
+
+                <div
+                    style="background:var(--base-surface);border:1px solid var(--base-border);border-radius:var(--clay-radius);padding:1.5rem;box-shadow:var(--clay-shadow);margin-bottom:1rem">
+                    <div class="form-group" style="margin-bottom:1rem">
+                        <label class="form-label">Email Address</label>
+                        <div style="position:relative">
+                            <svg style="position:absolute;left:.875rem;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:.45;pointer-events:none"
+                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="m2 7 10 7 10-7" />
+                            </svg>
+                            <input id="fpEmailInput" class="form-input" type="email"
+                                placeholder="Enter your registered email" style="padding-left:2.75rem" />
+                        </div>
+                    </div>
+                    <button onclick="sendResetLink()"
+                        style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--accent),var(--green-500));color:#060d12;font-weight:700;font-size:.95rem;border-radius:var(--clay-radius-sm);box-shadow:0 6px 24px var(--accent-glow);transition:all .2s;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.625rem;font-family:inherit">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"
+                            viewBox="0 0 24 24">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                        Send Reset Link
+                    </button>
+                    <button onclick="closeForgotPassword();openModal('login')"
+                        style="width:100%;margin-top:.875rem;padding:.6rem;background:none;border:none;font-size:.82rem;color:var(--base-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;font-family:inherit;transition:color .2s"
+                        onmouseover="this.style.color='var(--base-text)'"
+                        onmouseout="this.style.color='var(--base-muted)'">
+                        &#x2190; Back to Login
+                    </button>
+                </div>
+
+                <div
+                    style="background:var(--base-surface);border:1px solid var(--base-border);border-radius:var(--clay-radius);padding:1.25rem 1.5rem;box-shadow:var(--clay-shadow)">
+                    <div style="font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:.875rem">
+                        Other ways to reset</div>
+                    <button onclick="showToastFp('&#x1F4F1; SMS sent to your registered number!','success')"
+                        style="width:100%;padding:.75rem 1rem;background:var(--base-card);border:1px solid var(--base-border);border-radius:var(--clay-radius-sm);color:var(--base-text);font-size:.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:.75rem;margin-bottom:.625rem;box-shadow:var(--clay-shadow);transition:all .2s;font-family:inherit"
+                        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                        onmouseout="this.style.borderColor='var(--base-border)';this.style.color='var(--base-text)'">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                        Reset with Phone Number
+                    </button>
+                    <button onclick="showToastFp('Support team will contact you within 24h','success')"
+                        style="width:100%;padding:.75rem 1rem;background:var(--base-card);border:1px solid var(--base-border);border-radius:var(--clay-radius-sm);color:var(--base-text);font-size:.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:.75rem;box-shadow:var(--clay-shadow);transition:all .2s;font-family:inherit"
+                        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                        onmouseout="this.style.borderColor='var(--base-border)';this.style.color='var(--base-text)'">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Contact Support
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATE 2: LOADING -->
+            <div id="fpStateLoading" style="display:none;text-align:center;padding:2rem 0">
+                <div
+                    style="width:64px;height:64px;border-radius:50%;background:var(--accent-dim);border:2px solid rgba(57,255,126,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem">
+                    <div
+                        style="width:26px;height:26px;border:3px solid rgba(57,255,126,.2);border-top-color:var(--accent);border-radius:50%;animation:fp-spin .75s linear infinite">
+                    </div>
+                </div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.35rem">
+                    Sending reset link...</div>
+                <div style="font-size:.82rem;color:var(--base-muted)">Please wait a moment</div>
+            </div>
+
+            <!-- STATE 3: SUCCESS -->
+            <div id="fpStateSuccess" style="display:none;text-align:center;padding:.5rem 0">
+                <div
+                    style="width:72px;height:72px;border-radius:50%;background:rgba(57,255,126,.1);border:2px solid rgba(57,255,126,.28);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;animation:fp-pop .45s var(--ease)">
+                    <svg width="30" height="30" fill="none" stroke="var(--accent)" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m2 7 10 7 10-7" />
+                        <polyline points="7 13 10 15.5 17 10" />
+                    </svg>
+                </div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:.5rem">Reset
+                    Link Sent!</div>
+                <div
+                    style="font-size:.875rem;color:var(--base-muted);line-height:1.65;margin-bottom:1.75rem;max-width:290px;margin-left:auto;margin-right:auto">
+                    We've sent a password reset link to your email address. Please check your inbox and follow the
+                    instructions.
+                </div>
+                <button onclick="closeForgotPassword();openModal('login')"
+                    style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--accent),var(--green-500));color:#060d12;font-weight:700;font-size:.95rem;border-radius:var(--clay-radius-sm);box-shadow:0 6px 24px var(--accent-glow);border:none;cursor:pointer;font-family:inherit">
+                    Go to Login
+                </button>
+                <div style="margin-top:1rem;font-size:.78rem;color:var(--base-muted)">
+                    Didn't receive it? <a href="#" onclick="resendResetLink(event)" style="color:var(--accent)">Resend
+                        email</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FP TOAST -->
+    <div id="fpToastContainer"
+        style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:4000;display:flex;flex-direction:column;gap:.5rem">
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+        <div class="modal" id="authModal">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="modal-logo">
+                <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 40px; height: 40px; border-radius: 10px;">
+            </div>
+            <div class="modal-title" id="modalTitle">Welcome back</div>
+            <div class="modal-sub" id="modalSub">Sign in to your SmartSpend account</div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" id="loginTab" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Google -->
+            <button class="btn-google">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Continue with Google
+            </button>
+
+            <div class="divider">or continue with email</div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input class="form-input" type="email" placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input class="form-input" type="password" placeholder="••••••••" />
+                </div>
+                <div style="text-align:right;margin-top:-0.5rem;margin-bottom:1rem">
+                    <a href="#" style="font-size:0.8rem;color:var(--accent)" onclick="openForgotPassword(event)">Forgot
+                        password?</a>
+                </div>
+                <button class="btn-form-submit" type="button">Sign In to SmartSpend →</button>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" style="display:none">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input class="form-input" type="text" placeholder="Arjun Sharma" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input class="form-input" type="email" placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input class="form-input" type="password" placeholder="Min. 8 characters" />
+                </div>
+                <button class="btn-form-submit" type="button">Create Free Account →</button>
+            </div>
+
+            <p class="form-footer" id="formFooter">
+                Don't have an account? <a href="#" onclick="switchAuthTab('signup')">Sign up free</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        /* ===========================
+           THEME TOGGLE
+           =========================== */
+        const html = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        let isDark = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        });
+
+        /* ===========================
+           NAVBAR SCROLL
+           =========================== */
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 30) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        }, { passive: true });
+
+        /* ===========================
+           PARALLAX
+           =========================== */
+        const parallaxLayers = document.querySelectorAll('.parallax-layer');
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            parallaxLayers.forEach(el => {
+                const speed = parseFloat(el.dataset.speed || 0.3);
+                el.style.transform = `translateY(${scrollY * speed}px)`;
+            });
+        }, { passive: true });
+
+        /* ===========================
+           SCROLL REVEAL
+           =========================== */
+        const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+        revealEls.forEach(el => observer.observe(el));
+
+        /* ===========================
+           HOW STEPS ACTIVE
+           =========================== */
+        const howSteps = document.querySelectorAll('.how-step');
+        const howObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    howSteps.forEach(s => s.classList.remove('active'));
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.6 });
+        howSteps.forEach(step => howObserver.observe(step));
+
+        /* ===========================
+           MODAL
+           =========================== */
+        function openModal(tab) {
+            document.getElementById('modalOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            switchAuthTab(tab || 'login');
+        }
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        function handleOverlayClick(e) {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        function switchAuthTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('loginTab').classList.toggle('active', isLogin);
+            document.getElementById('signupTab').classList.toggle('active', !isLogin);
+            document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('signupForm').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('modalTitle').textContent = isLogin ? 'Welcome back' : 'Create your account';
+            document.getElementById('modalSub').textContent = isLogin
+                ? 'Sign in to your SmartSpend account'
+                : 'Start tracking smarter — free forever plan available';
+            document.getElementById('formFooter').innerHTML = isLogin
+                ? 'Don\'t have an account? <a href="#" onclick="switchAuthTab(\'signup\')">Sign up free</a>'
+                : 'Already have an account? <a href="#" onclick="switchAuthTab(\'login\')">Sign in</a>';
+        }
+
+        /* ===========================
+           ANALYTICS TABS
+           =========================== */
+        function switchTab(el, type) {
+            document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            updateCharts(type);
+        }
+
+        /* ===========================
+           HERO CHART
+           =========================== */
+        const heroCtx = document.getElementById('heroChart').getContext('2d');
+        new Chart(heroCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    data: [65000, 72000, 68000, 85000, 78000, 91000],
+                    borderColor: '#39ff7e',
+                    backgroundColor: 'rgba(57,255,126,0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                }, {
+                    data: [48000, 51000, 43000, 43240, 38000, 41000],
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255,107,107,0.05)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                },
+                animation: { duration: 1000, easing: 'easeInOutQuart' }
+            }
+        });
+
+        /* ===========================
+           BAR CHART
+           =========================== */
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Income',
+                    data: [65000, 72000, 68000, 85000, 78000, 91000, 88000],
+                    backgroundColor: 'rgba(57,255,126,0.7)',
+                    borderRadius: 6, borderSkipped: false,
+                }, {
+                    label: 'Expenses',
+                    data: [48000, 51000, 43000, 43240, 38000, 41000, 39000],
+                    backgroundColor: 'rgba(255,107,107,0.6)',
+                    borderRadius: 6, borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#7a9e8a', font: { family: 'DM Sans', size: 11 }, boxWidth: 12, boxHeight: 12 }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#7a9e8a', font: { family: 'DM Sans', size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                    y: { ticks: { color: '#7a9e8a', font: { family: 'DM Sans', size: 11 }, callback: v => '₹' + (v / 1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                }
+            }
+        });
+
+        /* ===========================
+           DOUGHNUT CHART
+           =========================== */
+        const dCtx = document.getElementById('doughnutChart').getContext('2d');
+        const doughnutChart = new Chart(dCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Food', 'Transport', 'Shopping', 'Bills', 'Health', 'Other'],
+                datasets: [{
+                    data: [28, 15, 22, 18, 8, 9],
+                    backgroundColor: ['#39ff7e', '#22c55e', '#4ade80', '#86efac', '#16a34a', '#15803d'],
+                    borderWidth: 0, hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#7a9e8a', font: { family: 'DM Sans', size: 10 }, boxWidth: 10, boxHeight: 10, padding: 8 }
+                    }
+                }
+            }
+        });
+
+        /* Update charts on tab switch */
+        const chartData = {
+            weekly: { bar: [8000, 12000, 9500, 14000, 11000, 15000, 13000], doughnut: [30, 12, 25, 15, 10, 8] },
+            monthly: { bar: [65000, 72000, 68000, 85000, 78000, 91000, 88000], doughnut: [28, 15, 22, 18, 8, 9] },
+            yearly: { bar: [720000, 840000, 780000, 920000, 850000, 980000, 900000], doughnut: [26, 14, 24, 20, 9, 7] }
+        };
+        function updateCharts(type) {
+            const d = chartData[type];
+            barChart.data.datasets[0].data = d.bar;
+            barChart.data.datasets[1].data = d.bar.map(v => Math.round(v * 0.52));
+            barChart.update('active');
+            doughnutChart.data.datasets[0].data = d.doughnut;
+            doughnutChart.update('active');
+        }
+
+        /* ===========================
+           TICKER CLONE (seamless)
+           =========================== */
+        // Already duplicated in HTML for seamless ticker
+
+        /* ===========================
+           SIGN IN REDIRECT (Event Delegation)
+           =========================== */
+        document.addEventListener('click', async function (e) {
+            // Find if the clicked element (or its parent) is the Sign In submit button
+            const btn = e.target.closest('.btn-form-submit');
+            if (btn && btn.textContent.includes('Sign In to SmartSpend')) {
+                e.preventDefault();
+                
+                // Show loading state on button
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="spin" style="width:14px;height:14px;border-width:2px"></span> Signing In...';
+                btn.disabled = true;
+
+                try {
+                    // Call the actual Login API to get a valid token
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: 'arjun@smartspend.ai', // Default mock credentials
+                            password: 'password123'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data && data.access_token) {
+                        // Set valid logic in storage
+                        localStorage.setItem('ss_user', JSON.stringify(data.user));
+                        localStorage.setItem('ss_token', data.access_token);
+                        
+                        // Navigate to dashboard
+                        window.location.href = '/dashboard';
+                    } else {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        alert('Login failed: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (err) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    console.error('Login error:', err);
+                    alert('Network error during login');
+                }
+            }
+        });
+
+        /* ===========================
+           SMOOTH ACTIVE NAV
+           =========================== */
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-links a');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(sec => {
+                if (window.scrollY >= sec.offsetTop - 120) current = sec.id;
+            });
+            navLinks.forEach(a => {
+                a.style.color = a.getAttribute('href') === '#' + current ? 'var(--accent)' : '';
+            });
+        }, { passive: true });
+
+        /* ===========================
+           FORGOT PASSWORD FLOW
+           =========================== */
+        function openForgotPassword(e) {
+            if (e) e.preventDefault();
+            closeModal();
+            // Reset to form state
+            document.getElementById('fpStateForm').style.display = 'block';
+            document.getElementById('fpStateLoading').style.display = 'none';
+            document.getElementById('fpStateSuccess').style.display = 'none';
+            document.getElementById('fpEmailInput').value = '';
+            document.getElementById('fpOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeForgotPassword() {
+            document.getElementById('fpOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function handleFpOverlayClick(e) {
+            if (e.target === document.getElementById('fpOverlay')) closeForgotPassword();
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeForgotPassword();
+        });
+
+        function sendResetLink() {
+            const email = document.getElementById('fpEmailInput').value.trim();
+            if (!email || !email.includes('@')) {
+                fpShakeInput();
+                showToastFp('Please enter a valid email address', 'error');
+                return;
+            }
+            // Show loading
+            document.getElementById('fpStateForm').style.display = 'none';
+            document.getElementById('fpStateLoading').style.display = 'block';
+            document.getElementById('fpStateSuccess').style.display = 'none';
+
+            // Simulate 2s delay then show success
+            setTimeout(function () {
+                document.getElementById('fpStateLoading').style.display = 'none';
+                document.getElementById('fpStateSuccess').style.display = 'block';
+            }, 2000);
+        }
+
+        function resendResetLink(e) {
+            e.preventDefault();
+            document.getElementById('fpStateSuccess').style.display = 'none';
+            document.getElementById('fpStateLoading').style.display = 'block';
+            setTimeout(function () {
+                document.getElementById('fpStateLoading').style.display = 'none';
+                document.getElementById('fpStateSuccess').style.display = 'block';
+                showToastFp('\u2713 Reset link resent!', 'success');
+            }, 1800);
+        }
+
+        function fpShakeInput() {
+            const inp = document.getElementById('fpEmailInput');
+            inp.style.borderColor = '#ff5f5f';
+            inp.style.animation = 'none';
+            inp.offsetHeight; // reflow
+            inp.style.animation = 'fp-shake .35s var(--ease)';
+            setTimeout(function () {
+                inp.style.borderColor = '';
+                inp.style.animation = '';
+            }, 800);
+        }
+
+        function showToastFp(msg, type) {
+            var tc = document.getElementById('fpToastContainer');
+            var t = document.createElement('div');
+            t.style.cssText = 'background:var(--base-card);border:1px solid var(--base-border);border-radius:14px;padding:.875rem 1.25rem;box-shadow:12px 12px 40px rgba(0,0,0,.6);display:flex;align-items:center;gap:.75rem;font-size:.85rem;font-weight:500;animation:slideInR .3s var(--ease);max-width:300px;' + (type === 'success' ? 'border-left:3px solid var(--accent)' : 'border-left:3px solid #ff5f5f');
+            t.innerHTML = '<span>' + msg + '</span>';
+            tc.appendChild(t);
+            setTimeout(function () {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(110%)';
+                t.style.transition = 'all .3s';
+                setTimeout(function () { t.remove(); }, 300);
+            }, 3200);
+        }
+
+    </script>
+</body>
+
+</html>
