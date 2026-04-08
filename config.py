@@ -5,12 +5,12 @@ load_dotenv()
 
 # Database Configuration
 DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'mysqlvivo')
-DB_NAME = os.getenv('DB_NAME', 'smartspend')
+DB_USER = os.getenv('DB_USER', '')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
+DB_NAME = os.getenv('DB_NAME', '')
 
 # JWT Configuration
-JWT_SECRET = os.getenv('JWT_SECRET', 'smartspend_super_secret_change_in_production')
+JWT_SECRET = os.getenv('JWT_SECRET', '')
 JWT_ALGORITHM = 'HS256'
 
 # Flask Configuration
@@ -21,7 +21,11 @@ CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*')
 
 # API Keys
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
+NVIDIA_API_KEY = os.getenv('NVIDIA_API_KEY', '')
 
 # Application Configuration
 APP_NAME = 'SmartSpend'
 APP_VERSION = '1.0.0'
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com')

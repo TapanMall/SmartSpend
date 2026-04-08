@@ -1,85 +1,828 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service | SmartSpend</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Terms of Service — SmartSpend</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
     <style>
         :root {
-            --bg: #060d12;
-            --surf: #0c1a22;
-            --card: #0f1e28;
-            --border: rgba(255, 255, 255, 0.065);
-            --text: #dff0ea;
-            --muted: #6a9080;
-            --g: #39ff7e;
+            --base-bg: #060d12;
+            --base-surface: #0c1a22;
+            --base-card: #111f29;
+            --base-border: rgba(255, 255, 255, 0.07);
+            --base-text: #e8f5ee;
+            --base-muted: #7a9e8a;
+            --accent: #39ff7e;
+            --accent-glow: rgba(57, 255, 126, 0.25);
+            --accent-dim: rgba(57, 255, 126, 0.08);
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --green-400: #4ade80;
+            --clay-shadow: 8px 8px 24px rgba(0, 0, 0, .5), -4px -4px 12px rgba(255, 255, 255, .04), inset 0 1px 0 rgba(255, 255, 255, .08);
+            --clay-shadow-lg: 16px 16px 48px rgba(0, 0, 0, .6), -8px -8px 24px rgba(255, 255, 255, .03), inset 0 1px 0 rgba(255, 255, 255, .06);
+            --clay-radius: 24px;
+            --clay-radius-sm: 16px;
+            --max-w: 820px;
+            --nav-h: 72px;
+            --ease: cubic-bezier(.16, 1, .3, 1)
         }
+
+        [data-theme="light"] {
+            --base-bg: #f0faf4;
+            --base-surface: #fff;
+            --base-card: #e8f5ee;
+            --base-border: rgba(0, 0, 0, .08);
+            --base-text: #0a1a12;
+            --base-muted: #4a7a5a;
+            --clay-shadow: 8px 8px 24px rgba(0, 0, 0, .12), -4px -4px 12px rgba(255, 255, 255, .9), inset 0 1px 0 rgba(255, 255, 255, .8);
+            --clay-shadow-lg: 16px 16px 48px rgba(0, 0, 0, .15), -8px -8px 24px rgba(255, 255, 255, .8), inset 0 1px 0 rgba(255, 255, 255, .9)
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
         body {
             font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
+            background: var(--base-bg);
+            color: var(--base-text);
+            overflow-x: hidden;
+            transition: background .4s, color .4s
         }
+
+        a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            outline: none
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--base-bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-600);
+            border-radius: 3px
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Syne', sans-serif;
+            line-height: 1.15
+        }
+
         nav {
-            padding: 1.5rem 5%;
-            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--nav-h);
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            transition: all .4s;
+            border-bottom: 1px solid transparent
         }
-        nav a {
-            color: var(--text);
-            text-decoration: none;
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.2rem;
+
+        nav.scrolled {
+            background: rgba(6, 13, 18, .88);
+            backdrop-filter: blur(20px);
+            border-bottom-color: var(--base-border)
+        }
+
+        [data-theme="light"] nav.scrolled {
+            background: rgba(240, 250, 244, .88)
+        }
+
+        .nav-logo {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        .header {
-            padding: 6rem 5% 4rem;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            background: var(--surf);
-        }
-        .header h1 {
             font-family: 'Syne', sans-serif;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--g);
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: -.03em;
+            color: var(--base-text);
+            text-decoration: none
         }
-        .header p {
-            color: var(--muted);
-            font-size: 1.1rem;
-            max-width: 600px;
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--green-600));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 0 20px var(--accent-glow)
+        }
+
+        .nav-logo span {
+            color: var(--accent)
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none
+        }
+
+        .nav-links a {
+            font-size: .9rem;
+            font-weight: 500;
+            color: var(--base-muted);
+            transition: color .2s;
+            text-decoration: none
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem
+        }
+
+        .theme-toggle {
+            width: 48px;
+            height: 26px;
+            background: var(--base-card);
+            border-radius: 13px;
+            border: 1px solid var(--base-border);
+            position: relative;
+            cursor: pointer;
+            box-shadow: var(--clay-shadow);
+            transition: all .4s
+        }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            transition: transform .4s var(--ease)
+        }
+
+        [data-theme="light"] .theme-toggle::after {
+            transform: translateX(22px);
+            background: var(--green-600)
+        }
+
+        .btn-nav {
+            padding: .5rem 1.2rem;
+            border-radius: var(--clay-radius-sm);
+            font-size: .875rem;
+            font-weight: 600;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            color: var(--base-text);
+            box-shadow: var(--clay-shadow);
+            transition: all .2s;
+            text-decoration: none
+        }
+
+        .btn-nav:hover {
+            background: var(--accent);
+            color: #060d12;
+            border-color: var(--accent);
+            text-decoration: none
+        }
+
+        .btn-nav-cta {
+            padding: .5rem 1.4rem;
+            border-radius: var(--clay-radius-sm);
+            font-size: .875rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--green-500));
+            color: #060d12;
+            box-shadow: 0 4px 24px var(--accent-glow);
+            transition: all .2s;
+            text-decoration: none
+        }
+
+        .btn-nav-cta:hover {
+            transform: translateY(-2px);
+            text-decoration: none
+        }
+
+        .container {
+            max-width: var(--max-w);
             margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1
         }
-        .content {
-            max-width: 800px;
-            margin: 4rem auto;
-            padding: 0 5%;
-            color: var(--muted);
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, .2);
+            border-radius: 100px;
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: .06em;
+            text-transform: uppercase
+        }
+
+        .policy-hero {
+            padding: calc(var(--nav-h) + 5rem) 0 3rem
+        }
+
+        .policy-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap
+        }
+
+        .meta-chip {
+            padding: 5px 12px;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 100px;
+            font-size: .75rem;
+            color: var(--base-muted)
+        }
+
+        .policy-body {
+            padding: 0 0 6rem
+        }
+
+        .policy-toc {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 1.75rem;
+            box-shadow: var(--clay-shadow);
+            margin-bottom: 3rem
+        }
+
+        .toc-title {
+            font-family: 'Syne', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent)
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem
+        }
+
+        .toc-list li {
+            font-size: .85rem
+        }
+
+        .toc-list a {
+            color: var(--base-muted);
+            transition: color .2s;
+            text-decoration: none
+        }
+
+        .toc-list a:hover {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        .toc-list span {
+            color: var(--base-border);
+            margin-right: .5rem
+        }
+
+        .policy-section {
+            margin-bottom: 3rem
+        }
+
+        .policy-section h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 1rem;
+            color: var(--base-text);
+            display: flex;
+            align-items: center;
+            gap: .75rem
+        }
+
+        .policy-section h2 .sec-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, .2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--accent);
+            flex-shrink: 0
+        }
+
+        .policy-section p {
+            font-size: .9rem;
+            color: var(--base-muted);
+            line-height: 1.8;
+            margin-bottom: .875rem
+        }
+
+        .policy-section ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            margin-bottom: .875rem;
+            padding-left: .5rem
+        }
+
+        .policy-section ul li {
+            font-size: .9rem;
+            color: var(--base-muted);
+            line-height: 1.7;
+            display: flex;
+            align-items: flex-start;
+            gap: .625rem
+        }
+
+        .policy-section ul li::before {
+            content: '·';
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-top: -.1rem;
+            flex-shrink: 0
+        }
+
+        .policy-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 1.25rem 0 .5rem;
+            color: var(--base-text)
+        }
+
+        .highlight-box {
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, .2);
+            border-radius: var(--clay-radius-sm);
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0
+        }
+
+        .highlight-box p {
+            color: var(--base-text) !important;
+            font-weight: 500
+        }
+
+        .warn-box {
+            background: rgba(255, 107, 107, .06);
+            border: 1px solid rgba(255, 107, 107, .2);
+            border-radius: var(--clay-radius-sm);
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0
+        }
+
+        .warn-box p {
+            color: var(--base-text) !important
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--base-border);
+            margin: 2.5rem 0
+        }
+
+        footer {
+            border-top: 1px solid var(--base-border);
+            padding: 4rem 0 2rem;
+            position: relative;
+            z-index: 1
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            max-width: 1100px;
+            margin-inline: auto;
+            padding: 0 2rem
+        }
+
+        .footer-col-title {
+            font-family: 'Syne', sans-serif;
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--base-muted);
+            margin-bottom: 1.25rem
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem
+        }
+
+        .footer-links a {
+            font-size: .875rem;
+            color: var(--base-muted);
+            transition: color .2s;
+            text-decoration: none
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 2rem;
+            border-top: 1px solid var(--base-border);
+            font-size: .8rem;
+            color: var(--base-muted);
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: 1100px;
+            margin-inline: auto;
+            padding-inline: 2rem
+        }
+
+        ::selection {
+            background: rgba(57, 255, 126, .3)
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .container {
+                padding: 0 1.25rem
+            }
         }
     </style>
 </head>
+
 <body>
-    <nav>
-        <a href="/">
-            <span style="width:32px; height:32px; background:var(--g); border-radius:8px; display:inline-block;"></span>
-            SmartSpend
+    <nav id="nav">
+        <a href="smartspend.html" class="nav-logo">
+            <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 8px;">
+            Smart<span>Spend</span>
         </a>
+        <ul class="nav-links">
+            <li><a href="smartspend.html#features">Features</a></li>
+            <li><a href="smartspend.html#pricing">Pricing</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="tt"></button>
+            <a href="smartspend.html" class="btn-nav">Sign In</a>
+            <a href="smartspend.html" class="btn-nav-cta">Get Started →</a>
+        </div>
     </nav>
-    <div class="header">
-        <h1>Terms of Service</h1>
-        <p>The rules and guidelines for using the SmartSpend platform.</p>
-    </div>
-    <div class="content">
-        <p>This is a placeholder page for <strong>Terms of Service</strong>. The content for this page is currently under development.</p>
-        <br>
-        <a href="/" style="color: var(--g); text-decoration: none;">← Return to Home</a>
-    </div>
+
+    <section class="policy-hero">
+        <div class="container">
+            <div class="badge" style="margin-bottom:1rem">📜 Legal</div>
+            <h1 style="font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.75rem">
+                Terms of Service</h1>
+            <p style="font-size:1rem;color:var(--base-muted);line-height:1.7;max-width:560px">These terms govern your
+                use of SmartSpend. Please read them. They are written to be clear and fair — not deliberately confusing.
+            </p>
+            <div class="policy-meta">
+                <div class="meta-chip">📅 Last updated: April 1, 2026</div>
+                <div class="meta-chip">⚖️ Governed by Indian Law</div>
+                <div class="meta-chip">📍 Bengaluru Jurisdiction</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="policy-body">
+        <div class="container">
+            <div class="highlight-box">
+                <p>📌 <strong>Quick Summary:</strong> Use SmartSpend legally and honestly. Don't try to break it. Your
+                    data is yours. We'll charge you what we say we will. Either party can cancel. We limit our
+                    liability. Indian law governs everything.</p>
+            </div>
+
+            <div class="policy-toc">
+                <div class="toc-title">📋 Table of Contents</div>
+                <ul class="toc-list">
+                    <li><span>01</span><a href="#t1">Acceptance of Terms</a></li>
+                    <li><span>02</span><a href="#t2">Eligibility</a></li>
+                    <li><span>03</span><a href="#t3">Account Responsibilities</a></li>
+                    <li><span>04</span><a href="#t4">Subscription & Billing</a></li>
+                    <li><span>05</span><a href="#t5">Acceptable Use</a></li>
+                    <li><span>06</span><a href="#t6">Intellectual Property</a></li>
+                    <li><span>07</span><a href="#t7">Your Data & Content</a></li>
+                    <li><span>08</span><a href="#t8">Disclaimers & Limitation of Liability</a></li>
+                    <li><span>09</span><a href="#t9">Termination</a></li>
+                    <li><span>10</span><a href="#t10">Governing Law & Disputes</a></li>
+                    <li><span>11</span><a href="#t11">Changes to Terms</a></li>
+                    <li><span>12</span><a href="#t12">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="policy-section" id="t1">
+                <h2>
+                    <div class="sec-num">01</div>Acceptance of Terms
+                </h2>
+                <p>By accessing or using SmartSpend ("the Service"), provided by SmartSpend Technologies Pvt. Ltd.
+                    ("SmartSpend", "we", "us", "our"), you agree to be bound by these Terms of Service ("Terms"). If you
+                    do not agree to these Terms, you may not use the Service.</p>
+                <p>These Terms apply to all users of the Service, including users of the free plan, Pro plan, and Team
+                    plan.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t2">
+                <h2>
+                    <div class="sec-num">02</div>Eligibility
+                </h2>
+                <p>To use SmartSpend, you must be at least 18 years of age and capable of entering into a legally
+                    binding agreement under Indian law. By using the Service, you represent and warrant that you meet
+                    these requirements.</p>
+                <p>SmartSpend is intended for personal finance management by individuals, households, and small teams in
+                    India. Commercial re-sale or white-labeling of the Service is not permitted without a separate
+                    written agreement.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t3">
+                <h2>
+                    <div class="sec-num">03</div>Account Responsibilities
+                </h2>
+                <p>You are responsible for maintaining the confidentiality of your login credentials and for all
+                    activity that occurs under your account. You agree to:</p>
+                <ul>
+                    <li>Provide accurate and current registration information</li>
+                    <li>Notify us immediately of any unauthorized access to your account</li>
+                    <li>Use a strong, unique password and enable two-factor authentication where available</li>
+                    <li>Not share your account credentials with any other person</li>
+                </ul>
+                <p>SmartSpend is not liable for any loss resulting from unauthorized account access caused by your
+                    failure to maintain account security.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t4">
+                <h2>
+                    <div class="sec-num">04</div>Subscription & Billing
+                </h2>
+                <h3>Free Plan</h3>
+                <p>The Starter plan is free and includes limited features as described on our pricing page. We reserve
+                    the right to modify the free plan's feature set with 30 days' notice.</p>
+                <h3>Paid Plans</h3>
+                <p>Pro and Team plans are billed monthly or annually in advance. Prices are listed in Indian Rupees
+                    (INR) and are inclusive of applicable GST. By subscribing to a paid plan, you authorize SmartSpend
+                    to charge your payment method on a recurring basis.</p>
+                <h3>Cancellation & Refunds</h3>
+                <ul>
+                    <li>You may cancel your subscription at any time from your account settings</li>
+                    <li>Cancellation takes effect at the end of the current billing period</li>
+                    <li>No partial refunds are provided for unused portions of a billing period</li>
+                    <li>Annual plan subscribers may request a pro-rated refund within 30 days of purchase</li>
+                    <li>Free trial users are not charged unless they explicitly upgrade after the trial ends</li>
+                </ul>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t5">
+                <h2>
+                    <div class="sec-num">05</div>Acceptable Use
+                </h2>
+                <p>You agree to use SmartSpend only for lawful purposes and in accordance with these Terms. You must
+                    not:</p>
+                <ul>
+                    <li>Use the Service to track financial activity related to illegal enterprises or money laundering
+                    </li>
+                    <li>Attempt to gain unauthorized access to any part of the Service or its infrastructure</li>
+                    <li>Reverse-engineer, decompile, or attempt to extract the source code of the Service</li>
+                    <li>Transmit any malicious code, spam, or disruptive content via the Service</li>
+                    <li>Use automated tools to scrape or harvest data from the Service without written permission</li>
+                    <li>Impersonate any person or entity, or misrepresent your affiliation with any person or entity
+                    </li>
+                </ul>
+                <p>Violation of these rules may result in immediate account suspension or termination without refund.
+                </p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t6">
+                <h2>
+                    <div class="sec-num">06</div>Intellectual Property
+                </h2>
+                <p>The SmartSpend platform, including its design, code, AI models, brand marks, logos, and all content
+                    created by SmartSpend, is owned by SmartSpend Technologies Pvt. Ltd. and is protected by Indian and
+                    international intellectual property law.</p>
+                <p>Your use of the Service does not grant you any ownership of or license to our intellectual property
+                    beyond the limited right to use the Service as described in these Terms.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t7">
+                <h2>
+                    <div class="sec-num">07</div>Your Data & Content
+                </h2>
+                <p>You retain full ownership of all financial data, notes, and content you enter into SmartSpend. By
+                    using the Service, you grant SmartSpend a limited, non-exclusive license to process your data solely
+                    for the purpose of providing the Service to you. We will never use your data for advertising or sell
+                    it to third parties. See our <a href="privacy.html">Privacy Policy</a> for full details.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t8">
+                <h2>
+                    <div class="sec-num">08</div>Disclaimers & Limitation of Liability
+                </h2>
+                <div class="warn-box">
+                    <p>⚠️ <strong>SmartSpend is a personal finance tracking tool, not a licensed financial
+                            advisor.</strong> Nothing in the Service constitutes investment, tax, legal, or financial
+                        advice. Always consult a qualified professional before making significant financial decisions.
+                    </p>
+                </div>
+                <p>The Service is provided "as is" and "as available" without any warranties of any kind, either express
+                    or implied. To the maximum extent permitted by applicable Indian law, SmartSpend's total liability
+                    to you for any claim arising out of or relating to these Terms or the Service shall not exceed the
+                    amount you paid us in the 3 months preceding the claim.</p>
+                <p>SmartSpend is not liable for any indirect, incidental, consequential, or punitive damages, including
+                    but not limited to loss of profits, data, or goodwill.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t9">
+                <h2>
+                    <div class="sec-num">09</div>Termination
+                </h2>
+                <p>You may terminate your account at any time by visiting Account Settings → Delete Account, or by
+                    emailing <a href="mailto:support@smartspend.in">support@smartspend.in</a>. Upon termination, all
+                    your data will be permanently deleted within 30 days.</p>
+                <p>SmartSpend may terminate or suspend your account without notice if you materially breach these Terms,
+                    engage in fraudulent activity, or if we are required to do so by law.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t10">
+                <h2>
+                    <div class="sec-num">10</div>Governing Law & Disputes
+                </h2>
+                <p>These Terms are governed by the laws of India. Any dispute arising out of or in connection with these
+                    Terms shall be subject to the exclusive jurisdiction of the courts of Bengaluru, Karnataka, India.
+                </p>
+                <p>Before initiating formal proceedings, both parties agree to attempt to resolve any dispute informally
+                    by contacting us at <a href="mailto:legal@smartspend.in">legal@smartspend.in</a>. We will attempt to
+                    resolve the matter within 30 days.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t11">
+                <h2>
+                    <div class="sec-num">11</div>Changes to Terms
+                </h2>
+                <p>We reserve the right to modify these Terms at any time. If changes are material, we will notify you
+                    by email at least 14 days in advance. Continued use of the Service after changes become effective
+                    constitutes acceptance of the new Terms.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="t12">
+                <h2>
+                    <div class="sec-num">12</div>Contact
+                </h2>
+                <p>For any questions about these Terms, contact us at:</p>
+                <div
+                    style="background:var(--base-card);border:1px solid var(--base-border);border-radius:var(--clay-radius-sm);padding:1.5rem;box-shadow:var(--clay-shadow)">
+                    <p style="margin-bottom:.35rem"><strong style="color:var(--base-text)">SmartSpend Technologies Pvt.
+                            Ltd.</strong></p>
+                    <p>WeWork Prestige Central, MG Road, Bengaluru 560001, Karnataka, India</p>
+                    <p style="margin-top:.5rem"><a href="mailto:legal@smartspend.in">legal@smartspend.in</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div><a href="smartspend.html" class="nav-logo">
+                    <img src="../static/images/SmartSpend.png" alt="SmartSpend" style="width: 32px; height: 32px; border-radius: 8px; margin-right: 8px;">
+                    Smart<span>Spend</span>
+                </a>
+                <p style="font-size:.85rem;color:var(--base-muted);margin-top:.75rem;max-width:280px;line-height:1.7">
+                    Your intelligent expense companion.</p>
+            </div>
+            <div>
+                <div class="footer-col-title">Product</div>
+                <ul class="footer-links">
+                    <li><a href="smartspend.html#features">Features</a></li>
+                    <li><a href="smartspend.html#pricing">Pricing</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-col-title">Company</div>
+                <ul class="footer-links">
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="careers.html">Careers</a></li>
+                    <li><a href="press.html">Press Kit</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-col-title">Legal</div>
+                <ul class="footer-links">
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                    <li><a href="cookies.html">Cookie Policy</a></li>
+                    <li><a href="gdpr.html">GDPR</a></li>
+                    <li><a href="security.html">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 SmartSpend Technologies Pvt. Ltd.</p>
+            <p>Made with 💚 in India</p>
+        </div>
+    </footer>
+    <script>
+        const h = document.documentElement, tt = document.getElementById("tt"); let d = true;
+        tt.addEventListener("click", () => { d = !d; h.setAttribute("data-theme", d ? "dark" : "light") });
+        const nav = document.getElementById("nav"); window.addEventListener("scroll", () => { window.scrollY > 30 ? nav.classList.add("scrolled") : nav.classList.remove("scrolled") }, { passive: true });
+    </script>
 </body>
+
 </html>

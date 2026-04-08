@@ -13,7 +13,10 @@ const SS_API = {
     
     async get(path) {
         try {
-            const r = await fetch(path, { headers: this.headers() });
+            const r = await fetch(path, { 
+                headers: this.headers(),
+                cache: 'no-store'
+            });
             if (r.status === 401) {
                 window.location.href = '/?auth=login';
                 return null;
