@@ -1,85 +1,800 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | SmartSpend</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Privacy Policy — SmartSpend</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
     <style>
         :root {
-            --bg: #060d12;
-            --surf: #0c1a22;
-            --card: #0f1e28;
-            --border: rgba(255, 255, 255, 0.065);
-            --text: #dff0ea;
-            --muted: #6a9080;
-            --g: #39ff7e;
+            --base-bg: #060d12;
+            --base-surface: #0c1a22;
+            --base-card: #111f29;
+            --base-border: rgba(255, 255, 255, 0.07);
+            --base-text: #e8f5ee;
+            --base-muted: #7a9e8a;
+            --accent: #39ff7e;
+            --accent-glow: rgba(57, 255, 126, 0.25);
+            --accent-dim: rgba(57, 255, 126, 0.08);
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --green-400: #4ade80;
+            --clay-shadow: 8px 8px 24px rgba(0, 0, 0, .5), -4px -4px 12px rgba(255, 255, 255, .04), inset 0 1px 0 rgba(255, 255, 255, .08);
+            --clay-shadow-lg: 16px 16px 48px rgba(0, 0, 0, .6), -8px -8px 24px rgba(255, 255, 255, .03), inset 0 1px 0 rgba(255, 255, 255, .06);
+            --clay-radius: 24px;
+            --clay-radius-sm: 16px;
+            --max-w: 820px;
+            --nav-h: 72px;
+            --ease: cubic-bezier(.16, 1, .3, 1)
         }
+
+        [data-theme="light"] {
+            --base-bg: #f0faf4;
+            --base-surface: #fff;
+            --base-card: #e8f5ee;
+            --base-border: rgba(0, 0, 0, .08);
+            --base-text: #0a1a12;
+            --base-muted: #4a7a5a;
+            --clay-shadow: 8px 8px 24px rgba(0, 0, 0, .12), -4px -4px 12px rgba(255, 255, 255, .9), inset 0 1px 0 rgba(255, 255, 255, .8);
+            --clay-shadow-lg: 16px 16px 48px rgba(0, 0, 0, .15), -8px -8px 24px rgba(255, 255, 255, .8), inset 0 1px 0 rgba(255, 255, 255, .9)
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
         body {
             font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
+            background: var(--base-bg);
+            color: var(--base-text);
+            overflow-x: hidden;
+            transition: background .4s, color .4s
         }
+
+        a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            outline: none
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--base-bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-600);
+            border-radius: 3px
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Syne', sans-serif;
+            line-height: 1.15
+        }
+
         nav {
-            padding: 1.5rem 5%;
-            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--nav-h);
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            transition: all .4s;
+            border-bottom: 1px solid transparent
         }
-        nav a {
-            color: var(--text);
-            text-decoration: none;
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.2rem;
+
+        nav.scrolled {
+            background: rgba(6, 13, 18, .88);
+            backdrop-filter: blur(20px);
+            border-bottom-color: var(--base-border)
+        }
+
+        [data-theme="light"] nav.scrolled {
+            background: rgba(240, 250, 244, .88)
+        }
+
+        .nav-logo {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        .header {
-            padding: 6rem 5% 4rem;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            background: var(--surf);
-        }
-        .header h1 {
             font-family: 'Syne', sans-serif;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--g);
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: -.03em;
+            color: var(--base-text);
+            text-decoration: none
         }
-        .header p {
-            color: var(--muted);
-            font-size: 1.1rem;
-            max-width: 600px;
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--green-600));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 0 20px var(--accent-glow)
+        }
+
+        .nav-logo span {
+            color: var(--accent)
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none
+        }
+
+        .nav-links a {
+            font-size: .9rem;
+            font-weight: 500;
+            color: var(--base-muted);
+            transition: color .2s;
+            text-decoration: none
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem
+        }
+
+        .theme-toggle {
+            width: 48px;
+            height: 26px;
+            background: var(--base-card);
+            border-radius: 13px;
+            border: 1px solid var(--base-border);
+            position: relative;
+            cursor: pointer;
+            box-shadow: var(--clay-shadow);
+            transition: all .4s
+        }
+
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            transition: transform .4s var(--ease)
+        }
+
+        [data-theme="light"] .theme-toggle::after {
+            transform: translateX(22px);
+            background: var(--green-600)
+        }
+
+        .btn-nav {
+            padding: .5rem 1.2rem;
+            border-radius: var(--clay-radius-sm);
+            font-size: .875rem;
+            font-weight: 600;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            color: var(--base-text);
+            box-shadow: var(--clay-shadow);
+            transition: all .2s;
+            text-decoration: none
+        }
+
+        .btn-nav:hover {
+            background: var(--accent);
+            color: #060d12;
+            border-color: var(--accent);
+            text-decoration: none
+        }
+
+        .btn-nav-cta {
+            padding: .5rem 1.4rem;
+            border-radius: var(--clay-radius-sm);
+            font-size: .875rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--green-500));
+            color: #060d12;
+            box-shadow: 0 4px 24px var(--accent-glow);
+            transition: all .2s;
+            text-decoration: none
+        }
+
+        .btn-nav-cta:hover {
+            transform: translateY(-2px);
+            text-decoration: none
+        }
+
+        .container {
+            max-width: var(--max-w);
             margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1
         }
-        .content {
-            max-width: 800px;
-            margin: 4rem auto;
-            padding: 0 5%;
-            color: var(--muted);
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, .2);
+            border-radius: 100px;
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: .06em;
+            text-transform: uppercase
+        }
+
+        /* POLICY LAYOUT */
+        .policy-hero {
+            padding: calc(var(--nav-h) + 5rem) 0 3rem
+        }
+
+        .policy-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap
+        }
+
+        .meta-chip {
+            padding: 5px 12px;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 100px;
+            font-size: .75rem;
+            color: var(--base-muted)
+        }
+
+        .policy-body {
+            padding: 0 0 6rem
+        }
+
+        .policy-toc {
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 1.75rem;
+            box-shadow: var(--clay-shadow);
+            margin-bottom: 3rem
+        }
+
+        .toc-title {
+            font-family: 'Syne', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent)
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem
+        }
+
+        .toc-list li {
+            font-size: .85rem
+        }
+
+        .toc-list a {
+            color: var(--base-muted);
+            transition: color .2s;
+            text-decoration: none
+        }
+
+        .toc-list a:hover {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        .toc-list span {
+            color: var(--base-border);
+            margin-right: .5rem
+        }
+
+        .policy-section {
+            margin-bottom: 3rem
+        }
+
+        .policy-section h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 1rem;
+            color: var(--base-text);
+            display: flex;
+            align-items: center;
+            gap: .75rem
+        }
+
+        .policy-section h2 .sec-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, .2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--accent);
+            flex-shrink: 0
+        }
+
+        .policy-section p {
+            font-size: .9rem;
+            color: var(--base-muted);
+            line-height: 1.8;
+            margin-bottom: .875rem
+        }
+
+        .policy-section ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            margin-bottom: .875rem;
+            padding-left: .5rem
+        }
+
+        .policy-section ul li {
+            font-size: .9rem;
+            color: var(--base-muted);
+            line-height: 1.7;
+            display: flex;
+            align-items: flex-start;
+            gap: .625rem
+        }
+
+        .policy-section ul li::before {
+            content: '✓';
+            color: var(--accent);
+            font-size: .75rem;
+            margin-top: .2rem;
+            flex-shrink: 0
+        }
+
+        .policy-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 1.25rem 0 .5rem;
+            color: var(--base-text)
+        }
+
+        .highlight-box {
+            background: var(--accent-dim);
+            border: 1px solid rgba(57, 255, 126, .2);
+            border-radius: var(--clay-radius-sm);
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0
+        }
+
+        .highlight-box p {
+            color: var(--base-text) !important;
+            font-weight: 500
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--base-border);
+            margin: 2.5rem 0
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--base-border);
+            padding: 4rem 0 2rem;
+            position: relative;
+            z-index: 1
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            max-width: 1100px;
+            margin-inline: auto;
+            padding: 0 2rem
+        }
+
+        .footer-col-title {
+            font-family: 'Syne', sans-serif;
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--base-muted);
+            margin-bottom: 1.25rem
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem
+        }
+
+        .footer-links a {
+            font-size: .875rem;
+            color: var(--base-muted);
+            transition: color .2s;
+            text-decoration: none
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 2rem;
+            border-top: 1px solid var(--base-border);
+            font-size: .8rem;
+            color: var(--base-muted);
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: 1100px;
+            margin-inline: auto;
+            padding-inline: 2rem
+        }
+
+        ::selection {
+            background: rgba(57, 255, 126, .3)
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .container {
+                padding: 0 1.25rem
+            }
         }
     </style>
 </head>
+
 <body>
-    <nav>
-        <a href="/">
-            <span style="width:32px; height:32px; background:var(--g); border-radius:8px; display:inline-block;"></span>
-            SmartSpend
+    <nav id="nav">
+        <a href="smartspend.html" class="nav-logo">
+            <div class="logo-icon">💸</div>Smart<span>Spend</span>
         </a>
+        <ul class="nav-links">
+            <li><a href="smartspend.html#features">Features</a></li>
+            <li><a href="smartspend.html#pricing">Pricing</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="tt"></button>
+            <a href="smartspend.html" class="btn-nav">Sign In</a>
+            <a href="smartspend.html" class="btn-nav-cta">Get Started →</a>
+        </div>
     </nav>
-    <div class="header">
-        <h1>Privacy Policy</h1>
-        <p>We take your privacy seriously. Learn how we handle and protect your data.</p>
-    </div>
-    <div class="content">
-        <p>This is a placeholder page for <strong>Privacy Policy</strong>. The content for this page is currently under development.</p>
-        <br>
-        <a href="/" style="color: var(--g); text-decoration: none;">← Return to Home</a>
-    </div>
+
+    <section class="policy-hero">
+        <div class="container">
+            <div class="badge" style="margin-bottom:1rem">🔒 Legal</div>
+            <h1 style="font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.75rem">
+                Privacy Policy</h1>
+            <p style="font-size:1rem;color:var(--base-muted);line-height:1.7;max-width:560px">We take your privacy
+                seriously. This policy explains exactly what data we collect, how we use it, and your rights as a
+                SmartSpend user.</p>
+            <div class="policy-meta">
+                <div class="meta-chip">📅 Last updated: April 1, 2026</div>
+                <div class="meta-chip">📍 Bengaluru, India</div>
+                <div class="meta-chip">✅ GDPR Compliant</div>
+                <div class="meta-chip">🇮🇳 DPDP Act 2023 Compliant</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="policy-body">
+        <div class="container">
+            <div class="highlight-box">
+                <p>🛡️ <strong>TL;DR:</strong> Your financial data belongs to you. We never sell it, never share it with
+                    advertisers, and you can delete everything at any time. SmartSpend is a tool to help you — not a
+                    data broker.</p>
+            </div>
+
+            <div class="policy-toc">
+                <div class="toc-title">📋 Table of Contents</div>
+                <ul class="toc-list">
+                    <li><span>01</span><a href="#s1">Information We Collect</a></li>
+                    <li><span>02</span><a href="#s2">How We Use Your Information</a></li>
+                    <li><span>03</span><a href="#s3">Data Storage & Security</a></li>
+                    <li><span>04</span><a href="#s4">Sharing & Third Parties</a></li>
+                    <li><span>05</span><a href="#s5">Cookies & Tracking</a></li>
+                    <li><span>06</span><a href="#s6">Your Rights</a></li>
+                    <li><span>07</span><a href="#s7">Data Retention</a></li>
+                    <li><span>08</span><a href="#s8">Children's Privacy</a></li>
+                    <li><span>09</span><a href="#s9">Changes to This Policy</a></li>
+                    <li><span>10</span><a href="#s10">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div class="policy-section" id="s1">
+                <h2>
+                    <div class="sec-num">01</div>Information We Collect
+                </h2>
+                <h3>Account Information</h3>
+                <p>When you create a SmartSpend account, we collect your name, email address, and a hashed password. If
+                    you sign in with Google, we receive only your name and email from Google's OAuth service — nothing
+                    more.</p>
+                <h3>Financial Data You Enter</h3>
+                <p>SmartSpend stores the expense and income data you voluntarily add. This includes transaction amounts,
+                    categories, dates, merchant names, notes, and any receipt images you upload for OCR scanning.</p>
+                <ul>
+                    <li>Transaction records (amount, category, merchant, date, notes)</li>
+                    <li>Budget goals and limits you set</li>
+                    <li>Receipt images (processed and then deleted within 24 hours)</li>
+                    <li>Voice entries (transcribed and deleted immediately after processing)</li>
+                </ul>
+                <h3>Technical Data</h3>
+                <p>We automatically collect standard technical data: IP address, browser type, device type, and app
+                    usage patterns. This helps us diagnose bugs and improve performance.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s2">
+                <h2>
+                    <div class="sec-num">02</div>How We Use Your Information
+                </h2>
+                <p>We use your information solely to provide and improve the SmartSpend service. Specifically:</p>
+                <ul>
+                    <li>To power the expense tracking, budgeting, and analytics features</li>
+                    <li>To generate AI-powered insights and spending recommendations</li>
+                    <li>To send you product notifications, alerts, and (with your consent) email updates</li>
+                    <li>To authenticate your identity and protect your account</li>
+                    <li>To diagnose bugs and improve app performance</li>
+                    <li>To respond to your support requests</li>
+                </ul>
+                <div class="highlight-box">
+                    <p>🚫 We will <strong>never</strong> use your financial data to serve you targeted advertising,
+                        build behavioral profiles for sale, or share it with insurance companies, lenders, or any
+                        financial institution without your explicit, written consent.</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s3">
+                <h2>
+                    <div class="sec-num">03</div>Data Storage & Security
+                </h2>
+                <p>All SmartSpend data is stored on servers in India, in compliance with Indian data localization
+                    requirements. We use industry-standard security measures including:</p>
+                <ul>
+                    <li>AES-256 encryption for all data at rest</li>
+                    <li>TLS 1.3 for all data in transit</li>
+                    <li>JWT token-based authentication with short expiry windows</li>
+                    <li>Zero plain-text storage of passwords (bcrypt hashing)</li>
+                    <li>Regular third-party security audits</li>
+                    <li>SOC 2 Type II certification (in progress, target Q3 2026)</li>
+                </ul>
+                <p>In the event of a data breach that affects your personal data, we will notify you by email within 72
+                    hours of discovery, as required by law.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s4">
+                <h2>
+                    <div class="sec-num">04</div>Sharing & Third Parties
+                </h2>
+                <p>We work with a small number of trusted third-party service providers to operate SmartSpend. These
+                    providers are bound by strict data processing agreements and may only use your data to provide their
+                    specific service to us:</p>
+                <ul>
+                    <li><strong>Razorpay</strong> — Payment processing (they never see your expense data)</li>
+                    <li><strong>Amazon Web Services (AWS India)</strong> — Cloud infrastructure and storage</li>
+                    <li><strong>Anthropic Claude API</strong> — AI insights generation (anonymized data only)</li>
+                    <li><strong>SendGrid</strong> — Transactional email delivery</li>
+                    <li><strong>Sentry</strong> — Error monitoring (no financial data included)</li>
+                </ul>
+                <p>We do not sell, rent, or trade your personal information to any third party. We may disclose data if
+                    required by Indian law or a valid court order, in which case we will notify you unless prohibited
+                    from doing so by law.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s5">
+                <h2>
+                    <div class="sec-num">05</div>Cookies & Tracking
+                </h2>
+                <p>SmartSpend uses minimal, essential cookies required for the app to function (authentication tokens,
+                    preferences). We use a single analytics service (self-hosted Plausible Analytics) that is
+                    privacy-friendly, collects no personal identifiers, and is not shared with any third party.</p>
+                <p>We do not use Google Analytics, Facebook Pixel, or any advertising network tracking. For full
+                    details, see our <a href="cookies.html">Cookie Policy</a>.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s6">
+                <h2>
+                    <div class="sec-num">06</div>Your Rights
+                </h2>
+                <p>Under the Digital Personal Data Protection Act 2023 (DPDP Act) and GDPR (for EU users), you have the
+                    following rights:</p>
+                <ul>
+                    <li><strong>Access</strong> — Request a full export of all data we hold about you</li>
+                    <li><strong>Correction</strong> — Request that we correct inaccurate personal data</li>
+                    <li><strong>Deletion</strong> — Request permanent deletion of your account and all associated data
+                    </li>
+                    <li><strong>Portability</strong> — Receive your data in a machine-readable format (CSV/JSON)</li>
+                    <li><strong>Withdraw Consent</strong> — Opt out of non-essential communications at any time</li>
+                    <li><strong>Complaint</strong> — Lodge a complaint with the Data Protection Board of India</li>
+                </ul>
+                <p>To exercise any of these rights, email us at <a
+                        href="mailto:privacy@smartspend.in">privacy@smartspend.in</a> or use the "Delete My Data" option
+                    in your account settings. We will respond within 30 days.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s7">
+                <h2>
+                    <div class="sec-num">07</div>Data Retention
+                </h2>
+                <p>We retain your data for as long as your account is active. If you delete your account, all personal
+                    data is permanently purged within 30 days. Anonymized, aggregated data (with no personal
+                    identifiers) may be retained for product analytics.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s8">
+                <h2>
+                    <div class="sec-num">08</div>Children's Privacy
+                </h2>
+                <p>SmartSpend is intended for users aged 18 and above. We do not knowingly collect data from children.
+                    If you believe a child has provided us with personal data, please contact us immediately at <a
+                        href="mailto:privacy@smartspend.in">privacy@smartspend.in</a>.</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s9">
+                <h2>
+                    <div class="sec-num">09</div>Changes to This Policy
+                </h2>
+                <p>If we make material changes to this Privacy Policy, we will notify you by email at least 14 days
+                    before the changes take effect. We will also update the "Last Updated" date at the top of this page.
+                    Continued use of SmartSpend after changes take effect constitutes acceptance of the updated policy.
+                </p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="policy-section" id="s10">
+                <h2>
+                    <div class="sec-num">10</div>Contact Us
+                </h2>
+                <p>If you have questions about this Privacy Policy or your personal data, contact our Data Protection
+                    Officer:</p>
+                <div
+                    style="background:var(--base-card);border:1px solid var(--base-border);border-radius:var(--clay-radius-sm);padding:1.5rem;box-shadow:var(--clay-shadow)">
+                    <p style="margin-bottom:.35rem"><strong style="color:var(--base-text)">Data Protection
+                            Officer</strong></p>
+                    <p>SmartSpend Technologies Pvt. Ltd.</p>
+                    <p>WeWork Prestige Central, MG Road, Bengaluru 560001</p>
+                    <p style="margin-top:.5rem"><a href="mailto:privacy@smartspend.in">privacy@smartspend.in</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div><a href="smartspend.html" class="nav-logo">
+                    <div class="logo-icon">💸</div>Smart<span>Spend</span>
+                </a>
+                <p style="font-size:.85rem;color:var(--base-muted);margin-top:.75rem;max-width:280px;line-height:1.7">
+                    Your intelligent expense companion.</p>
+            </div>
+            <div>
+                <div class="footer-col-title">Product</div>
+                <ul class="footer-links">
+                    <li><a href="smartspend.html#features">Features</a></li>
+                    <li><a href="smartspend.html#pricing">Pricing</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-col-title">Company</div>
+                <ul class="footer-links">
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="careers.html">Careers</a></li>
+                    <li><a href="press.html">Press Kit</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-col-title">Legal</div>
+                <ul class="footer-links">
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                    <li><a href="cookies.html">Cookie Policy</a></li>
+                    <li><a href="gdpr.html">GDPR</a></li>
+                    <li><a href="security.html">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 SmartSpend Technologies Pvt. Ltd.</p>
+            <p>Made with 💚 in India</p>
+        </div>
+    </footer>
+    <script>
+        const h = document.documentElement, tt = document.getElementById("tt"); let d = true;
+        tt.addEventListener("click", () => { d = !d; h.setAttribute("data-theme", d ? "dark" : "light") });
+        const nav = document.getElementById("nav"); window.addEventListener("scroll", () => { window.scrollY > 30 ? nav.classList.add("scrolled") : nav.classList.remove("scrolled") }, { passive: true });
+    </script>
 </body>
+
 </html>

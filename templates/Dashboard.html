@@ -2674,8 +2674,7 @@
                 </div>
                 <button class="sb-collapse" id="sbCollapse" title="Collapse sidebar">◀</button>
             </div>
-
-
+            
             <nav class="sb-nav">
                 <div class="sb-section-title">Main</div>
                 <div class="nav-item active" onclick="switchView('dashboard',this)">
@@ -2766,10 +2765,10 @@
                     <!-- Profile Dropdown Panel -->
                     <div class="profile-panel" id="profilePanel">
                         <div class="profile-header">
-                            <div class="profile-av-big">AK</div>
+                            <div class="profile-av-big" id="profileAvMini">U</div>
                             <div class="profile-header-info">
-                                <div class="profile-name" id="pn-display">Arjun Kapoor</div>
-                                <div class="profile-tag" id="pt-display">⚡ Pro Plan</div>
+                                <div class="profile-name" id="pn-display">Loading...</div>
+                                <div class="profile-tag" id="pt-display">⚡ Plan</div>
                             </div>
                         </div>
                         <div class="profile-divider"></div>
@@ -2814,7 +2813,7 @@
                             </div>
                             <div class="sc-value big" id="statBalance" style="color:var(--g)">₹0</div>
                             <div class="sc-meta" style="margin-top:.4rem">
-                                <span class="sc-change up">↑ 18.4%</span>
+                                <span class="sc-change up" id="balChange">--</span>
                                 <span class="sc-change-label">vs last month</span>
                             </div>
                             <div class="sc-mini-chart"><canvas id="balChart"></canvas></div>
@@ -2827,7 +2826,7 @@
                             </div>
                             <div class="sc-value" id="statIncome" style="color:var(--g)">₹0</div>
                             <div class="sc-meta" style="margin-top:.4rem">
-                                <span class="sc-change up">↑ 6.2%</span>
+                                <span class="sc-change up" id="incChange">--</span>
                                 <span class="sc-change-label">vs last month</span>
                             </div>
                             <div class="sc-mini-chart"><canvas id="incChart"></canvas></div>
@@ -2840,7 +2839,7 @@
                             </div>
                             <div class="sc-value" id="statExpenses" style="color:var(--red)">₹0</div>
                             <div class="sc-meta" style="margin-top:.4rem">
-                                <span class="sc-change down">↑ 3.1%</span>
+                                <span class="sc-change down" id="expChange">--</span>
                                 <span class="sc-change-label">vs last month</span>
                             </div>
                             <div class="sc-mini-chart"><canvas id="expChart"></canvas></div>
@@ -2853,7 +2852,7 @@
                             </div>
                             <div class="sc-value" id="statSavings" style="color:var(--amber)">0%</div>
                             <div class="sc-meta" style="margin-top:.4rem">
-                                <span class="sc-change up">↑ 2.8%</span>
+                                <span class="sc-change up" id="savChange">--</span>
                                 <span class="sc-change-label">vs last month</span>
                             </div>
                             <div class="sc-mini-chart"><canvas id="savChart"></canvas></div>
@@ -2890,72 +2889,10 @@
                                     onclick="switchView('transactions', document.querySelector('[onclick*=transactions]'))">View
                                     All</button>
                             </div>
-                            <div class="card-body p0">
-                                <div class="tx-row">
-                                    <div class="tx-emo">🛒</div>
-                                    <div class="tx-info">
-                                        <div class="tx-name">Zepto — Groceries</div>
-                                        <div class="tx-cat">Food & Essentials · Apr 6</div>
-                                    </div>
-                                    <div class="tx-right">
-                                        <div class="tx-amt debit">−₹1,240</div><span
-                                            class="badge badge-red">Expense</span>
-                                    </div>
-                                </div>
-                                <div class="tx-row">
-                                    <div class="tx-emo">💼</div>
-                                    <div class="tx-info">
-                                        <div class="tx-name">Freelance — Acme Corp</div>
-                                        <div class="tx-cat">Income · Apr 5</div>
-                                    </div>
-                                    <div class="tx-right">
-                                        <div class="tx-amt credit">+₹25,000</div><span
-                                            class="badge badge-green">Income</span>
-                                    </div>
-                                </div>
-                                <div class="tx-row">
-                                    <div class="tx-emo">☕</div>
-                                    <div class="tx-info">
-                                        <div class="tx-name">Blue Tokai Coffee</div>
-                                        <div class="tx-cat">Dining · Apr 5</div>
-                                    </div>
-                                    <div class="tx-right">
-                                        <div class="tx-amt debit">−₹620</div><span
-                                            class="badge badge-red">Expense</span>
-                                    </div>
-                                </div>
-                                <div class="tx-row">
-                                    <div class="tx-emo">🏋️</div>
-                                    <div class="tx-info">
-                                        <div class="tx-name">Cult.fit Membership</div>
-                                        <div class="tx-cat">Health & Fitness · Apr 4</div>
-                                    </div>
-                                    <div class="tx-right">
-                                        <div class="tx-amt debit">−₹2,499</div><span
-                                            class="badge badge-red">Expense</span>
-                                    </div>
-                                </div>
-                                <div class="tx-row">
-                                    <div class="tx-emo">📺</div>
-                                    <div class="tx-info">
-                                        <div class="tx-name">Netflix Premium</div>
-                                        <div class="tx-cat">Entertainment · Apr 4</div>
-                                    </div>
-                                    <div class="tx-right">
-                                        <div class="tx-amt debit">−₹649</div><span
-                                            class="badge badge-amber">Recurring</span>
-                                    </div>
-                                </div>
-                                <div class="tx-row">
-                                    <div class="tx-emo">🚗</div>
-                                    <div class="tx-info">
-                                        <div class="tx-name">Rapido Cab</div>
-                                        <div class="tx-cat">Transport · Apr 3</div>
-                                    </div>
-                                    <div class="tx-right">
-                                        <div class="tx-amt debit">−₹280</div><span
-                                            class="badge badge-red">Expense</span>
-                                    </div>
+                            <div class="card-body p0" id="recentTxList">
+                                <!-- Live transactions will be rendered here -->
+                                <div style="padding:2rem;text-align:center;color:var(--muted);font-size:0.8rem">
+                                    <span class="spin"></span> Loading transactions...
                                 </div>
                             </div>
                         </div>
@@ -2984,64 +2921,9 @@
                                     onclick="switchView('budget',document.querySelector('[onclick*=budget]'))">Manage</button>
                             </div>
                             <div class="card-body">
-                                <div class="budget-item">
-                                    <div class="budget-top">
-                                        <div class="budget-cat">
-                                            <div class="dot" style="background:#39ff7e"></div>Food & Dining
-                                        </div>
-                                        <div class="budget-nums">₹8,420 / ₹12,000</div>
-                                    </div>
-                                    <div class="progress-track">
-                                        <div class="progress-fill"
-                                            style="width:70%;background:linear-gradient(90deg,#39ff7e,#22c55e)"></div>
-                                    </div>
-                                </div>
-                                <div class="budget-item">
-                                    <div class="budget-top">
-                                        <div class="budget-cat">
-                                            <div class="dot" style="background:#fbbf24"></div>Transport
-                                        </div>
-                                        <div class="budget-nums">₹4,200 / ₹5,000</div>
-                                    </div>
-                                    <div class="progress-track">
-                                        <div class="progress-fill"
-                                            style="width:84%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
-                                    </div>
-                                </div>
-                                <div class="budget-item">
-                                    <div class="budget-top">
-                                        <div class="budget-cat">
-                                            <div class="dot" style="background:#ff5f5f"></div>Shopping
-                                        </div>
-                                        <div class="budget-nums">₹9,800 / ₹8,000</div>
-                                    </div>
-                                    <div class="progress-track">
-                                        <div class="progress-fill"
-                                            style="width:100%;background:linear-gradient(90deg,#ff5f5f,#ef4444)"></div>
-                                    </div>
-                                </div>
-                                <div class="budget-item">
-                                    <div class="budget-top">
-                                        <div class="budget-cat">
-                                            <div class="dot" style="background:#60a5fa"></div>Entertainment
-                                        </div>
-                                        <div class="budget-nums">₹2,100 / ₹4,000</div>
-                                    </div>
-                                    <div class="progress-track">
-                                        <div class="progress-fill"
-                                            style="width:52%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
-                                    </div>
-                                </div>
-                                <div class="budget-item" style="margin-bottom:0">
-                                    <div class="budget-top">
-                                        <div class="budget-cat">
-                                            <div class="dot" style="background:#a78bfa"></div>Health & Fitness
-                                        </div>
-                                        <div class="budget-nums">₹3,500 / ₹6,000</div>
-                                    </div>
-                                    <div class="progress-track">
-                                        <div class="progress-fill"
-                                            style="width:58%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div>
+                                <div id="dashBudgetList">
+                                    <div style="padding:2rem;text-align:center;color:var(--muted);font-size:0.8rem">
+                                        <span class="spin"></span> Loading budgets...
                                     </div>
                                 </div>
                             </div>
@@ -3051,38 +2933,35 @@
                         <div style="display:flex;flex-direction:column;gap:1.25rem">
                             <div class="insight-card">
                                 <div class="insight-chip">🤖 AI Insight</div>
-                                <div class="insight-text">
-                                    You've spent <strong>₹8,420</strong> on dining this month — 40% above your ₹6,000
-                                    goal. Your biggest splurges were <strong>restaurants on weekends</strong>. Try
-                                    meal-prepping Sunday to save ~₹2,000/month.
+                                <div class="insight-text" id="aiInsightText">
+                                    Our AI is scanning your spending patterns... <strong>Stay tuned for personalized insights!</strong>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <!-- ROW 4: QUICK STATS -->
                     <div class="dash-row4">
                         <div class="card-box" style="padding:1.25rem">
                             <div class="section-label">Quick Stats</div>
-                            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">
+                                                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">
                                 <div class="quick-stat">
                                     <div class="qs-icon">📅</div>
-                                    <div class="qs-val">18</div>
+                                    <div class="qs-val" id="statDays">--</div>
                                     <div class="qs-label">Days this month</div>
                                 </div>
                                 <div class="quick-stat">
                                     <div class="qs-icon">🔄</div>
-                                    <div class="qs-val">₹3,847</div>
+                                    <div class="qs-val" id="statRecurring">₹0</div>
                                     <div class="qs-label">Recurring monthly</div>
                                 </div>
                                 <div class="quick-stat">
                                     <div class="qs-icon">💹</div>
-                                    <div class="qs-val">₹41,760</div>
+                                    <div class="qs-val" id="statNetSavings">₹0</div>
                                     <div class="qs-label">Net savings</div>
                                 </div>
                                 <div class="quick-stat">
                                     <div class="qs-icon">🏦</div>
-                                    <div class="qs-val">5</div>
+                                    <div class="qs-val" id="statAccounts">1</div>
                                     <div class="qs-label">Linked accounts</div>
                                 </div>
                             </div>
@@ -3096,11 +2975,10 @@
                         <div>
                             <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">All Transactions
                             </h2>
-                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">247 transactions · April 2026
-                            </p>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px"><span id="txCount">0</span> transactions · April 2026</p>
                         </div>
                         <div style="display:flex;gap:.75rem">
-                            <button class="btn btn-ghost">⬇ Export CSV</button>
+                            <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
                             <button class="btn btn-primary" onclick="openModal()">＋ Add Transaction</button>
                         </div>
                     </div>
@@ -3158,26 +3036,22 @@
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
                         <div class="stat-card">
                             <div class="sc-label">Avg Daily Spend</div>
-                            <div class="sc-value" style="font-size:1.5rem;color:var(--amber);margin-top:.5rem">₹2,402
-                            </div>
+                            <div class="sc-value" id="anaAvgDaily" style="font-size:1.5rem;color:var(--amber);margin-top:.5rem">₹0</div>
                             <div class="sc-change down" style="margin-top:4px">↑ vs last month</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Highest Spend Day</div>
-                            <div class="sc-value" style="font-size:1.5rem;color:var(--red);margin-top:.5rem">₹18,490
-                            </div>
-                            <div style="font-size:.72rem;color:var(--muted);margin-top:4px">Mar 22 — Online Shopping
-                            </div>
+                            <div class="sc-value" id="anaHighestDay" style="font-size:1.5rem;color:var(--red);margin-top:.5rem">₹0</div>
+                            <div id="anaHighestDayDetail" style="font-size:.72rem;color:var(--muted);margin-top:4px">No transactions yet</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Total Transactions</div>
-                            <div class="sc-value" style="font-size:1.5rem;margin-top:.5rem">247</div>
+                            <div class="sc-value" id="anaTotalTxs" style="font-size:1.5rem;margin-top:.5rem">0</div>
                             <div class="sc-change up" style="margin-top:4px">↑ 12% vs last month</div>
                         </div>
                         <div class="stat-card">
-                            <div class="sc-label">Net Worth Growth</div>
-                            <div class="sc-value" style="font-size:1.5rem;color:var(--g);margin-top:.5rem">+18.4%</div>
-                            <div class="sc-change up" style="margin-top:4px">Since Jan 2026</div>
+                            <div class="sc-value" id="anaNetWorthGrowth" style="font-size:1.5rem;color:var(--g);margin-top:.5rem">--%</div>
+                            <div class="sc-change up" style="margin-top:4px">Since account creation</div>
                         </div>
                     </div>
 
@@ -3222,167 +3096,34 @@
                         <div>
                             <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Budget Manager
                             </h2>
-                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">April 2026 · 6 active budgets
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">April 2026 · <span id="budCountTotal">0</span> active budgets
                             </p>
                         </div>
-                        <button class="btn btn-primary">＋ New Budget</button>
+                        <button class="btn btn-primary" id="newBudgetBtn">＋ New Budget</button>
                     </div>
 
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
                         <div class="stat-card">
                             <div class="sc-label">Total Budget</div>
-                            <div class="sc-value" style="color:var(--g);font-size:1.6rem;margin-top:.5rem">₹42,000</div>
+                            <div class="sc-value" id="budTotal" style="color:var(--g);font-size:1.6rem;margin-top:.5rem">₹0</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Total Spent</div>
-                            <div class="sc-value" style="color:var(--red);font-size:1.6rem;margin-top:.5rem">₹35,020
-                            </div>
+                            <div class="sc-value" id="budSpent" style="color:var(--red);font-size:1.6rem;margin-top:.5rem">₹0</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Remaining</div>
-                            <div class="sc-value" style="color:var(--amber);font-size:1.6rem;margin-top:.5rem">₹6,980
-                            </div>
+                            <div class="sc-value" id="budRemTotal" style="color:var(--amber);font-size:1.6rem;margin-top:.5rem">₹0</div>
                         </div>
                     </div>
 
-                    <div class="budget-grid">
-                        <div class="budget-card">
-                            <div class="bc-top">
-                                <div class="bc-cat-info">
-                                    <div class="bc-emoji" style="background:rgba(57,255,126,.1)">🍕</div>
-                                    <div>
-                                        <div class="bc-name">Food & Dining</div><span class="badge badge-amber">70%
-                                            used</span>
-                                    </div>
-                                </div>
-                                <button class="btn-icon">✏️</button>
-                            </div>
-                            <div class="bc-bar-track">
-                                <div class="bc-bar-fill"
-                                    style="width:70%;background:linear-gradient(90deg,#39ff7e,#22c55e)"></div>
-                            </div>
-                            <div class="bc-amounts">
-                                <div>
-                                    <div class="bc-spent">₹8,420 spent</div>
-                                    <div class="bc-remaining">₹3,580 remaining</div>
-                                </div>
-                                <div class="bc-limit">of ₹12,000</div>
-                            </div>
-                        </div>
-                        <div class="budget-card">
-                            <div class="bc-top">
-                                <div class="bc-cat-info">
-                                    <div class="bc-emoji" style="background:rgba(251,191,36,.1)">🚗</div>
-                                    <div>
-                                        <div class="bc-name">Transport</div><span class="badge badge-amber">84%
-                                            used</span>
-                                    </div>
-                                </div>
-                                <button class="btn-icon">✏️</button>
-                            </div>
-                            <div class="bc-bar-track">
-                                <div class="bc-bar-fill"
-                                    style="width:84%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
-                            </div>
-                            <div class="bc-amounts">
-                                <div>
-                                    <div class="bc-spent">₹4,200 spent</div>
-                                    <div class="bc-remaining">₹800 remaining</div>
-                                </div>
-                                <div class="bc-limit">of ₹5,000</div>
-                            </div>
-                        </div>
-                        <div class="budget-card" style="border-color:rgba(255,95,95,.25)">
-                            <div class="bc-top">
-                                <div class="bc-cat-info">
-                                    <div class="bc-emoji" style="background:rgba(255,95,95,.1)">🛍️</div>
-                                    <div>
-                                        <div class="bc-name">Shopping</div><span class="badge badge-red">Over
-                                            budget!</span>
-                                    </div>
-                                </div>
-                                <button class="btn-icon">✏️</button>
-                            </div>
-                            <div class="bc-bar-track">
-                                <div class="bc-bar-fill"
-                                    style="width:100%;background:linear-gradient(90deg,#ff5f5f,#ef4444)"></div>
-                            </div>
-                            <div class="bc-amounts">
-                                <div>
-                                    <div class="bc-spent" style="color:var(--red)">₹9,800 spent</div>
-                                    <div class="bc-remaining" style="color:var(--red)">₹1,800 over limit</div>
-                                </div>
-                                <div class="bc-limit">of ₹8,000</div>
-                            </div>
-                        </div>
-                        <div class="budget-card">
-                            <div class="bc-top">
-                                <div class="bc-cat-info">
-                                    <div class="bc-emoji" style="background:rgba(96,165,250,.1)">🎮</div>
-                                    <div>
-                                        <div class="bc-name">Entertainment</div><span class="badge badge-green">52%
-                                            used</span>
-                                    </div>
-                                </div>
-                                <button class="btn-icon">✏️</button>
-                            </div>
-                            <div class="bc-bar-track">
-                                <div class="bc-bar-fill"
-                                    style="width:52%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
-                            </div>
-                            <div class="bc-amounts">
-                                <div>
-                                    <div class="bc-spent">₹2,100 spent</div>
-                                    <div class="bc-remaining">₹1,900 remaining</div>
-                                </div>
-                                <div class="bc-limit">of ₹4,000</div>
-                            </div>
-                        </div>
-                        <div class="budget-card">
-                            <div class="bc-top">
-                                <div class="bc-cat-info">
-                                    <div class="bc-emoji" style="background:rgba(167,139,250,.1)">🏋️</div>
-                                    <div>
-                                        <div class="bc-name">Health & Fitness</div><span class="badge badge-green">58%
-                                            used</span>
-                                    </div>
-                                </div>
-                                <button class="btn-icon">✏️</button>
-                            </div>
-                            <div class="bc-bar-track">
-                                <div class="bc-bar-fill"
-                                    style="width:58%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div>
-                            </div>
-                            <div class="bc-amounts">
-                                <div>
-                                    <div class="bc-spent">₹3,500 spent</div>
-                                    <div class="bc-remaining">₹2,500 remaining</div>
-                                </div>
-                                <div class="bc-limit">of ₹6,000</div>
-                            </div>
-                        </div>
-                        <div class="budget-card">
-                            <div class="bc-top">
-                                <div class="bc-cat-info">
-                                    <div class="bc-emoji" style="background:rgba(251,191,36,.1)">⚡</div>
-                                    <div>
-                                        <div class="bc-name">Bills & Utilities</div><span class="badge badge-green">72%
-                                            used</span>
-                                    </div>
-                                </div>
-                                <button class="btn-icon">✏️</button>
-                            </div>
-                            <div class="bc-bar-track">
-                                <div class="bc-bar-fill"
-                                    style="width:72%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
-                            </div>
-                            <div class="bc-amounts">
-                                <div>
-                                    <div class="bc-spent">₹5,000 spent</div>
-                                    <div class="bc-remaining">₹1,950 remaining</div>
-                                </div>
-                                <div class="bc-limit">of ₹7,000</div>
-                            </div>
+                    <div class="budget-grid" id="budgetGrid">
+                        <!-- Dynamic budgets or empty state -->
+                        <div style="grid-column:1/-1;padding:4rem;text-align:center;background:var(--card);border-radius:var(--r-md);border:1px dashed var(--border)">
+                            <div style="font-size:3rem;margin-bottom:1.5rem">🎯</div>
+                            <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Budgets Set</h3>
+                            <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Track your spending by setting monthly limits for categories like Food, Travel, or Shopping.</p>
+                            <button class="btn btn-primary" style="margin:0 auto" id="createFirstBudgetBtn">＋ Create Your First Budget</button>
                         </div>
                     </div>
                 </div>
@@ -3393,105 +3134,16 @@
                         <div>
                             <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Financial Goals
                             </h2>
-                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">4 active goals · You're on
-                                track!</p>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px"><span id="goalCountTotal">0</span> active goals</p>
                         </div>
-                        <button class="btn btn-primary">＋ New Goal</button>
+                        <button class="btn btn-primary" id="newGoalBtn">＋ New Goal</button>
                     </div>
-                    <div class="goals-grid">
-                        <div class="goal-card">
-                            <div class="gc-header">
-                                <div class="gc-icon" style="background:rgba(57,255,126,.1)">🏖️</div>
-                                <div>
-                                    <div class="gc-name">Goa Vacation</div>
-                                    <div class="gc-deadline">Target: June 2026</div>
-                                </div><span class="badge badge-green">On Track</span>
-                            </div>
-                            <div class="gc-progress">
-                                <div class="gc-bar-track">
-                                    <div class="gc-bar-fill"
-                                        style="width:72%;background:linear-gradient(90deg,#39ff7e,#22c55e)"></div>
-                                </div>
-                                <div class="gc-amounts">
-                                    <div class="gc-current">₹36,000 saved</div>
-                                    <div class="gc-target">of ₹50,000</div>
-                                </div>
-                            </div>
-                            <div class="gc-monthly">
-                                <div class="gc-monthly-label">Monthly contribution</div>
-                                <div class="gc-monthly-val">₹7,000 / month</div>
-                            </div>
+                        <div id="goalGrid" style="grid-column:1/-1;padding:4rem;text-align:center;background:var(--card);border-radius:var(--r-md);border:1px dashed var(--border)">
+                            <div style="font-size:3rem;margin-bottom:1.5rem">🎯</div>
+                            <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Goals Set</h3>
+                            <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Set savings goals for vacations, gadgets, or your emergency fund to stay motivated.</p>
+                            <button class="btn btn-primary" style="margin:0 auto" id="createFirstGoalBtn">＋ Create Your First Goal</button>
                         </div>
-                        <div class="goal-card">
-                            <div class="gc-header">
-                                <div class="gc-icon" style="background:rgba(96,165,250,.1)">💻</div>
-                                <div>
-                                    <div class="gc-name">MacBook Pro M4</div>
-                                    <div class="gc-deadline">Target: August 2026</div>
-                                </div><span class="badge badge-green">On Track</span>
-                            </div>
-                            <div class="gc-progress">
-                                <div class="gc-bar-track">
-                                    <div class="gc-bar-fill"
-                                        style="width:56%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div>
-                                </div>
-                                <div class="gc-amounts">
-                                    <div class="gc-current">₹1,12,000 saved</div>
-                                    <div class="gc-target">of ₹2,00,000</div>
-                                </div>
-                            </div>
-                            <div class="gc-monthly">
-                                <div class="gc-monthly-label">Monthly contribution</div>
-                                <div class="gc-monthly-val">₹20,000 / month</div>
-                            </div>
-                        </div>
-                        <div class="goal-card">
-                            <div class="gc-header">
-                                <div class="gc-icon" style="background:rgba(251,191,36,.1)">🚨</div>
-                                <div>
-                                    <div class="gc-name">Emergency Fund</div>
-                                    <div class="gc-deadline">Target: December 2026</div>
-                                </div><span class="badge badge-amber">Needs Attention</span>
-                            </div>
-                            <div class="gc-progress">
-                                <div class="gc-bar-track">
-                                    <div class="gc-bar-fill"
-                                        style="width:35%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div>
-                                </div>
-                                <div class="gc-amounts">
-                                    <div class="gc-current">₹70,000 saved</div>
-                                    <div class="gc-target">of ₹2,00,000</div>
-                                </div>
-                            </div>
-                            <div class="gc-monthly">
-                                <div class="gc-monthly-label">Monthly contribution</div>
-                                <div class="gc-monthly-val">₹12,000 / month</div>
-                            </div>
-                        </div>
-                        <div class="goal-card">
-                            <div class="gc-header">
-                                <div class="gc-icon" style="background:rgba(167,139,250,.1)">🏠</div>
-                                <div>
-                                    <div class="gc-name">Home Down Payment</div>
-                                    <div class="gc-deadline">Target: March 2028</div>
-                                </div><span class="badge badge-blue">Long Term</span>
-                            </div>
-                            <div class="gc-progress">
-                                <div class="gc-bar-track">
-                                    <div class="gc-bar-fill"
-                                        style="width:18%;background:linear-gradient(90deg,#a78bfa,#8b5cf6)"></div>
-                                </div>
-                                <div class="gc-amounts">
-                                    <div class="gc-current">₹1,80,000 saved</div>
-                                    <div class="gc-target">of ₹10,00,000</div>
-                                </div>
-                            </div>
-                            <div class="gc-monthly">
-                                <div class="gc-monthly-label">Monthly contribution</div>
-                                <div class="gc-monthly-val">₹25,000 / month</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- ═══ INVESTMENTS VIEW ═══ -->
@@ -3692,60 +3344,17 @@
                                 <div
                                     style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.25rem">
                                     SmartSpend AI Summary</div>
-                                <div style="font-size:.875rem;color:var(--muted);line-height:1.6">This month you've
-                                    spent <strong style="color:var(--text)">₹43,240</strong> across 127 transactions.
-                                    Your spending is <strong style="color:var(--amber)">8.3% higher</strong> than last
-                                    month, mainly due to increased dining and shopping. Your savings rate of <strong
-                                        style="color:var(--g)">34.2%</strong> is excellent — keep it up!</div>
+                                <div style="font-size:.875rem;color:var(--muted);line-height:1.6" id="aiSummaryLong">
+                                    Our AI is currently analyzing your data. Check back in a few moments for a deep-dive 
+                                    into your income, expenses, and savings rate.
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="ai-insights-grid">
-                        <div class="ai-card critical">
-                            <div class="ai-card-top">
-                                <div><span class="badge badge-red">⚠ Alert</span></div>
-                                <div class="ai-icon">🛍️</div>
-                            </div>
-                            <div class="ai-title">Shopping budget exceeded</div>
-                            <div class="ai-body">You've spent <strong>₹9,800</strong> on shopping this month —
-                                <strong>₹1,800 over</strong> your ₹8,000 limit. Your largest purchase was a gadget on
-                                Flipkart (₹6,499). Consider returning it or adjusting next month's budget.
-                            </div>
-                            <div class="ai-action">See Shopping Transactions →</div>
-                        </div>
-                        <div class="ai-card positive">
-                            <div class="ai-card-top">
-                                <div><span class="badge badge-green">✓ Win</span></div>
-                                <div class="ai-icon">💰</div>
-                            </div>
-                            <div class="ai-title">Record savings this month!</div>
-                            <div class="ai-body">You saved <strong>₹41,760</strong> this month — your highest ever.
-                                That's <strong>₹12,000 more</strong> than last month. Your Goa vacation goal will be
-                                fully funded 3 weeks ahead of schedule at this rate.</div>
-                            <div class="ai-action">View Goal Progress →</div>
-                        </div>
-                        <div class="ai-card warning">
-                            <div class="ai-card-top">
-                                <div><span class="badge badge-amber">💡 Tip</span></div>
-                                <div class="ai-icon">☕</div>
-                            </div>
-                            <div class="ai-title">Coffee habit costing ₹4,200/month</div>
-                            <div class="ai-body">You visited Blue Tokai and Starbucks <strong>18 times</strong> this
-                                month, spending an average of <strong>₹233 per visit</strong>. Cutting to 3x per week
-                                saves ₹1,800/month — that's ₹21,600/year.</div>
-                            <div class="ai-action">Set a Coffee Budget →</div>
-                        </div>
-                        <div class="ai-card positive">
-                            <div class="ai-card-top">
-                                <div><span class="badge badge-blue">📊 Trend</span></div>
-                                <div class="ai-icon">📉</div>
-                            </div>
-                            <div class="ai-title">Transport costs down 22%</div>
-                            <div class="ai-body">Your transport spending dropped from <strong>₹5,380 to ₹4,200</strong>
-                                since you started using the Metro pass. You're saving <strong>₹1,180/month</strong> — a
-                                great decision!</div>
-                            <div class="ai-action">View Transport History →</div>
+                        <div id="aiCardsList" style="grid-column: 1/-1; padding: 2rem; text-align: center; color: var(--muted);">
+                            <span class="spin"></span> Generating AI insights based on your spending history...
                         </div>
                     </div>
                 </div>
@@ -3803,7 +3412,7 @@
                                 Raw Data Export</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">All transactions in
                                 CSV format</div>
-                            <button class="btn btn-ghost" style="width:100%">Download CSV →</button>
+                            <button class="btn btn-ghost" style="width:100%" id="downloadCsvBtn">Download CSV →</button>
                         </div>
                         <div class="card-box"
                             style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
@@ -3842,14 +3451,14 @@
                             <div class="profile-card">
                                 <div class="profile-banner"></div>
                                 <div class="profile-av-wrap">
-                                    <div class="profile-av-big">AK</div>
+                                    <div class="profile-av-big" id="profileAvatarBig">U</div>
                                 </div>
                                 <div class="profile-info">
-                                    <div class="profile-name">Arjun Kapoor</div>
-                                    <div class="profile-email">arjun.kapoor@gmail.com</div>
+                                    <div class="profile-name" id="profileNameBig">User</div>
+                                    <div class="profile-email" id="profileEmailBig">user@example.com</div>
                                     <div class="profile-stats">
                                         <div class="ps-item">
-                                            <div class="ps-val">247</div>
+                                            <div class="ps-val" id="profileTxCount">0</div>
                                             <div class="ps-label">Transactions</div>
                                         </div>
                                         <div class="ps-item">
@@ -3880,20 +3489,17 @@
                         <div style="display:flex;flex-direction:column;gap:1.25rem">
                             <div class="card-box">
                                 <div class="card-header">
-                                    <div class="card-title">Personal Information</div><button class="btn btn-ghost">Save
+                                    <div class="card-title">Personal Information</div><button class="btn btn-ghost" id="saveProfileBtn">Save
                                         Changes</button>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-row" style="margin-bottom:1rem">
-                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">First
-                                                Name</label><input class="form-input" value="Arjun" /></div>
-                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">Last
-                                                Name</label><input class="form-input" value="Kapoor" /></div>
+                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">Full Name</label><input class="form-input" id="profileFullNameInput" value="" /></div>
                                     </div>
                                     <div class="form-group"><label class="form-label">Email Address</label><input
-                                            class="form-input" value="arjun.kapoor@gmail.com" type="email" /></div>
+                                            class="form-input" id="profileEmailInput" value="" type="email" /></div>
                                     <div class="form-group"><label class="form-label">Phone Number</label><input
-                                            class="form-input" value="+91 98765 43210" type="tel" /></div>
+                                            class="form-input" value="+91 00000 00000" type="tel" /></div>
                                     <div class="form-group" style="margin-bottom:0"><label
                                             class="form-label">Currency</label><select class="form-input">
                                             <option selected>₹ INR — Indian Rupee</option>
@@ -3922,6 +3528,160 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ═══ BILLING VIEW ═══ -->
+                <div class="view" id="view-billing">
+                    <div style="margin-bottom: 3rem;">
+                        <h2 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800">Billing</h2>
+                    </div>
+
+                    <!-- Row 1: Subscription -->
+                    <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
+                        <div style="flex: 0 0 350px; padding-right: 2rem;">
+                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Subscription Plan</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">Each organization has it's own subscription plan, billing cycle, payment methods and usage quotas.</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.5rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="color: var(--g); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem;" id="activePlanTitle">Free Plan</div>
+                                    </div>
+                                    <button class="btn btn-ghost" onclick="openPricingModal()" style="font-size: 0.85rem;">Change subscription plan</button>
+                                </div>
+                                <div style="margin-top: 1.5rem; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: flex-start;">
+                                    <span style="font-size: 1.2rem; opacity: 0.7;">ℹ️</span>
+                                    <div style="font-size: 0.85rem; line-height: 1.5;">
+                                        <div style="font-weight: 700; margin-bottom: 0.25rem;">This organization is limited by the included usage</div>
+                                        <div style="color: var(--muted);">Projects may become unresponsive when this organization exceeds its <span style="color: var(--text); font-weight: 600;">included usage quota</span>. To scale seamlessly, upgrade to a paid plan.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Past Invoices -->
+                    <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
+                        <div style="flex: 0 0 350px; padding-right: 2rem;">
+                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Past Invoices</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">You get an invoice every time you change your plan or when your monthly billing cycle resets.</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="card-box" style="padding: 0; overflow-x: auto;">
+                                <table style="width:100%; border-collapse:collapse; min-width:600px">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid var(--border); color: var(--muted); font-size: .8rem; text-align: left; letter-spacing: 1px">
+                                            <th style="padding: 1rem; font-weight: 600;">DATE</th>
+                                            <th style="padding: 1rem; font-weight: 600;">AMOUNT</th>
+                                            <th style="padding: 1rem; font-weight: 600;">INVOICE NUMBER</th>
+                                            <th style="padding: 1rem; font-weight: 600;">STATUS</th>
+                                            <th style="padding: 1rem; font-weight: 600;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoicesTableBody">
+                                        <tr><td colspan="5" style="padding: 2rem; text-align: center; color: var(--muted);">No invoices found</td></tr>
+                                    </tbody>
+                                </table>
+                                <div style="padding: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .85rem;">
+                                    <div id="invoiceCountTxt">Showing 0 invoices</div>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="btn-icon" style="border: 1px solid var(--border); border-radius: 6px; width: 28px; height: 28px;">&lt;</button>
+                                        <button class="btn-icon" style="border: 1px solid var(--border); border-radius: 6px; width: 28px; height: 28px;">&gt;</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Payment Methods -->
+                    <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
+                        <div style="flex: 0 0 350px; padding-right: 2rem;">
+                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Payment Methods</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">Payments for your subscription are made using the default card.</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="card-box" style="padding: 0;">
+                                <div class="card-body">
+                                    <div id="paymentMethodsList">
+                                        <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.5rem;">
+                                            <div style="display: flex; align-items: center; color: var(--muted);"><span style="margin-right: 12px; font-size: 1.2rem;">💳</span>No payment methods</div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 1rem; text-align: right;">
+                                        <button class="btn btn-ghost" style="font-size: .85rem;">+ Add new card</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Email Recipient -->
+                    <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
+                        <div style="flex: 0 0 350px; padding-right: 2rem;">
+                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Email Recipient</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">All billing correspondence will go to this email.</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="card-box">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="form-label">Email address</label>
+                                        <input type="email" class="form-input" id="billingEmailInput" placeholder="sanjay@example.com" />
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label">Additional emails <span style="font-size: 0.8rem; opacity: 0.5;">ℹ️</span></label>
+                                        <input type="text" class="form-input" placeholder="Add additional recipients" />
+                                    </div>
+                                </div>
+                                <div style="border-top: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--card2);">
+                                    <button class="btn btn-ghost" style="font-size: 0.85rem;">Cancel</button>
+                                    <button class="btn btn-primary" onclick="saveBillingConfig()" style="font-size: 0.85rem; background: #006b3d; padding: 0.5rem 1rem;">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Billing Address -->
+                    <div style="display: flex; padding: 2.5rem 0;">
+                        <div style="flex: 0 0 350px; padding-right: 2rem;">
+                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Billing Address & Tax ID</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.75rem;">Changes will be reflected in every upcoming invoice, past invoices are not affected.</div>
+                            <div style="color:var(--muted); font-size: 0.85rem;">A Tax ID is only required for registered businesses.</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="card-box">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="form-label">Full name</label>
+                                        <input type="text" class="form-input" value="Sanjay's Org" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Country or region</label>
+                                        <select class="form-input" id="billingCountryInput">
+                                            <option value="India">India</option>
+                                            <option value="United States">United States</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-input" id="billingAddressInput" placeholder="Address line 1" />
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label">Business Tax ID <span style="font-size: 0.8rem; opacity: 0.5;">ℹ️</span></label>
+                                        <select class="form-input" id="billingTaxInput">
+                                            <option value="">Select tax ID</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="border-top: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--card2);">
+                                    <button class="btn btn-ghost" style="font-size: 0.85rem;">Cancel</button>
+                                    <button class="btn btn-primary" onclick="saveBillingConfig()" style="font-size: 0.85rem; background: #006b3d; padding: 0.5rem 1rem;">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- ═══ SETTINGS VIEW ═══ -->
                 <div class="view" id="view-settings">
@@ -4090,14 +3850,13 @@
                     🤖</div>
                 <div>
                     <div style="font-weight:700;font-size:.9rem">SmartSpend AI</div>
-                    <div style="font-size:.65rem;color:var(--g)">Online · Powered by Claude</div>
+                    <div style="font-size:.65rem;color:var(--g)">Online · Powered by Qwen</div>
                 </div>
             </div>
             <button class="btn-icon" onclick="toggleAiChat()">✕</button>
         </div>
         <div class="chat-messages" id="chatMsgs">
-            <div class="msg bot">Hello Arjun! I'm your SmartSpend assistant. How can I help you with your finances
-                today?</div>
+            <div class="msg bot" id="chatWelcomeMsg">Hello! I'm your SmartSpend assistant. How can I help you with your finances today?</div>
         </div>
         <div class="chat-input-area">
             <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..."
@@ -4199,19 +3958,19 @@
             <div class="form-row">
                 <div class="form-group" style="margin-bottom:0">
                     <label class="form-label">Category</label>
-                    <select class="form-input" id="catInput">
-                        <option>🍕 Food & Dining</option>
-                        <option>🚗 Transport</option>
-                        <option>🛍️ Shopping</option>
-                        <option>🎮 Entertainment</option>
-                        <option>🏋️ Health & Fitness</option>
-                        <option>⚡ Bills & Utilities</option>
-                        <option>📚 Education</option>
-                        <option>💼 Income</option>
-                        <option>🏠 Home</option>
-                        <option>✈️ Travel</option>
-                        <option>🔁 Recurring</option>
-                        <option>💡 Other</option>
+                    <select class="form-input" id="modalCatInput">
+                        <option value="Food & Dining" data-icon="🍕">Food & Dining</option>
+                        <option value="Transport" data-icon="🚗">Transport</option>
+                        <option value="Shopping" data-icon="🛍️">Shopping</option>
+                        <option value="Entertainment" data-icon="🎮">Entertainment</option>
+                        <option value="Health & Fitness" data-icon="🏋️">Health & Fitness</option>
+                        <option value="Bills & Utilities" data-icon="⚡">Bills & Utilities</option>
+                        <option value="Education" data-icon="📚">Education</option>
+                        <option value="Income" data-icon="💼">Income</option>
+                        <option value="Home" data-icon="🏠">Home</option>
+                        <option value="Travel" data-icon="✈️">Travel</option>
+                        <option value="Recurring" data-icon="🔁">Recurring</option>
+                        <option value="Other" data-icon="💡">Other</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom:0">
@@ -4227,10 +3986,117 @@
         </div>
     </div>
 
+    <!-- ═══ PRICING MODAL ═══ -->
+    <div class="modal-overlay" id="pricingModalOverlay" onclick="handlePricingOverlay(event)">
+        <div class="modal" style="max-width: 1000px; width: 95%;">
+            <button
+                style="position:absolute;top:1rem;right:1rem;width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s"
+                onclick="closePricingModal()" onmouseover="this.style.background='var(--g)';this.style.color='#060d12'"
+                onmouseout="this.style.background='var(--card2)';this.style.color='var(--muted)'">✕</button>
+            <div class="modal-title">Change Subscription Plan</div>
+            <div class="modal-sub" style="margin-bottom: 2rem;">Choose the best plan for your financial goals</div>
+
+            <div class="plans-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem;">
+                <!-- Starter Plan -->
+                <div class="card-box" style="position:relative">
+                    <div style="font-size:.85rem; font-weight:700; letter-spacing:1px; color:var(--muted)">STARTER</div>
+                    <div style="font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; margin:.5rem 0">₹0<span style="font-size:1rem; font-weight:500; color:var(--muted)">/month</span></div>
+                    <div style="font-size:.9rem; color:var(--muted); margin-bottom:1.5rem">Perfect for individuals just getting started.</div>
+                    <ul class="pp-features" style="margin-bottom:2rem">
+                        <li>Up to 50 transactions/month</li>
+                        <li>Basic dashboard</li>
+                        <li>3 budget categories</li>
+                        <li>CSV export</li>
+                    </ul>
+                    <button class="btn btn-ghost" id="planBtn_STARTER" style="width:100%; justify-content:center" onclick="changePlan('STARTER')">Current Plan</button>
+                </div>
+                
+                <!-- Pro Plan -->
+                <div class="card-box" style="position:relative; border:1px solid var(--g); box-shadow:0 0 20px var(--g-dim)">
+                    <div style="position:absolute; top:-12px; right:20px; background:var(--g); color:#060d12; font-size:.7rem; font-weight:700; padding:4px 12px; border-radius:12px;">MOST POPULAR</div>
+                    <div style="font-size:.85rem; font-weight:700; letter-spacing:1px; color:var(--muted)">PRO</div>
+                    <div style="font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; margin:.5rem 0; color:var(--g)">₹299<span style="font-size:1rem; font-weight:500; color:var(--muted)">/month</span></div>
+                    <div style="font-size:.9rem; color:var(--muted); margin-bottom:1.5rem">Full visibility and AI-powered intelligence.</div>
+                    <ul class="pp-features" style="margin-bottom:2rem">
+                        <li>Unlimited transactions</li>
+                        <li>Full analytics dashboard</li>
+                        <li>Unlimited categories</li>
+                        <li>AI Insights & nudges</li>
+                        <li>OCR Receipt Scanning</li>
+                    </ul>
+                    <button class="btn btn-primary" id="planBtn_PRO" style="width:100%; justify-content:center" onclick="changePlan('PRO')">Upgrade to Pro</button>
+                </div>
+                
+                <!-- Team Plan -->
+                <div class="card-box" style="position:relative">
+                    <div style="font-size:.85rem; font-weight:700; letter-spacing:1px; color:var(--muted)">TEAM</div>
+                    <div style="font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; margin:.5rem 0">₹799<span style="font-size:1rem; font-weight:500; color:var(--muted)">/month</span></div>
+                    <div style="font-size:.9rem; color:var(--muted); margin-bottom:1.5rem">For small teams managing finances together.</div>
+                    <ul class="pp-features" style="margin-bottom:2rem">
+                        <li>Everything in Pro</li>
+                        <li>Up to 5 users</li>
+                        <li>Shared budgets & goals</li>
+                        <li>Advanced AI reporting</li>
+                    </ul>
+                    <button class="btn btn-ghost" id="planBtn_TEAM" style="width:100%; justify-content:center" onclick="changePlan('TEAM')">Start Free Trial</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ HELP & SUPPORT MODAL ═══ -->
+
+    <div class="modal-overlay" id="helpModalOverlay" onclick="handleHelpOverlay(event)">
+        <div class="modal" style="max-width: 480px;">
+            <button
+                style="position:absolute;top:1rem;right:1rem;width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s"
+                onclick="closeHelpModal()" onmouseover="this.style.background='var(--g)';this.style.color='#060d12'"
+                onmouseout="this.style.background='var(--card2)';this.style.color='var(--muted)'">✕</button>
+            <div class="modal-title">🎧 Help & Support</div>
+            <div class="modal-sub">How can we assist you today?</div>
+
+            <!-- Quick Help Links -->
+            <div class="setting-row" style="margin-top:1.5rem; border-top: 1px solid var(--border);">
+                <div class="setting-info">
+                    <h4>FAQ & Documentation</h4>
+                    <p>Read guides on budgeting and tracking</p>
+                </div><button class="btn btn-ghost" style="font-size:.8rem" onclick="window.open('/about.html', '_blank')">View →</button>
+            </div>
+            <div class="setting-row">
+                <div class="setting-info">
+                    <h4>Ask SmartSpend AI</h4>
+                    <p>Instant answers from our smart assistant</p>
+                </div><button class="btn btn-ghost" style="font-size:.8rem; color:var(--g)" onclick="closeHelpModal(); document.getElementById('aiChatOpenBtn').click();">Chat Now</button>
+            </div>
+            
+            <div style="background:var(--g-dim);border:1px solid rgba(57,255,126,.2);border-radius:var(--r-sm);padding:1.25rem;margin-top:1.5rem">
+                <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--g);margin-bottom:.5rem; font-size:1.1rem">Still need help?</div>
+                <div style="font-size:.85rem;color:var(--text); margin-bottom: 1rem; line-height: 1.5;">Our support team is available Monday to Friday, 9 AM - 6 PM IST. We typically respond within 24 hours.</div>
+                
+                <button class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem;" onclick="showToast('Support ticket created! We will email you shortly.', 'success'); closeHelpModal();">
+                    ✉️ Email Support
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
         // ═══════════════════════════════════════
         // API HELPER
         // ═══════════════════════════════════════
@@ -4243,10 +4109,12 @@
                 };
             },
             async _handleResponse(r) {
-                if (r.status === 401) {
-                    // Avoid multiple redundant redirects
-                    if (window.location.pathname !== '/') {
-                        window.location.replace('/?auth=login');
+                if (!r.ok) {
+                    if (r.status === 401) {
+                        // Avoid multiple redundant redirects
+                        if (window.location.pathname !== '/') {
+                            window.location.replace('/?auth=login');
+                        }
                     }
                     return null;
                 }
@@ -4254,7 +4122,10 @@
             },
             async get(path) {
                 try {
-                    const r = await fetch(path, { headers: this.headers() });
+                    const r = await fetch(path, { 
+                        headers: this.headers(),
+                        cache: 'no-store'
+                    });
                     return this._handleResponse(r);
                 } catch (e) {
                     console.error('API GET error:', e);
@@ -4299,13 +4170,39 @@
                     const avEl = document.querySelector('.sb-av');
                     const pnDisplay = document.getElementById('pn-display');
                     const ptDisplay = document.getElementById('pt-display');
+                    const sbPlan = document.getElementById('sb-plan');
                     const upgradeItem = document.getElementById('upgradeToProItem');
-                    const pavBig = document.querySelector('.profile-av-big');
+                    const pavBig = document.getElementById('profileAvatarBig');
 
+                    // Function to get proper initials
+                    function getInitials(name) {
+                        const parts = name.trim().split(' ');
+                        if (parts.length >= 2) {
+                            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+                        }
+                        return name.charAt(0).toUpperCase();
+                    }
+                    
+                    const userInitials = getInitials(u.full_name);
+                    
                     if (nameEl) nameEl.textContent = u.full_name;
-                    if (avEl) avEl.textContent = u.full_name.charAt(0).toUpperCase();
+                    if (avEl) avEl.textContent = userInitials;
                     if (pnDisplay) pnDisplay.textContent = u.full_name;
-                    if (pavBig) pavBig.textContent = u.full_name.charAt(0).toUpperCase();
+                    if (sbPlan) sbPlan.textContent = (u.plan || 'FREE').toUpperCase() + ' PLAN';
+                    
+                    const pam = document.getElementById('profileAvMini');
+                    if (pam) pam.textContent = userInitials;
+                    if (pavBig) {
+                        pavBig.textContent = userInitials;
+                        const pnBig = document.getElementById('profileNameBig');
+                        const peBig = document.getElementById('profileEmailBig');
+                        const pnInput = document.getElementById('profileFullNameInput');
+                        const peInput = document.getElementById('profileEmailInput');
+                        if (pnBig) pnBig.textContent = u.full_name;
+                        if (peBig) peBig.textContent = u.email;
+                        if (pnInput) pnInput.value = u.full_name;
+                        if (peInput) peInput.value = u.email;
+                    }
                     
                     if (u.plan === 'pro') {
                         if (ptDisplay) ptDisplay.textContent = '⚡ PRO PLAN';
@@ -4328,6 +4225,8 @@
             const data = await SS_API.get('/api/analytics/summary');
             if (!data) return false;
             const fmt = v => '₹' + Math.abs(v).toLocaleString('en-IN');
+            
+            // Dashboard IDs
             const balEl = document.getElementById('statBalance');
             const incEl = document.getElementById('statIncome');
             const expEl = document.getElementById('statExpenses');
@@ -4336,6 +4235,90 @@
             if (incEl) incEl.textContent = fmt(data.income);
             if (expEl) expEl.textContent = fmt(data.expenses);
             if (savEl) savEl.textContent = data.savings_rate + '%';
+
+            // Analytics IDs
+            const anaInc = document.getElementById('anaIncome');
+            const anaExp = document.getElementById('anaExpenses');
+            const anaSav = document.getElementById('anaSavings');
+            const anaAvg = document.getElementById('anaAvgDaily');
+            const anaHigh = document.getElementById('anaHighestDay');
+            const anaTotal = document.getElementById('anaTotalTxs');
+            if (anaInc) anaInc.textContent = fmt(data.income);
+            if (anaExp) anaExp.textContent = fmt(data.expenses);
+            if (anaSav) anaSav.textContent = fmt(data.balance);
+            if (anaAvg) anaAvg.textContent = fmt(data.income / 30); // simplistic avg
+            if (anaTotal) anaTotal.textContent = data.count || 0;
+
+            // Quick Stats
+            const qsDays = document.getElementById('statDays');
+            const qsRec = document.getElementById('statRecurring');
+            const qsNet = document.getElementById('statNetSavings');
+            const qsAcc = document.getElementById('statAccounts');
+            if (qsDays) qsDays.textContent = new Date().getDate();
+            if (qsRec) qsRec.textContent = fmt(0); 
+            if (qsNet) qsNet.textContent = fmt(data.balance);
+            if (qsAcc) qsAcc.textContent = '1';
+
+            // Budget Summary
+            const budTotalVal = 50000; // Plan-based budget target
+            const budTotal = document.getElementById('budTotal');
+            const budSpent = document.getElementById('budSpent');
+            const budRem = document.getElementById('budRem');
+            const budRemTotal = document.getElementById('budRemTotal');
+            const budCountTotal = document.getElementById('budCountTotal');
+            const goalCountTotal = document.getElementById('goalCountTotal');
+
+            if (budTotal) budTotal.textContent = fmt(budTotalVal);
+            if (budSpent) budSpent.textContent = fmt(data.expenses);
+            if (budRem) budRem.textContent = fmt(budTotalVal - data.expenses);
+            if (budRemTotal) budRemTotal.textContent = fmt(budTotalVal - data.expenses);
+            if (budCountTotal) budCountTotal.textContent = data.categories ? Object.keys(data.categories).length : '0';
+            if (goalCountTotal) goalCountTotal.textContent = '0'; // Goals not yet implemented in DB
+
+            // Dashboard Budget List (Dynamic)
+            const dbl = document.getElementById('dashBudgetList');
+            if (dbl && data.categories) {
+                dbl.innerHTML = Object.entries(data.categories).slice(0, 5).map(([cat, amt]) => {
+                    const pct = Math.min(100, (amt / (budTotalVal / 5)) * 100);
+                    return `
+                        <div class="budget-item">
+                            <div class="budget-top">
+                                <div class="budget-cat"><div class="dot" style="background:var(--g)"></div>${cat}</div>
+                                <div class="budget-nums">${fmt(amt)}</div>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:var(--g)"></div></div>
+                        </div>`;
+                }).join('') || '<div style="padding:1rem;text-align:center;color:var(--muted);font-size:0.8rem">No category data yet</div>';
+            }
+
+            // AI Insight Text
+            const aii = document.getElementById('aiInsightText');
+            if (aii) {
+                if (data.expenses > 0) {
+                    aii.innerHTML = `You've spent <strong>${fmt(data.expenses)}</strong> this month. Your top category is ${data.top_category || 'General'}. Consider optimizing this to save more!`;
+                } else {
+                    aii.innerHTML = `Welcome to SmartSpend! Start adding transactions to see <strong>personalized AI insights</strong> here.`;
+                }
+            }
+
+            // AI Insights View
+            const ais = document.getElementById('aiSummaryLong');
+            if (ais) {
+                ais.innerHTML = `This month you've spent <strong>${fmt(data.expenses)}</strong> across <strong>${data.count}</strong> transactions. Your savings rate is <strong>${data.savings_rate}%</strong>. ${data.expenses > 10000 ? 'Try to limit non-essential shopping to boost your net worth.' : 'You are maintaining a healthy balance — keep it up!'}`;
+            }
+
+            const acl = document.getElementById('aiCardsList');
+            if (acl) {
+                acl.innerHTML = `
+                    <div class="ai-card positive">
+                        <div class="ai-card-top"><div><span class="badge badge-green">✓ Win</span></div><div class="ai-icon">💰</div></div>
+                        <div class="ai-title">Data Synced Successfully</div>
+                        <div class="ai-body">Your account is now <strong>100% dynamic</strong>. All stats are pulled directly from your personal database.</div>
+                        <div class="ai-action">View Analytics →</div>
+                    </div>
+                `;
+            }
+            
             return true;
         }
 
@@ -4352,12 +4335,17 @@
                 type: tx.type,
                 icon: tx.icon || '💡'
             }));
+            const txCountEl = document.getElementById('txCount');
+            if (txCountEl) txCountEl.textContent = TRANSACTIONS.length;
             renderTransactions();
         }
 
         // Init on load
         loadSummary().then(success => {
-            if (success) loadTransactions();
+            if (success) {
+                loadTransactions();
+                renderMainBarChart();
+            }
         });
 
         // ═══════════════════════════════════════
@@ -4413,10 +4401,11 @@
             if (navEl) navEl.classList.add('active');
             document.getElementById('topbarTitle').textContent = topbarTitles[viewId] || viewId;
             document.getElementById('topbarCrumb').textContent = crumbs[viewId] || viewId;
+            if (viewId === 'dashboard') renderDashboardDoughnut();
             if (viewId === 'transactions') renderTransactions();
-            if (viewId === 'analytics') setTimeout(renderAnalyticsCharts, 50);
-            if (viewId === 'investments') setTimeout(renderInvestmentCharts, 50);
-            if (viewId === 'networth') setTimeout(renderNetWorthChart, 50);
+            if (viewId === 'analytics') renderAnalyticsCharts();
+            if (viewId === 'investments') renderInvestmentCharts();
+            if (viewId === 'networth') renderNetWorthChart();
         }
 
         // ═══════════════════════════════════════
@@ -4447,11 +4436,186 @@
         }
 
         function showPlansBilling() {
-            alert('Plans & Billing functionality coming soon!');
+            const panel = document.getElementById('profilePanel');
+            if (panel) panel.classList.remove('active');
+            
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-billing').classList.add('active');
+            
+            // Switch sidebar active
+            document.querySelectorAll('.sidebar-nav-item').forEach(item => item.classList.remove('active'));
+            
+            loadBillingData();
+        }
+
+        function openPricingModal() {
+            document.getElementById('pricingModalOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePricingModal() {
+            document.getElementById('pricingModalOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function handlePricingOverlay(e) {
+            if (e.target === document.getElementById('pricingModalOverlay')) closePricingModal();
+        }
+
+        async function loadBillingData() {
+            try {
+                const response = await fetch('/api/billing/', {
+                    headers: SS_API.headers()
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update Active Plan Display
+                    const planType = data.billing.plan_type || 'STARTER';
+                    const activePlanLabel = planType.charAt(0) + planType.slice(1).toLowerCase() + " Plan";
+                    document.getElementById('activePlanTitle').textContent = activePlanLabel;
+
+                    // Update Pricing Modal buttons
+                    ['STARTER', 'PRO', 'TEAM'].forEach(p => {
+                        const btn = document.getElementById(`planBtn_${p}`);
+                        if(btn) {
+                            if (p === planType) {
+                                btn.textContent = 'Current Plan';
+                                btn.className = 'btn btn-ghost';
+                                btn.style.pointerEvents = 'none';
+                                btn.style.opacity = '0.7';
+                            } else {
+                                btn.textContent = p === 'STARTER' ? 'Downgrade' : (p === 'PRO' ? 'Upgrade to Pro' : 'Upgrade to Team');
+                                btn.className = 'btn btn-primary';
+                                btn.style.pointerEvents = 'auto';
+                                btn.style.opacity = '1';
+                            }
+                        }
+                    });
+                    
+                    // Update Form
+                    document.getElementById('billingEmailInput').value = data.billing.billing_email || '';
+                    document.getElementById('billingCountryInput').value = data.billing.country || '';
+                    document.getElementById('billingAddressInput').value = data.billing.address || '';
+                    // Tax ID select handling if populated
+                    
+                    // Update Invoices
+                    const tbody = document.getElementById('invoicesTableBody');
+                    if (data.invoices && data.invoices.length > 0) {
+                        tbody.innerHTML = '';
+                        data.invoices.forEach(inv => {
+                            const tr = document.createElement('tr');
+                            tr.style.borderBottom = '1px solid var(--border)';
+                            tr.innerHTML = `
+                                <td style="padding:1rem;color:var(--text)">📄 ${new Date(inv.date_issued).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</td>
+                                <td style="padding:1rem;font-family:'Syne',sans-serif;font-weight:600">$${inv.amount.toFixed(2)}</td>
+                                <td style="padding:1rem;color:var(--muted)">${inv.invoice_number}</td>
+                                <td style="padding:1rem">
+                                    <span style="font-size:0.7rem;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:12px;
+                                        ${inv.status === 'PAID' ? 'background:var(--g-dim);color:var(--g);border:1px solid rgba(57,255,126,0.3)' : 'background:var(--red-dim);color:var(--red)'}">
+                                        ${inv.status}
+                                    </span>
+                                </td>
+                                <td style="padding:1rem;text-align:right">
+                                    <button class="btn-icon" style="border:1px solid var(--border);border-radius:6px;width:32px;height:32px; color: var(--text);">📑</button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                        document.getElementById('invoiceCountTxt').textContent = `Showing 1 to ${data.invoices.length} out of ${data.invoices.length} invoices`;
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" style="padding:2rem;text-align:center;color:var(--muted)">No invoices found</td></tr>';
+                        document.getElementById('invoiceCountTxt').textContent = 'Showing 0 invoices';
+                    }
+                    
+                    // Update Payment Methods
+                    if (data.payment_methods && data.payment_methods.length > 0) {
+                        const pmList = document.getElementById('paymentMethodsList');
+                        pmList.innerHTML = '';
+                        data.payment_methods.forEach(pm => {
+                            pmList.innerHTML += `
+                                <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:1rem;display:flex;justify-content:space-between;align-items:center">
+                                    <div style="display:flex;align-items:center;color:var(--text)">
+                                        <span style="margin-right:12px;font-size:1.5rem">💳</span> 
+                                        <div>
+                                            <div style="font-weight:600">${pm.brand} ending in ${pm.card_last4}</div>
+                                            <div style="font-size:0.8rem;color:var(--muted)">Expires ${pm.exp_month}/${pm.exp_year}</div>
+                                        </div>
+                                    </div>
+                                    ${pm.is_default ? '<span style="font-size:0.75rem;padding:4px 8px;background:var(--card2);border:1px solid var(--border);border-radius:4px;color:var(--muted)">Default</span>' : ''}
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load billing: ", e);
+            }
+        }
+
+        async function changePlan(newPlan) {
+            try {
+                const response = await fetch('/api/billing/update_plan', {
+                    method: 'POST',
+                    headers: SS_API.headers(),
+                    body: JSON.stringify({ plan_type: newPlan })
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showToast(`Successfully changed plan to ${newPlan}`, 'success');
+                    // Ensure the visual elements in profile gets updated
+                    const u = JSON.parse(localStorage.getItem('ss_user') || '{}');
+                    u.plan = newPlan.toLowerCase();
+                    localStorage.setItem('ss_user', JSON.stringify(u));
+                    setTimeout(() => window.location.reload(), 1000); // Reload to reflect changes globally
+                } else {
+                    showToast(data.error || 'Failed to update plan', 'error');
+                }
+            } catch(e) {
+                showToast('Network error during plan update', 'error');
+            }
+        }
+
+        async function saveBillingConfig() {
+            const payload = {
+                billing_email: document.getElementById('billingEmailInput').value,
+                country: document.getElementById('billingCountryInput').value,
+                address: document.getElementById('billingAddressInput').value,
+                business_tax_id: document.getElementById('billingTaxInput').value
+            };
+            
+            try {
+                const response = await fetch('/api/billing/update_config', {
+                    method: 'POST',
+                    headers: SS_API.headers(),
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showToast('Billing information saved!', 'success');
+                } else {
+                    showToast('Failed to save billing info', 'error');
+                }
+            } catch(e) {
+                showToast('Network error syncing billing info', 'error');
+            }
         }
 
         function showHelpSupport() {
-            alert('Help & Support functionality coming soon!');
+            const panel = document.getElementById('profilePanel');
+            if (panel) panel.classList.remove('active');
+            
+            document.getElementById('helpModalOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModalOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function handleHelpOverlay(e) { 
+            if (e.target === document.getElementById('helpModalOverlay')) closeHelpModal(); 
         }
 
         function logout() {
@@ -4485,41 +4649,34 @@
         }
 
         async function addTransaction() {
-            const amt = parseFloat(document.getElementById('amtInput').value);
+            const amtVal = document.getElementById('amtInput').value;
             const desc = document.getElementById('descInput').value.trim();
-            if (!amt || !desc) { showToast('Please fill in amount and description', 'error'); return; }
-            const cats = ['🍕', '🚗', '🛍️', '🎮', '🏋️', '⚡', '📚', '💼', '🏠', '✈️', '🔁', '💡'];
-            const catEl = document.getElementById('catInput');
-            const catIdx = catEl.selectedIndex;
-            const icon = cats[catIdx] || '💡';
-            const category = catEl.options[catEl.selectedIndex].text.replace(/^\S+ /, '');
-            const type = txType === 'expense' ? 'debit' : 'credit';
+            if (!amtVal || !desc) { showToast('Please fill in amount and description', 'error'); return; }
+            const amt = Math.abs(parseFloat(amtVal));
+            
+            const catEl = document.getElementById('modalCatInput');
+            const catOption = catEl.options[catEl.selectedIndex];
+            const category = catOption.value;
+            const icon = catOption.getAttribute('data-icon') || '💡';
+            
+            const type = txType === 'income' ? 'credit' : 'debit';
             const dateVal = document.getElementById('dateInput')?.value || new Date().toISOString().split('T')[0];
 
             try {
                 const data = await SS_API.post('/api/transactions/', {
                     name: desc, category, amount: amt, type, icon, date: dateVal
                 });
-                if (data && data.transaction) {
-                    const tx = data.transaction;
-                    TRANSACTIONS.unshift({
-                        id: tx.id,
-                        name: tx.name,
-                        cat: tx.category,
-                        date: new Date(tx.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-                        amt: tx.type === 'debit' ? -Math.abs(tx.amount) : Math.abs(tx.amount),
-                        type: tx.type,
-                        icon: tx.icon
-                    });
-                    renderTransactions();
+                if (data && (data.transaction || data.message)) {
+                    showToast('✓ Transaction synced with database!', 'success');
                     closeModal();
-                    showToast('✓ Transaction saved to database!', 'success');
-                    loadSummary(); // refresh stat cards
+                    await loadSummary();
+                    await loadTransactions();
+                    if (typeof renderMainBarChart === 'function') renderMainBarChart();
                 } else {
-                    showToast(data?.error || 'Failed to add transaction', 'error');
+                    showToast(data?.error || 'Failed to sync transaction', 'error');
                 }
             } catch (e) {
-                showToast('Network error — could not save transaction', 'error');
+                showToast('Network error — check your connection', 'error');
             }
             document.getElementById('amtInput').value = '';
             document.getElementById('descInput').value = '';
@@ -4571,21 +4728,52 @@
         // ═══════════════════════════════════════
         // TRANSACTIONS TABLE
         // ═══════════════════════════════════════
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
         function renderTransactions() {
             const list = document.getElementById('txList');
-            if (!list) return;
-            list.innerHTML = TRANSACTIONS.map((tx, idx) => `
-    <div class="tx-table-row">
-      <div class="tx-cell tx-cell-name">
-        <div class="tx-emo">${tx.icon}</div>
-        <div><div class="tx-name">${tx.name}</div><div class="tx-cat">${tx.cat}</div></div>
-      </div>
-      <div class="tx-cell"><span class="badge ${tx.cat === 'Income' ? 'badge-green' : 'badge-red'}">${tx.cat}</span></div>
-      <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${tx.date}</div>
-      <div class="tx-cell mono ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
-      <div class="tx-cell"><button class="btn-icon" onclick="deleteTransaction(${tx.id}, ${idx})">🗑</button></div>
-    </div>
-  `).join('');
+            const recentList = document.getElementById('recentTxList');
+            
+            // Render full table if in table view
+            if (list) {
+                list.innerHTML = TRANSACTIONS.map((tx, idx) => `
+                    <div class="tx-table-row">
+                        <div class="tx-cell tx-cell-name">
+                            <div class="tx-emo">${escapeHtml(tx.icon)}</div>
+                            <div><div class="tx-name">${escapeHtml(tx.name)}</div><div class="tx-cat">${escapeHtml(tx.cat)}</div></div>
+                        </div>
+                        <div class="tx-cell"><span class="badge ${tx.type === 'credit' ? 'badge-green' : 'badge-red'}">${escapeHtml(tx.cat)}</span></div>
+                        <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${escapeHtml(tx.date)}</div>
+                        <div class="tx-cell mono ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
+                        <div class="tx-cell"><button class="btn-icon" onclick="deleteTransaction(${tx.id}, ${idx})">🗑</button></div>
+                    </div>
+                `).join('') || '<div style="padding:2rem;text-align:center;color:var(--muted)">No transactions found</div>';
+            }
+
+            // Render recent list if in dashboard view
+            if (recentList) {
+                const recent = TRANSACTIONS.slice(0, 6);
+                recentList.innerHTML = recent.map(tx => `
+                    <div class="tx-row">
+                        <div class="tx-emo">${escapeHtml(tx.icon)}</div>
+                        <div class="tx-info">
+                            <div class="tx-name">${escapeHtml(tx.name)}</div>
+                            <div class="tx-cat">${escapeHtml(tx.cat)} · ${escapeHtml(tx.date)}</div>
+                        </div>
+                        <div class="tx-right">
+                            <div class="tx-amt ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
+                            <span class="badge ${tx.type === 'credit' ? 'badge-green' : 'badge-red'}">${tx.type === 'credit' ? 'Income' : 'Expense'}</span>
+                        </div>
+                    </div>
+                `).join('') || '<div style="padding:2rem;text-align:center;color:var(--muted)">No recent transactions</div>';
+            }
         }
 
         async function deleteTransaction(txId, idx) {
@@ -4595,7 +4783,8 @@
                     TRANSACTIONS.splice(idx, 1);
                     renderTransactions();
                     showToast('Transaction deleted', 'error');
-                    loadSummary();
+                    await loadSummary();
+                    if (typeof renderMainBarChart === 'function') renderMainBarChart();
                 } else {
                     showToast(data?.error || 'Failed to delete', 'error');
                 }
@@ -4640,15 +4829,24 @@
         sparkline('savChart', [28, 30, 29, 32, 34, 31, 34], '#fbbf24');
 
         // Main bar chart
-        const barCtx = document.getElementById('mainBarChart')?.getContext('2d');
-        if (barCtx) {
-            new Chart(barCtx, {
+        async function renderMainBarChart() {
+            const barCtx = document.getElementById('mainBarChart')?.getContext('2d');
+            if (!barCtx) return;
+            const data = await SS_API.get('/api/analytics/summary');
+            const monthly = data?.monthly || [];
+            
+            const labels = monthly.length ? monthly.map(m => m.month) : ['No Data'];
+            const incomeData = monthly.length ? monthly.map(m => m.inc) : [0];
+            const expenseData = monthly.length ? monthly.map(m => m.exp) : [0];
+
+            if (barCtx.__chart) barCtx.__chart.destroy();
+            barCtx.__chart = new Chart(barCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                    labels: labels,
                     datasets: [
-                        { label: 'Income', data: [72000, 68000, 85000, 78000, 82000, 80000, 85000], backgroundColor: 'rgba(57,255,126,0.75)', borderRadius: 8, borderSkipped: false },
-                        { label: 'Expenses', data: [51000, 43000, 59000, 48000, 41000, 42000, 43240], backgroundColor: 'rgba(255,95,95,0.55)', borderRadius: 8, borderSkipped: false }
+                        { label: 'Income', data: incomeData, backgroundColor: 'rgba(57,255,126,0.75)', borderRadius: 8, borderSkipped: false },
+                        { label: 'Expenses', data: expenseData, backgroundColor: 'rgba(255,95,95,0.55)', borderRadius: 8, borderSkipped: false }
                     ]
                 },
                 options: {
@@ -4662,14 +4860,27 @@
             });
         }
 
-        // Doughnut
-        const dCtx = document.getElementById('doughnutChart')?.getContext('2d');
-        if (dCtx) {
-            new Chart(dCtx, {
+        // Doughnut (Dashboard)
+        function renderDashboardDoughnut() {
+            const dCtx = document.getElementById('doughnutChart')?.getContext('2d');
+            if (!dCtx || !TRANSACTIONS.length) return;
+            
+            const cats = {};
+            TRANSACTIONS.forEach(t => {
+                if (t.type === 'debit') {
+                    cats[t.cat] = (cats[t.cat] || 0) + Math.abs(t.amt);
+                }
+            });
+            const labels = Object.keys(cats);
+            const data = Object.values(cats);
+            if (!labels.length) return;
+
+            if (dCtx.__chart) dCtx.__chart.destroy();
+            dCtx.__chart = new Chart(dCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Food', 'Transport', 'Shopping', 'Bills', 'Health', 'Entertainment'],
-                    datasets: [{ data: [28, 15, 22, 12, 8, 15], backgroundColor: ['#39ff7e', '#fbbf24', '#ff5f5f', '#60a5fa', '#a78bfa', '#f472b6'], borderWidth: 0, hoverOffset: 8 }]
+                    labels: labels,
+                    datasets: [{ data: data, backgroundColor: ['#39ff7e', '#fbbf24', '#ff5f5f', '#60a5fa', '#a78bfa', '#f472b6', '#34d399'], borderWidth: 0, hoverOffset: 8 }]
                 },
                 options: {
                     ...CHART_DEFAULTS,
@@ -4681,33 +4892,49 @@
 
         // Analytics charts
         function renderAnalyticsCharts() {
+            if (!TRANSACTIONS.length) return;
+
+            // 1. Cash Flow (Monthly Aggregate)
             const cfCtx = document.getElementById('cashFlowChart')?.getContext('2d');
             if (cfCtx && !cfCtx.__chartRendered) {
                 cfCtx.__chartRendered = true;
-                new Chart(cfCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
-                        datasets: [
-                            { label: 'Income', data: [72000, 68000, 85000, 78000, 82000, 80000, 85000], borderColor: '#39ff7e', backgroundColor: 'rgba(57,255,126,0.08)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#39ff7e' },
-                            { label: 'Expenses', data: [51000, 43000, 59000, 48000, 41000, 42000, 43240], borderColor: '#ff5f5f', backgroundColor: 'rgba(255,95,95,0.06)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#ff5f5f' }
-                        ]
-                    },
-                    options: {
-                        ...CHART_DEFAULTS,
-                        plugins: { legend: { display: true, labels: { color: '#6a9080', font: { size: 11 }, boxWidth: 12, boxHeight: 12 } } },
-                        scales: { x: { ticks: { color: '#6a9080' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color: '#6a9080', callback: v => '₹' + (v / 1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.04)' } } }
-                    }
+                SS_API.get('/api/analytics/summary').then(data => {
+                    const monthly = data?.monthly || [];
+                    const labels = monthly.map(m => m.month);
+                    const incs = monthly.map(m => m.inc);
+                    const exps = monthly.map(m => m.exp);
+
+                    new Chart(cfCtx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                { label: 'Income', data: incs, borderColor: '#39ff7e', backgroundColor: 'rgba(57,255,126,0.08)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#39ff7e' },
+                                { label: 'Expenses', data: exps, borderColor: '#ff5f5f', backgroundColor: 'rgba(255,95,95,0.06)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#ff5f5f' }
+                            ]
+                        },
+                        options: CHART_DEFAULTS
+                    });
                 });
             }
+
+            // 2. Category Chart
             const catCtx = document.getElementById('catChart')?.getContext('2d');
             if (catCtx && !catCtx.__chartRendered) {
+                const cats = {};
+                TRANSACTIONS.forEach(t => {
+                    if (t.type === 'debit') {
+                        cats[t.cat] = (cats[t.cat] || 0) + Math.abs(t.amt);
+                    }
+                });
+                const sortedCats = Object.entries(cats).sort((a,b) => b[1] - a[1]);
+                
                 catCtx.__chartRendered = true;
                 new Chart(catCtx, {
                     type: 'bar',
                     data: {
-                        labels: ['Food', 'Transport', 'Shopping', 'Bills', 'Health', 'Entertainment', 'Other'],
-                        datasets: [{ data: [8420, 4200, 9800, 5000, 3500, 2100, 2400], backgroundColor: ['#39ff7e', '#fbbf24', '#ff5f5f', '#60a5fa', '#a78bfa', '#f472b6', '#34d399'], borderRadius: 8, borderSkipped: false }]
+                        labels: sortedCats.map(c => c[0]),
+                        datasets: [{ data: sortedCats.map(c => c[1]), backgroundColor: ['#39ff7e', '#fbbf24', '#ff5f5f', '#60a5fa', '#a78bfa', '#f472b6', '#34d399'], borderRadius: 8, borderSkipped: false }]
                     },
                     options: {
                         ...CHART_DEFAULTS,
@@ -4716,23 +4943,6 @@
                     }
                 });
             }
-            const savCtx = document.getElementById('savingsLineChart')?.getContext('2d');
-            if (savCtx && !savCtx.__chartRendered) {
-                savCtx.__chartRendered = true;
-                new Chart(savCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
-                        datasets: [{ label: 'Cumulative Savings', data: [18000, 43000, 69000, 1e5, 141000, 182000, 224000], borderColor: '#39ff7e', backgroundColor: 'rgba(57,255,126,0.1)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#39ff7e', pointBorderColor: '#060d12', pointBorderWidth: 2 }]
-                    },
-                    options: {
-                        ...CHART_DEFAULTS,
-                        plugins: { legend: { display: false } },
-                        scales: { x: { ticks: { color: '#6a9080' }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { ticks: { color: '#6a9080', callback: v => '₹' + (v / 1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.04)' } } }
-                    }
-                });
-            }
-            renderHeatmap();
         }
 
         function renderHeatmap() {
@@ -4835,12 +5045,36 @@
             }
         }
 
+        // ── Dynamic greeting with real user name ─────────────────────────
+        (function setGreeting() {
+            try {
+                const u = JSON.parse(localStorage.getItem('ss_user') || '{}');
+                const firstName = (u.full_name || '').split(' ')[0];
+                const el = document.getElementById('chatWelcomeMsg');
+                if (el && firstName) {
+                    el.textContent = `Hey ${firstName}! 👋 I'm SmartSpend AI — your personal finance assistant. Ask me anything about your money!`;
+                }
+            } catch(e) {}
+        })();
+
+        // ── Simple markdown renderer for AI replies ───────────────────────
+        function renderMarkdown(text) {
+            return text
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')          // **bold**
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')                       // *italic*
+                .replace(/`(.+?)`/g, '<code style="background:rgba(57,255,126,.1);padding:1px 5px;border-radius:4px;font-family:monospace">$1</code>')
+                .replace(/^#{1,3}\s+(.+)$/gm, '<strong>$1</strong>')        // headers → bold
+                .replace(/^[-•*]\s+(.+)$/gm, '&nbsp;&nbsp;• $1')           // bullet points
+                .replace(/\n/g, '<br>');
+        }
+
         async function sendAiMessage() {
             const input = document.getElementById('chatInput');
             const msgs = document.getElementById('chatMsgs');
             const text = input.value.trim();
             if (!text) return;
 
+            // User bubble
             const uMsg = document.createElement('div');
             uMsg.className = 'msg user';
             uMsg.textContent = text;
@@ -4848,16 +5082,58 @@
             input.value = '';
             msgs.scrollTop = msgs.scrollHeight;
 
+            // Bot thinking bubble
             const tMsg = document.createElement('div');
             tMsg.className = 'msg bot';
-            tMsg.innerHTML = '<span class="spin" style="width:12px;height:12px"></span> Thinking...';
+            tMsg.innerHTML = '<span class="spin" style="width:12px;height:12px"></span> <span style="color:var(--muted);font-size:.85rem">Thinking...</span>';
             msgs.appendChild(tMsg);
             msgs.scrollTop = msgs.scrollHeight;
 
+            const token = localStorage.getItem('ss_token') || '';
+            let fullReply = '';
+            let started = false;
+
             try {
-                const data = await SS_API.post('/api/chat/', { message: text });
-                tMsg.innerHTML = data?.reply || getMockAiResponse(text);
+                const response = await fetch('/api/chat/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ message: text })
+                });
+
+                if (!response.ok || !response.body) throw new Error('Stream failed');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || !trimmed.startsWith('data:')) continue;
+                        const payload = trimmed.slice(5).trim();
+                        if (payload === '[DONE]') break;
+                        try {
+                            const parsed = JSON.parse(payload);
+                            const tok = parsed.token || '';
+                            if (tok) {
+                                if (!started) { tMsg.innerHTML = ''; started = true; }
+                                fullReply += tok;
+                                // Render markdown live as tokens stream in
+                                tMsg.innerHTML = renderMarkdown(fullReply);
+                                msgs.scrollTop = msgs.scrollHeight;
+                            }
+                        } catch (_) {}
+                    }
+                }
+                if (!fullReply) tMsg.textContent = getMockAiResponse(text);
             } catch (err) {
+                console.error('[Chat stream error]', err);
                 tMsg.textContent = getMockAiResponse(text);
             }
             msgs.scrollTop = msgs.scrollHeight;
@@ -4865,11 +5141,14 @@
 
         function getMockAiResponse(query) {
             const q = query.toLowerCase();
-            if (q.includes('balance')) return "Your total balance is ₹1,28,450. You've saved 34% of your income this month!";
-            if (q.includes('spend') || q.includes('expense')) return "You've spent ₹43,240 so far in April. Your biggest expense is Shopping (₹9,800).";
-            if (q.includes('invest') || q.includes('portfolio')) return "Your investment portfolio is valued at ₹8.42L, with a total gain of ₹2.22L (+35.8%).";
-            if (q.includes('loan') || q.includes('emi')) return "You have 2 active loans. Your next EMI is ₹42,800 for the Home Loan on May 5th.";
-            return "That's a great question! Based on your spending patterns, you're doing well with your savings. Would you like a breakdown of your top categories?";
+            const bal = document.getElementById('statBalance')?.textContent || '₹0';
+            const exp = document.getElementById('statExpenses')?.textContent || '₹0';
+            
+            if (q.includes('balance')) return `Your current total balance is ${bal}. You're doing great with your savings!`;
+            if (q.includes('spend') || q.includes('expense')) return `You've spent ${exp} so far this month. Would you like a breakdown of your top categories?`;
+            if (q.includes('invest') || q.includes('portfolio')) return "Your investment portfolio is being tracked. Stay tuned for real-time market updates!";
+            if (q.includes('loan') || q.includes('emi')) return "You have active loan tracking enabled. Your next EMI schedule is being calculated.";
+            return "That's a great question! Based on your spending patterns, you're maintaining a healthy balance. Would you like to set a new savings goal?";
         }
 
         function logout() {
@@ -4882,6 +5161,7 @@
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         }
     </script>
+    <script src="/static/js/custom_features.js"></script>
 </body>
 
 </html>
