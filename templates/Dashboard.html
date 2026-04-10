@@ -48,7 +48,7 @@
 
             --sidebar-w: 260px;
             --sidebar-w-col: 72px;
-            --topbar-h: 64px;
+            --topbar-h: 69px;
 
             --clay: 6px 6px 20px rgba(0, 0, 0, 0.55), -3px -3px 10px rgba(255, 255, 255, 0.035), inset 0 1px 0 rgba(255, 255, 255, 0.07);
             --clay-lg: 12px 12px 40px rgba(0, 0, 0, 0.65), -6px -6px 20px rgba(255, 255, 255, 0.025), inset 0 1px 0 rgba(255, 255, 255, 0.055);
@@ -2084,6 +2084,11 @@
             color: var(--muted);
         }
 
+        #voiceEntryLanguage + .ss-select-wrapper,
+        #voiceEntryLanguage + .ss-select-wrapper > .ss-select-trigger {
+            width: 180px;
+        }
+
         .toggle-switch {
             width: 44px;
             height: 24px;
@@ -2667,11 +2672,11 @@
         <!-- ═══════════ SIDEBAR ═══════════ -->
         <aside class="sidebar" id="sidebar">
             <div class="sb-top">
-                <div class="sb-logo">
+                <a href="/dashboard" class="sb-logo" onclick="window.location.href='/dashboard'">
                     <img src="../static/images/SmartSpend.png" alt="SmartSpend"
                         style="width: 32px; height: 32px; border-radius: 8px;">
                     <span>SmartSpend</span>
-                </div>
+                </a>
                 <button class="sb-collapse" id="sbCollapse" title="Collapse sidebar">◀</button>
             </div>
             
@@ -3376,7 +3381,7 @@
                                 Monthly Report</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Full income & expense
                                 breakdown for any month</div>
-                            <button class="btn btn-primary" style="width:100%">Generate PDF →</button>
+                            <button class="btn btn-primary" id="monthlyPdfBtn" style="width:100%">Generate PDF →</button>
                         </div>
                         <div class="card-box"
                             style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
@@ -3388,7 +3393,7 @@
                                 Annual Summary</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Year-over-year
                                 financial performance report</div>
-                            <button class="btn btn-primary" style="width:100%">Generate PDF →</button>
+                            <button class="btn btn-primary" id="annualPdfBtn" style="width:100%">Generate PDF →</button>
                         </div>
                         <div class="card-box"
                             style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
@@ -3400,7 +3405,7 @@
                                 Tax Report</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">FY2025-26 income
                                 summary for ITR filing</div>
-                            <button class="btn btn-primary" style="width:100%">Generate PDF →</button>
+                            <button class="btn btn-primary" id="taxPdfBtn" style="width:100%">Generate PDF →</button>
                         </div>
                         <div class="card-box"
                             style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
@@ -3424,7 +3429,7 @@
                                 Budget Report</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Budget vs actual
                                 spending analysis</div>
-                            <button class="btn btn-ghost" style="width:100%">Download CSV →</button>
+                            <button class="btn btn-ghost" id="exportBudgetCsvBtn" style="width:100%">Download CSV →</button>
                         </div>
                         <div class="card-box"
                             style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
@@ -3436,7 +3441,7 @@
                                 Goals Progress</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Track your savings
                                 goals over time</div>
-                            <button class="btn btn-ghost" style="width:100%">Download CSV →</button>
+                            <button class="btn btn-ghost" id="exportGoalsCsvBtn" style="width:100%">Download CSV →</button>
                         </div>
                     </div>
                 </div>
@@ -3499,9 +3504,9 @@
                                     <div class="form-group"><label class="form-label">Email Address</label><input
                                             class="form-input" id="profileEmailInput" value="" type="email" /></div>
                                     <div class="form-group"><label class="form-label">Phone Number</label><input
-                                            class="form-input" value="+91 00000 00000" type="tel" /></div>
+                                            class="form-input" id="profilePhoneInput" value="" type="tel" /></div>
                                     <div class="form-group" style="margin-bottom:0"><label
-                                            class="form-label">Currency</label><select class="form-input">
+                                            class="form-label">Currency</label><select class="form-input" id="profileCurrencyInput">
                                             <option selected>₹ INR — Indian Rupee</option>
                                             <option>$ USD</option>
                                             <option>€ EUR</option>
@@ -3510,18 +3515,18 @@
                             </div>
                             <div class="card-box">
                                 <div class="card-header">
-                                    <div class="card-title">Security</div>
+                                    <div class="card-title">Security</div><button class="btn btn-ghost" id="saveSecurityBtn">Save Changes</button>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group"><label class="form-label">Current Password</label><input
-                                            class="form-input" type="password" placeholder="••••••••" /></div>
+                                            class="form-input" id="profileCurrentPasswordInput" type="password" placeholder="••••••••" /></div>
                                     <div class="form-row">
                                         <div class="form-group" style="margin-bottom:0"><label class="form-label">New
-                                                Password</label><input class="form-input" type="password"
+                                                Password</label><input class="form-input" id="profileNewPasswordInput" type="password"
                                                 placeholder="Min 8 characters" /></div>
                                         <div class="form-group" style="margin-bottom:0"><label
                                                 class="form-label">Confirm Password</label><input class="form-input"
-                                                type="password" placeholder="••••••••" /></div>
+                                                id="profileConfirmPasswordInput" type="password" placeholder="••••••••" /></div>
                                     </div>
                                 </div>
                             </div>
@@ -3608,7 +3613,7 @@
                                         </div>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right;">
-                                        <button class="btn btn-ghost" style="font-size: .85rem;">+ Add new card</button>
+                                        <button class="btn btn-ghost" onclick="addPaymentCard()" style="font-size: .85rem;">+ Add new card</button>
                                     </div>
                                 </div>
                             </div>
@@ -3653,13 +3658,15 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label class="form-label">Full name</label>
-                                        <input type="text" class="form-input" value="Sanjay's Org" />
+                                        <input type="text" class="form-input" id="billingNameInput" value="Sanjay's Org" />
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Country or region</label>
                                         <select class="form-input" id="billingCountryInput">
                                             <option value="India">India</option>
                                             <option value="United States">United States</option>
+                                            <option value="United Kingdom">United Kingdom</option>
+                                            <option value="Singapore">Singapore</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -3668,13 +3675,10 @@
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0;">
                                         <label class="form-label">Business Tax ID <span style="font-size: 0.8rem; opacity: 0.5;">ℹ️</span></label>
-                                        <select class="form-input" id="billingTaxInput">
-                                            <option value="">Select tax ID</option>
-                                        </select>
+                                        <input type="text" class="form-input" id="billingTaxInput" placeholder="Enter Tax ID (GST/VAT)" />
                                     </div>
                                 </div>
                                 <div style="border-top: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--card2);">
-                                    <button class="btn btn-ghost" style="font-size: 0.85rem;">Cancel</button>
                                     <button class="btn btn-primary" onclick="saveBillingConfig()" style="font-size: 0.85rem; background: #006b3d; padding: 0.5rem 1rem;">Save</button>
                                 </div>
                             </div>
@@ -3771,9 +3775,9 @@
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
-                                            <h4>Voice Entry Language</h4>
-                                            <p>Language for voice transactions</p>
-                                        </div><select class="filter-input"
+                                            <h4 style="white-space: nowrap">Voice Entry Language</h4>
+                                            <p style="white-space: nowrap">Language for voice transactions</p>
+                                        </div><select class="filter-input" id="voiceEntryLanguage"
                                             style="border-radius:8px;padding:.35rem .75rem">
                                             <option>English (India)</option>
                                             <option>Hindi</option>
@@ -3792,13 +3796,13 @@
                                     <div class="setting-info">
                                         <h4>Export All Data</h4>
                                         <p>Download a complete copy of your data</p>
-                                    </div><button class="btn btn-ghost" style="font-size:.8rem">Export JSON</button>
+                                    </div><button class="btn btn-ghost" id="exportJsonBtn" style="font-size:.8rem">Export JSON</button>
                                 </div>
                                 <div class="setting-row">
                                     <div class="setting-info">
                                         <h4>Delete Account</h4>
                                         <p>Permanently delete your account and all data</p>
-                                    </div><button class="btn"
+                                    </div><button class="btn" id="deleteAccountBtn"
                                         style="background:rgba(255,95,95,.1);color:var(--red);border:1px solid rgba(255,95,95,.25);border-radius:var(--r-sm);font-size:.8rem;padding:.4rem .875rem">Delete
                                         Account</button>
                                 </div>
@@ -3826,7 +3830,7 @@
                                     <div class="setting-info">
                                         <h4>Cancel Subscription</h4>
                                         <p>Cancels at end of billing period</p>
-                                    </div><button class="btn btn-ghost"
+                                    </div><button class="btn btn-ghost" id="cancelSubscriptionBtn"
                                         style="font-size:.8rem;color:var(--red)">Cancel</button>
                                 </div>
                             </div>
@@ -5161,7 +5165,10 @@
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="/static/js/custom_features.js"></script>
+    <script src="/static/js/reports_and_settings.js"></script>
+    <script src="/static/js/customDropdown.js"></script>
+    <script src="/static/js/billing.js"></script>
 </body>
-
 </html>

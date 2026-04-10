@@ -1,10 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from utils.database import Database
 from utils.auth import token_required
 import decimal
 
 goals_bp = Blueprint('goals', __name__)
-db = Database()
+
+def get_db():
+    return current_app.config['DB']
 
 def _format_goal(g):
     return {
@@ -20,6 +22,7 @@ def _format_goal(g):
 @token_required
 def goals():
     try:
+        db = get_db()
         user_id = request.current_user['user_id']
 
         if request.method == 'GET':
@@ -41,4 +44,5 @@ def goals():
             return jsonify({'error': 'Failed to create goal'}), 500
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        current_app.logger.error(str(e))
+        return jsonify({'error': 'An internal server error occurred'}), 500

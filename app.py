@@ -1,5 +1,11 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory, Response, stream_with_context
+from flask import Flask, request, jsonify, render_template, send_from_directory, Response, stream_with_context, current_app
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_caching import Cache
+from flasgger import Swagger
+from werkzeug.middleware.proxy_fix import ProxyFix
+from whitenoise import WhiteNoise
 import os
 from datetime import datetime
 import json
@@ -13,12 +19,23 @@ from utils.auth import token_required, generate_token
 from utils.database import Database
 
 app = Flask(__name__)
-CORS(app, origins=CORS_ORIGINS)
-app.config['SECRET_KEY'] = SECRET_KEY
+# Fix: For production readiness, handle proxies and use whitenoise for static files
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
 
-# Initialize database
+CORS(app, origins=CORS_ORIGINS.split(','), supports_credentials=True)
+app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SWAGGER'] = {'title': 'SmartSpend API', 'uiversion': 3}
+
+# Initialize extensions
+limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "50 per hour"])
+cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
+swagger = Swagger(app)
+
+# Initialize database and store in app context for dependency injection
 db = Database()
 db.initialize_db()
+app.config['DB'] = db
 
 # Register Blueprints
 from routes.auth import auth_bp
@@ -27,6 +44,7 @@ from routes.analytics import analytics_bp
 from routes.budgets import budgets_bp
 from routes.goals import goals_bp
 from routes.billing import billing_bp
+from routes.reports import reports_bp
 
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(transactions_bp, url_prefix='/api/transactions')
@@ -34,8 +52,9 @@ app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
 app.register_blueprint(budgets_bp, url_prefix='/api/budgets')
 app.register_blueprint(goals_bp, url_prefix='/api/goals')
 app.register_blueprint(billing_bp, url_prefix='/api/billing')
+app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
-# Serve static files
+# Serve static files (handled by whitenoise in production, but keeping this for development if needed)
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static', filename)
@@ -57,14 +76,38 @@ nvidia_client = OpenAI(
 
 @app.route('/api/chat/', methods=['POST'])
 @token_required
+@limiter.limit("5 per minute")
 def chat():
+    """
+    AI Chat Endpoint
+    ---
+    tags:
+      - AI
+    security:
+      - Bearer: []
+    parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+    responses:
+      200:
+        description: Stream of AI response
+    """
     try:
         data = request.get_json()
         message = data.get('message', '').strip()
         if not message:
             return jsonify({'reply': 'Please type a message!'}), 400
+        if len(message) > 1000:
+            return jsonify({'error': 'Message too long. Maximum 1000 characters.'}), 400
 
         user_id = request.current_user['user_id']
+        
+        db = current_app.config['DB']
         summary = db.get_analytics_summary(user_id)
 
         # Get user's actual name from DB
@@ -87,27 +130,83 @@ def chat():
             f"7. End with a helpful follow-up question or tip when appropriate."
         )
 
+        # Fetch chat history
+        history_records = db.fetch_all(
+            "SELECT role, content FROM chat_history WHERE user_id = %s ORDER BY created_at ASC LIMIT 10", 
+            (user_id,)
+        )
+        
+        messages = [{"role": "system", "content": system_prompt}]
+        for rec in history_records:
+            messages.append({"role": rec['role'], "content": rec['content']})
+            
+        # Append current message wrapped in user_input to prevent injection
+        messages.append({"role": "user", "content": f"<user_input>\n{message}\n</user_input>"})
+        
+        # Save user message to history
+        db.execute("INSERT INTO chat_history (user_id, role, content) VALUES (%s, %s, %s)", (user_id, 'user', message))
+
         def generate():
-            """Stream SSE chunks to the client."""
+            """Stream SSE chunks to the client with safe <think> tag stripping."""
             try:
                 completion = nvidia_client.chat.completions.create(
                     model="qwen/qwen3-next-80b-a3b-instruct",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": message}
-                    ],
+                    messages=messages,
                     temperature=0.6,
                     top_p=0.7,
                     max_tokens=4096,
                     stream=True
                 )
+                buffer = ""
+                in_think = False
+                full_response = ""
+                
                 for chunk in completion:
                     delta = chunk.choices[0].delta.content
-                    if delta is not None:
-                        # Strip think tags inline
-                        delta = re.sub(r'<think>.*?</think>', '', delta, flags=re.DOTALL)
-                        if delta:
-                            yield f"data: {json.dumps({'token': delta})}\n\n"
+                    if delta:
+                        buffer += delta
+                        
+                        # Process buffer to strip <think> blocks
+                        while True:
+                            if not in_think:
+                                think_start = buffer.find('<think>')
+                                if think_start != -1:
+                                    # Yield text before <think>
+                                    if think_start > 0:
+                                        text_to_yield = buffer[:think_start]
+                                        full_response += text_to_yield
+                                        yield f"data: {json.dumps({'token': text_to_yield})}\n\n"
+                                    buffer = buffer[think_start + 7:]
+                                    in_think = True
+                                else:
+                                    # Yield text but keep last 7 chars just in case a <think> tag is partially formed
+                                    if len(buffer) > 7:
+                                        text_to_yield = buffer[:-7]
+                                        full_response += text_to_yield
+                                        yield f"data: {json.dumps({'token': text_to_yield})}\n\n"
+                                        buffer = buffer[-7:]
+                                    break
+                            else:
+                                think_end = buffer.find('</think>')
+                                if think_end != -1:
+                                    buffer = buffer[think_end + 8:]
+                                    in_think = False
+                                else:
+                                    # Still inside think block, wait for </think>
+                                    break
+
+                # Flush remaining buffer if not in think block
+                if buffer and not in_think:
+                    # Remove any partial <think tags that might be at the end
+                    clean_buffer = re.sub(r'<think>?.*', '', buffer, flags=re.DOTALL)
+                    if clean_buffer:
+                        full_response += clean_buffer
+                        yield f"data: {json.dumps({'token': clean_buffer})}\n\n"
+                
+                # Save assistant response to history
+                if full_response:
+                    db.execute("INSERT INTO chat_history (user_id, role, content) VALUES (%s, %s, %s)", (user_id, 'assistant', full_response))
+
                 yield "data: [DONE]\n\n"
             except Exception as e:
                 print(f"[AI Stream Error] {e}")
@@ -133,7 +232,7 @@ def chat():
         )
 
     except Exception as e:
-        print(f"[Chat Outer Error] {e}")
+        current_app.logger.error(f"[Chat Outer Error] {e}")
         return jsonify({'reply': "I'm having a momentary issue. Please try again!"}), 200
 
 

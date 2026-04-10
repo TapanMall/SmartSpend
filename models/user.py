@@ -18,6 +18,8 @@ class User:
             'id': user['id'],
             'email': user['email'],
             'full_name': user.get('full_name'),
+            'phone': user.get('phone', ''),
+            'currency': user.get('currency', '₹ INR — Indian Rupee'),
             'plan': user.get('plan', 'free'),
             'created_at': user.get('created_at').isoformat() if hasattr(user.get('created_at'), 'isoformat') else user.get('created_at')
         }

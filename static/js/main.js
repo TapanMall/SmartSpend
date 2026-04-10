@@ -4,6 +4,35 @@
 const SS_API = {
     token: () => localStorage.getItem('ss_token') || '',
     
+    activeRequests: 0,
+    
+    showLoader() {
+        this.activeRequests++;
+        let loader = document.getElementById('global-loader');
+        if (!loader) {
+            loader = document.createElement('div');
+            loader.id = 'global-loader';
+            loader.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5); z-index: 9999;
+                display: flex; justify-content: center; align-items: center;
+                backdrop-filter: blur(2px);
+            `;
+            loader.innerHTML = '<div style="width:40px;height:40px;border:4px solid var(--g);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div><style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>';
+            document.body.appendChild(loader);
+        }
+        loader.style.display = 'flex';
+    },
+    
+    hideLoader() {
+        this.activeRequests--;
+        if (this.activeRequests <= 0) {
+            this.activeRequests = 0;
+            const loader = document.getElementById('global-loader');
+            if (loader) loader.style.display = 'none';
+        }
+    },
+    
     headers() {
         return {
             'Content-Type': 'application/json',
@@ -12,6 +41,7 @@ const SS_API = {
     },
     
     async get(path) {
+        this.showLoader();
         try {
             const r = await fetch(path, { 
                 headers: this.headers(),
@@ -25,15 +55,23 @@ const SS_API = {
         } catch (e) {
             console.error('API Error:', e);
             return null;
+        } finally {
+            this.hideLoader();
         }
     },
     
     async post(path, body) {
+        this.showLoader();
         try {
+            const isFormData = body instanceof FormData;
+            const headers = this.headers();
+            if (isFormData) {
+                delete headers['Content-Type'];
+            }
             const r = await fetch(path, {
                 method: 'POST',
-                headers: this.headers(),
-                body: JSON.stringify(body)
+                headers: headers,
+                body: isFormData ? body : JSON.stringify(body)
             });
             if (r.status === 401) {
                 window.location.href = '/?auth=login';
@@ -43,10 +81,13 @@ const SS_API = {
         } catch (e) {
             console.error('API Error:', e);
             return null;
+        } finally {
+            this.hideLoader();
         }
     },
     
     async delete(path) {
+        this.showLoader();
         try {
             const r = await fetch(path, {
                 method: 'DELETE',
@@ -60,6 +101,8 @@ const SS_API = {
         } catch (e) {
             console.error('API Error:', e);
             return null;
+        } finally {
+            this.hideLoader();
         }
     }
 };
@@ -71,10 +114,16 @@ function showToast(message, type = 'success') {
     
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <span class="toast-icon">${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
-        <span>${message}</span>
-    `;
+    
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'toast-icon';
+    iconSpan.textContent = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+    
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    
+    toast.appendChild(iconSpan);
+    toast.appendChild(msgSpan);
     
     toast.style.cssText = `
         background: var(--card);

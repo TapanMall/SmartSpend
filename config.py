@@ -15,9 +15,9 @@ JWT_ALGORITHM = 'HS256'
 
 # Flask Configuration
 SECRET_KEY = os.getenv('SECRET_KEY', 'flask_dev_secret')
-DEBUG = os.getenv('FLASK_DEBUG', '1') == '1'
+DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
 PORT = int(os.getenv('PORT', 5000))
-CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*')
+CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'https://yourdomain.com')
 
 # API Keys
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')

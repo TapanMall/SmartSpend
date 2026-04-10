@@ -394,12 +394,16 @@ async function loadGoals() {
 async function saveProfile() {
     const fullNameEl = document.getElementById('profileFullNameInput');
     const emailEl = document.getElementById('profileEmailInput');
+    const phoneEl = document.getElementById('profilePhoneInput');
+    const currEl = document.getElementById('profileCurrencyInput');
     const btn = document.getElementById('saveProfileBtn');
     
     if (!fullNameEl || !emailEl || !btn) return;
     
     const full_name = fullNameEl.value.trim();
     const email = emailEl.value.trim();
+    const phone = phoneEl ? phoneEl.value.trim() : '';
+    const currency = currEl ? currEl.value.trim() : '₹ INR — Indian Rupee';
     
     if (!full_name || !email) {
         showToast('Please fill in both name and email', 'error');
@@ -420,7 +424,7 @@ async function saveProfile() {
         const res = await fetch('/api/auth/profile', {
             method: 'PUT',
             headers: cfHeaders(),
-            body: JSON.stringify({ full_name, email })
+            body: JSON.stringify({ full_name, email, phone, currency })
         });
         const data = await res.json();
         
@@ -429,6 +433,8 @@ async function saveProfile() {
             const savedUser = JSON.parse(localStorage.getItem('ss_user') || '{}');
             savedUser.full_name = full_name;
             savedUser.email = email;
+            savedUser.phone = phone;
+            savedUser.currency = currency;
             localStorage.setItem('ss_user', JSON.stringify(savedUser));
             
             // Update all UI elements without page reload

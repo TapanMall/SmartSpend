@@ -1,13 +1,16 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from utils.auth import token_required
 from utils.database import Database
 
 billing_bp = Blueprint('billing', __name__)
-db = Database()
+
+def get_db():
+    return current_app.config['DB']
 
 @billing_bp.route('/', methods=['GET'])
 @token_required
 def get_billing_info():
+    db = get_db()
     user_id = request.current_user['user_id']
     
     # 1. Fetch or create User Billing Config
@@ -41,6 +44,7 @@ def get_billing_info():
 @billing_bp.route('/update_plan', methods=['POST'])
 @token_required
 def update_plan():
+    db = get_db()
     user_id = request.current_user['user_id']
     data = request.get_json()
     new_plan = data.get('plan_type')
@@ -57,6 +61,7 @@ def update_plan():
 @billing_bp.route('/update_config', methods=['POST'])
 @token_required
 def update_config():
+    db = get_db()
     user_id = request.current_user['user_id']
     data = request.get_json()
     
@@ -73,10 +78,30 @@ def update_config():
     
     return jsonify({'status': 'success', 'message': 'Billing information updated'})
 
+@billing_bp.route('/add_card', methods=['POST'])
+@token_required
+def add_card():
+    db = get_db()
+    user_id = request.current_user['user_id']
+    data = request.get_json()
+    last4 = data.get('last4', '4242')
+    brand = data.get('brand', 'Visa').capitalize()
+    
+    # Remove default from old cards
+    db.execute("UPDATE user_payment_methods SET is_default = FALSE WHERE user_id = %s", (user_id,))
+    
+    db.execute("""
+        INSERT INTO user_payment_methods (user_id, card_last4, exp_month, exp_year, brand, is_default)
+        VALUES (%s, %s, 12, 2028, %s, TRUE)
+    """, (user_id, last4, brand))
+    
+    return jsonify({'status': 'success', 'message': 'Card added successfully'})
+
 # Endpoint to seed some dummy data (payment methods and invoices) for UI verification
 @billing_bp.route('/seed', methods=['POST'])
 @token_required
 def seed_dummy_data():
+    db = get_db()
     user_id = request.current_user['user_id']
     
     # Check if empty
@@ -94,3 +119,17 @@ def seed_dummy_data():
         db.execute("INSERT INTO user_invoices (user_id, amount, invoice_number, status, date_issued) VALUES (%s, 0.00, 'QJTKKF-00001', 'PAID', '2026-01-28')", (user_id,))
             
     return jsonify({'status': 'success'})
+
+@billing_bp.route('/cancel', methods=['POST'])
+@token_required
+def cancel_subscription():
+    db = get_db()
+    user_id = request.current_user['user_id']
+    
+    # Update billing record
+    db.execute("UPDATE user_billing SET plan_type = 'STARTER' WHERE user_id = %s", (user_id,))
+    # Core user setting
+    db.execute("UPDATE users SET plan = 'free' WHERE id = %s", (user_id,))
+    
+    return jsonify({'status': 'success', 'message': 'Subscription canceled.'})
+

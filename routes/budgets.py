@@ -1,10 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from utils.database import Database
 from utils.auth import token_required
 import decimal
 
 budgets_bp = Blueprint('budgets', __name__)
-db = Database()
+
+def get_db():
+    return current_app.config['DB']
 
 def _serialize(obj):
     """Convert Decimal to float for JSON serialization."""
@@ -25,6 +27,7 @@ def _format_budget(b):
 @token_required
 def budgets():
     try:
+        db = get_db()
         user_id = request.current_user['user_id']
 
         if request.method == 'GET':
@@ -46,7 +49,8 @@ def budgets():
 
     except Exception as e:
         err_str = str(e)
+        current_app.logger.error(err_str)
         # Duplicate budget for same category
         if 'Duplicate entry' in err_str or '1062' in err_str:
             return jsonify({'error': f'A budget for this category already exists. Delete or update it instead.'}), 409
-        return jsonify({'error': err_str}), 500
+        return jsonify({'error': 'An internal server error occurred'}), 500
