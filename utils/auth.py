@@ -5,13 +5,23 @@ from flask import request, jsonify, current_app
 from config import JWT_SECRET, JWT_ALGORITHM
 
 def generate_token(user_data):
-    """Generate JWT token for user"""
+    """Generate short-lived JWT token for user (15m)"""
     payload = {
         'user_id': user_data['id'],
         'email': user_data['email'],
         'full_name': user_data['full_name'],
         'plan': user_data['plan'],
-        'exp': datetime.utcnow() + timedelta(days=7),
+        'exp': datetime.utcnow() + timedelta(minutes=15),
+        'iat': datetime.utcnow()
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def generate_refresh_token(user_data):
+    """Generate long-lived refresh token for user (30d)"""
+    payload = {
+        'user_id': user_data['id'],
+        'type': 'refresh',
+        'exp': datetime.utcnow() + timedelta(days=30),
         'iat': datetime.utcnow()
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
