@@ -39,7 +39,9 @@ class Database:
 
     def execute(self, query: str, params: Optional[Tuple] = None) -> Any:
         if not self.pool:
-            self.init_pool()
+            if not self.init_pool():
+                print("Failed to initialize database pool.")
+                return False
             
         connection = None
         cursor = None
@@ -65,7 +67,9 @@ class Database:
 
     def fetch_one(self, query: str, params: Optional[Tuple] = None) -> Optional[Dict]:
         if not self.pool:
-            self.init_pool()
+            if not self.init_pool():
+                print("Failed to initialize database pool.")
+                return None
             
         connection = None
         cursor = None
@@ -89,7 +93,9 @@ class Database:
 
     def fetch_all(self, query: str, params: Optional[Tuple] = None) -> List[Dict]:
         if not self.pool:
-            self.init_pool()
+            if not self.init_pool():
+                print("Failed to initialize database pool.")
+                return []
             
         connection = None
         cursor = None
@@ -114,7 +120,9 @@ class Database:
     def initialize_db(self):
         """Create initial database tables if they don't exist"""
         if not self.pool:
-            self.init_pool()
+            if not self.init_pool():
+                print("Failed to initialize database pool.")
+                return False
             
         connection = None
         cursor = None
@@ -188,7 +196,7 @@ class Database:
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT,
                     category VARCHAR(100) NOT NULL,
-                    amount DECIMAL(15, 2) NOT NULL,
+                    budget_amount DECIMAL(15, 2) NOT NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )

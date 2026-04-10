@@ -18,7 +18,7 @@ jobs:
           MYSQL_DATABASE: smartspend_test
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping -prootpassword" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v3
@@ -39,4 +39,4 @@ jobs:
         SECRET_KEY: test_secret
         JWT_SECRET: test_jwt_secret
       run: |
-        pytest
+        PYTHONPATH=. pytest
