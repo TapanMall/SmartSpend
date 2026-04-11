@@ -138,7 +138,7 @@ class Database:
                     full_name VARCHAR(255),
                     phone VARCHAR(20) DEFAULT '',
                     currency VARCHAR(50) DEFAULT '₹ INR — Indian Rupee',
-                    plan VARCHAR(50) DEFAULT 'free',
+                    plan VARCHAR(50) DEFAULT 'starter',
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
@@ -233,7 +233,9 @@ class Database:
                 CREATE TABLE IF NOT EXISTS user_payment_methods (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT,
+                    method_type ENUM('CARD', 'UPI', 'QR') DEFAULT 'CARD',
                     card_last4 VARCHAR(4),
+                    upi_id VARCHAR(255),
                     exp_month INT,
                     exp_year INT,
                     brand VARCHAR(50),
@@ -241,6 +243,16 @@ class Database:
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             """)
+
+            # Migrate existing user_payment_methods table
+            try:
+                cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN method_type ENUM('CARD', 'UPI', 'QR') DEFAULT 'CARD'")
+            except Error:
+                pass
+            try:
+                cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN upi_id VARCHAR(255)")
+            except Error:
+                pass
 
             # Invoices Table
             cursor.execute("""
@@ -305,8 +317,8 @@ class Database:
     
     def create_user(self, email, password_hash, full_name):
         query = """
-            INSERT INTO users (email, password_hash, full_name, created_at)
-            VALUES (%s, %s, %s, NOW())
+            INSERT INTO users (email, password_hash, full_name, plan, created_at)
+            VALUES (%s, %s, %s, 'starter', NOW())
         """
         return self.execute(query, (email, password_hash, full_name))
     
