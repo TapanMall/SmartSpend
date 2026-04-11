@@ -52,7 +52,12 @@ def update_plan():
     if new_plan not in ['STARTER', 'PRO', 'TEAM']:
         return jsonify({'error': 'Invalid plan type'}), 400
         
-    db.execute("UPDATE user_billing SET plan_type = %s WHERE user_id = %s", (new_plan, user_id))
+    billing = db.fetch_one("SELECT * FROM user_billing WHERE user_id = %s", (user_id,))
+    if not billing:
+        db.execute("INSERT INTO user_billing (user_id, plan_type, billing_email, address, country, business_tax_id) VALUES (%s, %s, '', '', '', '')", (user_id, new_plan))
+    else:
+        db.execute("UPDATE user_billing SET plan_type = %s WHERE user_id = %s", (new_plan, user_id))
+        
     # Also update the plan in users table for consistency if needed, but let's keep it isolated
     db.execute("UPDATE users SET plan = %s WHERE id = %s", (new_plan.lower(), user_id))
     
@@ -78,24 +83,59 @@ def update_config():
     
     return jsonify({'status': 'success', 'message': 'Billing information updated'})
 
-@billing_bp.route('/add_card', methods=['POST'])
+@billing_bp.route('/add_method', methods=['POST'])
 @token_required
-def add_card():
+def add_method():
     db = get_db()
     user_id = request.current_user['user_id']
     data = request.get_json()
-    last4 = data.get('last4', '4242')
-    brand = data.get('brand', 'Visa').capitalize()
     
-    # Remove default from old cards
-    db.execute("UPDATE user_payment_methods SET is_default = FALSE WHERE user_id = %s", (user_id,))
+    method_type = data.get('method_type', 'CARD')
+    brand = data.get('brand', 'Visa')
+    is_default = data.get('is_default', False)
     
-    db.execute("""
-        INSERT INTO user_payment_methods (user_id, card_last4, exp_month, exp_year, brand, is_default)
-        VALUES (%s, %s, 12, 2028, %s, TRUE)
-    """, (user_id, last4, brand))
+    # Remove default from old cards if this one is default
+    if is_default:
+        db.execute("UPDATE user_payment_methods SET is_default = FALSE WHERE user_id = %s", (user_id,))
     
-    return jsonify({'status': 'success', 'message': 'Card added successfully'})
+    if method_type == 'CARD':
+        last4 = data.get('last4', '4242')
+        exp_month = data.get('exp_month', 12)
+        exp_year = data.get('exp_year', 2028)
+        db.execute("""
+            INSERT INTO user_payment_methods (user_id, method_type, card_last4, exp_month, exp_year, brand, is_default)
+            VALUES (%s, 'CARD', %s, %s, %s, %s, %s)
+        """, (user_id, last4, exp_month, exp_year, brand, is_default))
+    elif method_type == 'UPI':
+        upi_id = data.get('upi_id', '')
+        db.execute("""
+            INSERT INTO user_payment_methods (user_id, method_type, upi_id, brand, is_default)
+            VALUES (%s, 'UPI', %s, %s, %s)
+        """, (user_id, upi_id, brand, is_default))
+    elif method_type == 'QR':
+        # For now, treat QR as a special UPI or instruction
+        upi_id = data.get('upi_id', 'Scan & Pay')
+        db.execute("""
+            INSERT INTO user_payment_methods (user_id, method_type, upi_id, brand, is_default)
+            VALUES (%s, 'QR', %s, 'QR Code', %s)
+        """, (user_id, upi_id, is_default))
+    
+    return jsonify({'status': 'success', 'message': f'{method_type} added successfully'})
+
+@billing_bp.route('/delete_method/<int:method_id>', methods=['DELETE'])
+@token_required
+def delete_method(method_id):
+    db = get_db()
+    user_id = request.current_user['user_id']
+    
+    # Check if exists and belongs to user
+    method = db.fetch_one("SELECT * FROM user_payment_methods WHERE id = %s AND user_id = %s", (method_id, user_id))
+    if not method:
+        return jsonify({'error': 'Payment method not found or unauthorized'}), 404
+    
+    db.execute("DELETE FROM user_payment_methods WHERE id = %s", (method_id,))
+    
+    return jsonify({'status': 'success', 'message': 'Payment method deleted'})
 
 # Endpoint to seed some dummy data (payment methods and invoices) for UI verification
 @billing_bp.route('/seed', methods=['POST'])
@@ -129,7 +169,7 @@ def cancel_subscription():
     # Update billing record
     db.execute("UPDATE user_billing SET plan_type = 'STARTER' WHERE user_id = %s", (user_id,))
     # Core user setting
-    db.execute("UPDATE users SET plan = 'free' WHERE id = %s", (user_id,))
+    db.execute("UPDATE users SET plan = 'starter' WHERE id = %s", (user_id,))
     
     return jsonify({'status': 'success', 'message': 'Subscription canceled.'})
 

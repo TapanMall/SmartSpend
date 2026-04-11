@@ -97,16 +97,34 @@ function populateBillingUI(data) {
                 cardDiv.style.alignItems = "center";
                 cardDiv.style.justifyContent = "space-between";
                 cardDiv.style.marginBottom = "0.75rem";
+                cardDiv.style.transition = "all 0.2s ease";
+
+                let icon = '💳';
+                let title = `${pm.brand} ending in ${pm.card_last4}`;
+                let sub = `Expires ${pm.exp_month}/${pm.exp_year}`;
+
+                if (pm.method_type === 'UPI') {
+                    icon = '🏦';
+                    title = `UPI: ${pm.upi_id}`;
+                    sub = `Linked Bank: ${pm.brand || 'Bank'}`;
+                } else if (pm.method_type === 'QR') {
+                    icon = '🔳';
+                    title = `Scan & Pay`;
+                    sub = `UPI ID: ${pm.upi_id}`;
+                }
                 
                 cardDiv.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 1.5rem;">${pm.brand.toLowerCase() === 'visa' ? '💳' : '🏦'}</span>
+                        <span style="font-size: 1.5rem;">${icon}</span>
                         <div>
-                            <div style="font-weight: 600;">${pm.brand} ending in ${pm.card_last4}</div>
-                            <div style="font-size: 0.8rem; color: var(--muted); margin-top: 2px;">Expires ${pm.exp_month}/${pm.exp_year}</div>
+                            <div style="font-weight: 600;">${title}</div>
+                            <div style="font-size: 0.8rem; color: var(--muted); margin-top: 2px;">${sub}</div>
                         </div>
                     </div>
-                    ${pm.is_default ? '<span style="font-size: 0.75rem; background: var(--card2); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 12px; color: var(--muted);">Default</span>' : ''}
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        ${pm.is_default ? '<span style="font-size: 0.75rem; background: var(--card2); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 12px; color: var(--muted);">Default</span>' : ''}
+                        <button class="btn-icon" onclick="deletePaymentMethod(${pm.id})" style="color: var(--muted); cursor: pointer;" title="Delete">🗑</button>
+                    </div>
                 `;
                 pmList.appendChild(cardDiv);
             });
@@ -128,19 +146,16 @@ function populateBillingUI(data) {
 
     if (bEmail) bEmail.value = data.billing.billing_email || '';
     if (bName) {
-        // Pre-fill full name from active user if empty
         if (!data.billing.address && !bName.value) {
             const ssUser = JSON.parse(localStorage.getItem('ss_user') || '{}');
             bName.value = ssUser.full_name || '';
         }
     }
     
-    // Check if customDropdown has already replaced native
     if (bCountry) bCountry.value = data.billing.country || 'India';
     if (bAddress) bAddress.value = data.billing.address || '';
     if (bTax) bTax.value = data.billing.business_tax_id || '';
     
-    // Refresh custom selects visually
     if(window.refreshCustomSelects) {
         setTimeout(()=> { window.refreshCustomSelects(); }, 100);
     }
@@ -176,22 +191,120 @@ window.saveBillingConfig = async function() {
     btn.innerHTML = oldText;
 };
 
-// Prompt based card addition securely mocking real flow
-window.addPaymentCard = async function() {
-    let cardNum = prompt("Enter 16-digit Card Number (Mock):", "4242 4242 4242 4242");
-    if (!cardNum) return;
-    cardNum = cardNum.replace(/\s+/g, '');
-    let last4 = cardNum.length >= 4 ? cardNum.slice(-4) : '4242';
+// ═══════════════════════════════════════
+// MODAL MANAGEMENT
+// ═══════════════════════════════════════
+let currentPaymentTab = 'CARD';
+
+window.openPaymentModal = function() {
+    const overlay = document.getElementById('paymentMethodModalOverlay');
+    if(overlay) {
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setPaymentTab('CARD');
+    }
+};
+
+window.closePaymentModal = function() {
+    const overlay = document.getElementById('paymentMethodModalOverlay');
+    if(overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+};
+
+window.handlePaymentOverlay = function(e) {
+    if(e.target === document.getElementById('paymentMethodModalOverlay')) {
+        closePaymentModal();
+    }
+};
+
+window.setPaymentTab = function(tab) {
+    currentPaymentTab = tab;
+    // Update UI
+    ['CARD', 'UPI', 'QR'].forEach(t => {
+        const btn = document.getElementById(`payTab${t}`);
+        const form = document.getElementById(`form${t}`);
+        if(btn) btn.classList.toggle('active-income', t === tab);
+        if(form) form.style.display = (t === tab ? 'block' : 'none');
+    });
     
+    // Show/hide default checkbox based on payment type
+    const checkboxDiv = document.getElementById('defaultMethodCheckbox');
+    if(checkboxDiv) {
+        checkboxDiv.style.display = (tab === 'QR' ? 'none' : 'flex');
+    }
+    
+    // Show/hide save button based on payment type
+    const btn = document.getElementById('savePaymentMethodBtn');
+    if(btn) {
+        if(tab === 'QR') {
+            btn.style.display = 'none';
+        } else {
+            btn.style.display = 'flex';
+            btn.innerText = `Add ${tab === 'CARD' ? 'Card' : 'UPI'}`;
+        }
+    }
+};
+
+window.savePaymentMethod = async function() {
+    const btn = document.getElementById('savePaymentMethodBtn');
+    const oldText = btn.innerHTML;
+    btn.innerHTML = `<span class="spin" style="width:12px;height:12px;display:inline-block;border:2px solid;border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite"></span> Adding...`;
+
+    let payload = {
+        method_type: currentPaymentTab,
+        is_default: document.getElementById('isDefaultMethod').checked
+    };
+
+    if (currentPaymentTab === 'CARD') {
+        const cardNum = document.getElementById('cardNumberInput').value.replace(/\s+/g, '');
+        if(cardNum.length < 13) { alert("Invalid card number"); btn.innerHTML = oldText; return; }
+        payload.last4 = cardNum.slice(-4);
+        payload.brand = cardNum.startsWith('4') ? 'Visa' : cardNum.startsWith('5') ? 'Mastercard' : 'Amex';
+        const expiry = document.getElementById('cardExpiryInput').value.split('/');
+        payload.exp_month = parseInt(expiry[0]) || 12;
+        payload.exp_year = 2000 + (parseInt(expiry[1]) || 28);
+    } else if (currentPaymentTab === 'UPI') {
+        const upi = document.getElementById('upiIdInput').value;
+        if(!upi.includes('@')) { alert("Invalid UPI ID"); btn.innerHTML = oldText; return; }
+        payload.upi_id = upi;
+        payload.brand = upi.split('@')[1].toUpperCase();
+    } else if (currentPaymentTab === 'QR') {
+        payload.upi_id = 'QR Payment';
+        payload.brand = 'QR';
+    }
+
     try {
-        const res = await fetch('/api/billing/add_card', {
+        const res = await fetch('/api/billing/add_method', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ last4: last4, brand: cardNum.startsWith('5') ? 'Mastercard' : 'Visa' })
+            body: JSON.stringify(payload)
         });
         if(res.ok) {
-            alert("Payment method added securely!");
-            // Refresh explicitly
+            if(window.showToast) window.showToast("Payment method added securely!", "success");
+            else alert("Payment method added securely!");
+            closePaymentModal();
+            fetchBillingData();
+        } else {
+            const err = await res.json();
+            alert(err.error || "Failed to add method");
+        }
+    } catch(e) { console.error(e); }
+    
+    btn.innerHTML = oldText;
+};
+
+window.deletePaymentMethod = async function(id) {
+    if(!confirm("Are you sure you want to delete this payment method?")) return;
+    
+    try {
+        const res = await fetch(`/api/billing/delete_method/${id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+        if(res.ok) {
+            if(window.showToast) window.showToast("Payment method deleted", "error");
             fetchBillingData();
         }
     } catch(e) { console.error(e); }

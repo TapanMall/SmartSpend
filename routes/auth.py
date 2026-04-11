@@ -55,7 +55,7 @@ def google_auth():
                 'access_token': jwt_token,
                 'user': User.format_user_data(user)
             }))
-            resp.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Lax', max_age=30*24*60*60)
+            resp.set_cookie('refresh_token', refresh_token, httponly=True, secure=request.is_secure, samesite='Lax', max_age=30*24*60*60)
             return resp
             
         except ValueError as e:
@@ -93,7 +93,7 @@ def register():
                 'access_token': token,
                 'user': User.format_user_data(user)
             }), 201)
-            resp.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Lax', max_age=30*24*60*60)
+            resp.set_cookie('refresh_token', refresh_token, httponly=True, secure=request.is_secure, samesite='Lax', max_age=30*24*60*60)
             return resp
         else:
             return jsonify({'error': 'Failed to create user'}), 500
@@ -125,7 +125,7 @@ def login():
                     'access_token': token,
                     'user': User.format_user_data(user)
                 }))
-                resp.set_cookie('refresh_token', refresh_token, httponly=True, secure=True, samesite='Lax', max_age=30*24*60*60)
+                resp.set_cookie('refresh_token', refresh_token, httponly=True, secure=request.is_secure, samesite='Lax', max_age=30*24*60*60)
                 return resp
             else:
                 return jsonify({'error': 'Invalid email or password'}), 401
@@ -155,7 +155,7 @@ def refresh():
         token = generate_token(User.format_user_data(user))
         new_refresh_token = generate_refresh_token(User.format_user_data(user))
         resp = make_response(jsonify({'access_token': token}))
-        resp.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=True, samesite='Lax', max_age=30*24*60*60)
+        resp.set_cookie('refresh_token', new_refresh_token, httponly=True, secure=request.is_secure, samesite='Lax', max_age=30*24*60*60)
         return resp
         
     except Exception as e:

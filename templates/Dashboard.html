@@ -2206,6 +2206,245 @@
         }
 
         /* ══════════════════════════════════════
+   PRICING MODAL REDESIGN
+══════════════════════════════════════ */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .pricing-card {
+            background: var(--card2);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border2);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.4s var(--ease);
+            overflow: hidden;
+            box-shadow: var(--clay);
+        }
+
+        [data-theme="light"] .pricing-card {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--g);
+            box-shadow: var(--clay-lg);
+        }
+
+        .pricing-card.popular {
+            border: 1px solid rgba(57, 255, 126, 0.4);
+            background: linear-gradient(180deg, rgba(57, 255, 126, 0.05), transparent), var(--card);
+            box-shadow: 0 0 40px rgba(57, 255, 126, 0.08);
+        }
+
+        [data-theme="light"] .pricing-card.popular {
+            background: linear-gradient(180deg, rgba(57, 255, 126, 0.1), transparent), #fff;
+            border-color: rgba(57, 255, 126, 0.5);
+        }
+
+        .pricing-card.popular::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, transparent, var(--g), transparent);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.5rem;
+            background: var(--g);
+            color: #060d12;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px var(--g-glow);
+        }
+
+        .plan-name {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .price-curr {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .price-val {
+            font-family: 'Syne', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--text);
+        }
+
+        [data-theme="light"] .price-curr,
+        [data-theme="light"] .price-val {
+            color: var(--text);
+        }
+
+        .popular .price-val, .popular .price-curr {
+            color: var(--g);
+        }
+        
+        [data-theme="light"] .popular .price-val, 
+        [data-theme="light"] .popular .price-curr {
+            color: var(--g700);
+        }
+
+        .price-period {
+            font-size: 0.95rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .plan-desc {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            min-height: 3rem;
+        }
+
+        [data-theme="light"] .plan-desc {
+            color: var(--muted);
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+            flex-grow: 1;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 0.875rem;
+            font-size: 0.875rem;
+            color: var(--text);
+            opacity: 0.9;
+        }
+
+        .plan-features li i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--g-dim);
+            color: var(--g);
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        [data-theme="light"] .plan-features li i {
+            background: var(--g-dim2);
+            color: var(--g700);
+        }
+
+        .plan-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s var(--ease);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-current {
+            background: var(--g-dim);
+            color: var(--g);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+            cursor: default;
+        }
+
+        .btn-current::before {
+            content: '✓';
+            font-size: 1.1rem;
+        }
+
+        [data-theme="light"] .btn-current {
+            background: rgba(57, 255, 126, 0.1);
+            color: var(--g700);
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(135deg, var(--g), var(--g600));
+            color: #060d12;
+            box-shadow: 0 4px 15px var(--g-glow);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--g-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn-downgrade {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .btn-downgrade:hover {
+            background: var(--card);
+            color: var(--text);
+            border-color: var(--muted);
+        }
+
+        /* Pricing Card Improvements */
+        .pricing-card.popular {
+            transform: scale(1.02);
+            z-index: 2;
+        }
+
+        [data-theme="light"] .pricing-card {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* ══════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════ */
         @media (max-width: 1200px) {
@@ -2662,6 +2901,13 @@
                 padding: 1.25rem 1rem;
             }
         }
+        /* Compact Mode adjustments */
+        body.compact-mode .tx-table-row { padding: 0.5rem 1.25rem; }
+        body.compact-mode .tx-row { padding: 0.5rem 1.25rem; }
+        body.compact-mode .card-box { padding: 1rem; }
+        body.compact-mode .card-header { margin-bottom: 0.75rem; }
+        body.compact-mode .setting-row { padding: 0.75rem 0; }
+        body.compact-mode .sc-top { margin-bottom: 0.5rem; }
     </style>
 </head>
 
@@ -2680,6 +2926,11 @@
                 <button class="sb-collapse" id="sbCollapse" title="Collapse sidebar">◀</button>
             </div>
             
+            <div id="sbBalanceWrap" style="padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 4px;">Total Balance</div>
+                <div id="sbBalanceVal" style="font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--g);">₹0</div>
+            </div>
+
             <nav class="sb-nav">
                 <div class="sb-section-title">Main</div>
                 <div class="nav-item active" onclick="switchView('dashboard',this)">
@@ -2754,7 +3005,7 @@
                 <div class="topbar-right">
                     <div class="search-bar">
                         <span class="si">🔍</span>
-                        <input type="text" placeholder="Search transactions..." />
+                        <input type="text" id="globalSearchInput" placeholder="Search transactions..." onkeyup="filterTransactions(this.value)" />
                     </div>
                     <button class="btn btn-primary" onclick="openModal()">＋ Add Transaction</button>
                     <button class="topbar-icon-btn" id="notifBtn" onclick="toggleNotif()" title="Notifications">
@@ -3477,8 +3728,8 @@
                                     </div>
                                     <div class="profile-plan">
                                         <div class="pp-top">
-                                            <div class="pp-plan">⚡ Pro Plan</div>
-                                            <div class="pp-renew">Renews May 1, 2026</div>
+                                            <div class="pp-plan" id="profile-pp-plan">LOADING...</div>
+                                            <div class="pp-renew">Pro Plan Features</div>
                                         </div>
                                         <ul class="pp-features">
                                             <li>Unlimited transactions</li>
@@ -3550,9 +3801,9 @@
                             <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.5rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <div>
-                                        <div style="color: var(--g); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem;" id="activePlanTitle">Free Plan</div>
+                                        <div style="color: var(--g); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem;" id="activePlanTitle">FREE PLAN</div>
                                     </div>
-                                    <button class="btn btn-ghost" onclick="openPricingModal()" style="font-size: 0.85rem;">Change subscription plan</button>
+                                    <button class="btn btn-ghost" id="billingChangeBtn" onclick="openPricingModal()" style="font-size: 0.85rem;">Change Plan</button>
                                 </div>
                                 <div style="margin-top: 1.5rem; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: flex-start;">
                                     <span style="font-size: 1.2rem; opacity: 0.7;">ℹ️</span>
@@ -3613,7 +3864,7 @@
                                         </div>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right;">
-                                        <button class="btn btn-ghost" onclick="addPaymentCard()" style="font-size: .85rem;">+ Add new card</button>
+                                        <button class="btn btn-ghost" onclick="openPaymentModal()" style="font-size: .85rem;">+ Add Payment Method</button>
                                     </div>
                                 </div>
                             </div>
@@ -3704,35 +3955,35 @@
                                             <h4>Budget Alerts</h4>
                                             <p>Notify when you approach budget limits</p>
                                         </div>
-                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch on" id="toggleBudgetAlerts" onclick="toggleSetting('toggleBudgetAlerts')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Weekly Summary</h4>
                                             <p>Weekly spending report every Sunday</p>
                                         </div>
-                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch on" id="toggleWeeklySummary" onclick="toggleSetting('toggleWeeklySummary')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Goal Milestones</h4>
                                             <p>Celebrate when you hit a savings goal</p>
                                         </div>
-                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch on" id="toggleGoalMilestones" onclick="toggleSetting('toggleGoalMilestones')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Large Transactions</h4>
                                             <p>Alert for transactions over ₹5,000</p>
                                         </div>
-                                        <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch" id="toggleLargeTransactions" onclick="toggleSetting('toggleLargeTransactions')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>AI Insight Digest</h4>
                                             <p>Monthly AI-generated financial analysis</p>
                                         </div>
-                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch on" id="toggleAiDigest" onclick="toggleSetting('toggleAiDigest')"></div>
                                     </div>
                                 </div>
                             </div>
@@ -3748,30 +3999,28 @@
                                             <h4>Dark Mode</h4>
                                             <p>Toggle dark / light interface theme</p>
                                         </div>
-                                        <div class="toggle-switch on" id="darkModeToggle"
-                                            onclick="this.classList.toggle('on');setTheme(this.classList.contains('on')?'dark':'light')">
-                                        </div>
+                                        <div class="toggle-switch on" id="darkModeToggle" onclick="toggleSetting('darkModeToggle')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Compact View</h4>
                                             <p>Show more data with reduced spacing</p>
                                         </div>
-                                        <div class="toggle-switch" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch" id="toggleCompactView" onclick="toggleSetting('toggleCompactView')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Auto-categorize</h4>
                                             <p>AI auto-assigns categories to new transactions</p>
                                         </div>
-                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch on" id="toggleAutoCat" onclick="toggleSetting('toggleAutoCat')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Show Balance in Sidebar</h4>
                                             <p>Display balance in the nav</p>
                                         </div>
-                                        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+                                        <div class="toggle-switch on" id="toggleSidebarBal" onclick="toggleSetting('toggleSidebarBal')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
@@ -3824,13 +4073,13 @@
                                     <div class="setting-info">
                                         <h4>Billing History</h4>
                                         <p>View past invoices</p>
-                                    </div><button class="btn btn-ghost" style="font-size:.8rem">View →</button>
+                                    </div><button class="btn btn-ghost" style="font-size:.8rem" onclick="showPlansBilling()">View →</button>
                                 </div>
                                 <div class="setting-row" style="border:none">
                                     <div class="setting-info">
                                         <h4>Cancel Subscription</h4>
                                         <p>Cancels at end of billing period</p>
-                                    </div><button class="btn btn-ghost" id="cancelSubscriptionBtn"
+                                    </div><button class="btn btn-ghost" id="cancelSubscriptionBtnCustom" onclick="openCancelSubscriptionModal()"
                                         style="font-size:.8rem;color:var(--red)">Cancel</button>
                                 </div>
                             </div>
@@ -3992,57 +4241,72 @@
 
     <!-- ═══ PRICING MODAL ═══ -->
     <div class="modal-overlay" id="pricingModalOverlay" onclick="handlePricingOverlay(event)">
-        <div class="modal" style="max-width: 1000px; width: 95%;">
+        <div class="modal" style="max-width: 1100px; width: 95%; background: var(--bg); border: 1px solid var(--border2); padding: 3rem 2rem;">
             <button
-                style="position:absolute;top:1rem;right:1rem;width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s"
+                style="position:absolute;top:1.5rem;right:1.5rem;width:36px;height:36px;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10"
                 onclick="closePricingModal()" onmouseover="this.style.background='var(--g)';this.style.color='#060d12'"
                 onmouseout="this.style.background='var(--card2)';this.style.color='var(--muted)'">✕</button>
-            <div class="modal-title">Change Subscription Plan</div>
-            <div class="modal-sub" style="margin-bottom: 2rem;">Choose the best plan for your financial goals</div>
+            
+            <div style="text-align: center; margin-bottom: 3.5rem;">
+                <h2 style="font-family:'Syne',sans-serif; font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem;">Change Subscription Plan</h2>
+                <p style="color: var(--muted); font-size: 1.05rem;">Choose the best plan for your financial goals</p>
+            </div>
 
-            <div class="plans-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem;">
+            <div class="pricing-grid">
                 <!-- Starter Plan -->
-                <div class="card-box" style="position:relative">
-                    <div style="font-size:.85rem; font-weight:700; letter-spacing:1px; color:var(--muted)">STARTER</div>
-                    <div style="font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; margin:.5rem 0">₹0<span style="font-size:1rem; font-weight:500; color:var(--muted)">/month</span></div>
-                    <div style="font-size:.9rem; color:var(--muted); margin-bottom:1.5rem">Perfect for individuals just getting started.</div>
-                    <ul class="pp-features" style="margin-bottom:2rem">
-                        <li>Up to 50 transactions/month</li>
-                        <li>Basic dashboard</li>
-                        <li>3 budget categories</li>
-                        <li>CSV export</li>
+                <div class="pricing-card" id="pricingCard_STARTER">
+                    <div class="plan-name">Starter</div>
+                    <div class="plan-price">
+                        <span class="price-curr">₹</span>
+                        <span class="price-val">0</span>
+                        <span class="price-period">/mo</span>
+                    </div>
+                    <p class="plan-desc">Perfect for individuals just getting started with budgeting.</p>
+                    <ul class="plan-features">
+                        <li><i>✓</i> Up to 50 transactions/month</li>
+                        <li><i>✓</i> Basic dashboard visualization</li>
+                        <li><i>✓</i> 3 budget categories</li>
+                        <li><i>✓</i> CSV data export</li>
                     </ul>
-                    <button class="btn btn-ghost" id="planBtn_STARTER" style="width:100%; justify-content:center" onclick="changePlan('STARTER')">Current Plan</button>
+                    <button class="plan-btn" id="planBtn_STARTER" onclick="changePlan('STARTER')">Current Plan</button>
                 </div>
                 
                 <!-- Pro Plan -->
-                <div class="card-box" style="position:relative; border:1px solid var(--g); box-shadow:0 0 20px var(--g-dim)">
-                    <div style="position:absolute; top:-12px; right:20px; background:var(--g); color:#060d12; font-size:.7rem; font-weight:700; padding:4px 12px; border-radius:12px;">MOST POPULAR</div>
-                    <div style="font-size:.85rem; font-weight:700; letter-spacing:1px; color:var(--muted)">PRO</div>
-                    <div style="font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; margin:.5rem 0; color:var(--g)">₹299<span style="font-size:1rem; font-weight:500; color:var(--muted)">/month</span></div>
-                    <div style="font-size:.9rem; color:var(--muted); margin-bottom:1.5rem">Full visibility and AI-powered intelligence.</div>
-                    <ul class="pp-features" style="margin-bottom:2rem">
-                        <li>Unlimited transactions</li>
-                        <li>Full analytics dashboard</li>
-                        <li>Unlimited categories</li>
-                        <li>AI Insights & nudges</li>
-                        <li>OCR Receipt Scanning</li>
+                <div class="pricing-card popular" id="pricingCard_PRO">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="plan-name">Pro</div>
+                    <div class="plan-price">
+                        <span class="price-curr">₹</span>
+                        <span class="price-val">299</span>
+                        <span class="price-period">/mo</span>
+                    </div>
+                    <p class="plan-desc">Full visibility, AI-powered intelligence, and unlimited scale.</p>
+                    <ul class="plan-features">
+                        <li><i>✓</i> Unlimited transactions</li>
+                        <li><i>✓</i> Advanced analytics dashboard</li>
+                        <li><i>✓</i> Unlimited budget categories</li>
+                        <li><i>✓</i> AI Insights & nudges</li>
+                        <li><i>✓</i> OCR Receipt Scanning</li>
                     </ul>
-                    <button class="btn btn-primary" id="planBtn_PRO" style="width:100%; justify-content:center" onclick="changePlan('PRO')">Upgrade to Pro</button>
+                    <button class="plan-btn btn-upgrade" id="planBtn_PRO" onclick="changePlan('PRO')">Upgrade to Pro</button>
                 </div>
                 
                 <!-- Team Plan -->
-                <div class="card-box" style="position:relative">
-                    <div style="font-size:.85rem; font-weight:700; letter-spacing:1px; color:var(--muted)">TEAM</div>
-                    <div style="font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; margin:.5rem 0">₹799<span style="font-size:1rem; font-weight:500; color:var(--muted)">/month</span></div>
-                    <div style="font-size:.9rem; color:var(--muted); margin-bottom:1.5rem">For small teams managing finances together.</div>
-                    <ul class="pp-features" style="margin-bottom:2rem">
-                        <li>Everything in Pro</li>
-                        <li>Up to 5 users</li>
-                        <li>Shared budgets & goals</li>
-                        <li>Advanced AI reporting</li>
+                <div class="pricing-card" id="pricingCard_TEAM">
+                    <div class="plan-name">Team</div>
+                    <div class="plan-price">
+                        <span class="price-curr">₹</span>
+                        <span class="price-val">799</span>
+                        <span class="price-period">/mo</span>
+                    </div>
+                    <p class="plan-desc">For small teams and families managing finances together.</p>
+                    <ul class="plan-features">
+                        <li><i>✓</i> Everything in Pro plan</li>
+                        <li><i>✓</i> Up to 5 team members</li>
+                        <li><i>✓</i> Shared budgets & goals</li>
+                        <li><i>✓</i> Advanced AI group reporting</li>
                     </ul>
-                    <button class="btn btn-ghost" id="planBtn_TEAM" style="width:100%; justify-content:center" onclick="changePlan('TEAM')">Start Free Trial</button>
+                    <button class="plan-btn btn-downgrade" id="planBtn_TEAM" onclick="changePlan('TEAM')">Start Free Trial</button>
                 </div>
             </div>
         </div>
@@ -4084,10 +4348,121 @@
         </div>
     </div>
 
+    <!-- ═══ ADD PAYMENT METHOD MODAL ═══ -->
+    <div class="modal-overlay" id="paymentMethodModalOverlay" onclick="handlePaymentOverlay(event)">
+        <div class="modal" style="max-width: 500px;">
+            <button
+                style="position:absolute;top:1rem;right:1rem;width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s"
+                onclick="closePaymentModal()" onmouseover="this.style.background='var(--g)';this.style.color='#060d12'"
+                onmouseout="this.style.background='var(--card2)';this.style.color='var(--muted)'">✕</button>
+            <div class="modal-title">Add Payment Method</div>
+            <div class="modal-sub">Choose your preferred way to pay</div>
+
+            <!-- Type Tabs -->
+            <div class="type-toggle" style="margin-bottom: 2rem;">
+                <div class="type-opt active-income" id="payTabCARD" onclick="setPaymentTab('CARD')">💳 Card</div>
+                <div class="type-opt" id="payTabUPI" onclick="setPaymentTab('UPI')">🏦 UPI</div>
+                <div class="type-opt" id="payTabQR" onclick="setPaymentTab('QR')">🔳 QR Code</div>
+            </div>
+
+            <div id="paymentFormContent">
+                <!-- Card Form -->
+                <div id="formCARD">
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <input class="form-input" type="text" id="cardNumberInput" placeholder="0000 0000 0000 0000" maxlength="19" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Expiry (MM/YY)</label>
+                            <input class="form-input" type="text" id="cardExpiryInput" placeholder="MM/YY" maxlength="5" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input class="form-input" type="password" id="cardCvvInput" placeholder="***" maxlength="3" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPI Form -->
+                <div id="formUPI" style="display:none">
+                    <div class="form-group">
+                        <label class="form-label">UPI ID (VPA)</label>
+                        <input class="form-input" type="text" id="upiIdInput" placeholder="username@bank" />
+                        <div style="font-size: 0.7rem; color: var(--muted); margin-top: 8px;">Example: user@okaxis, 0000000000@upi</div>
+                    </div>
+                </div>
+
+                <!-- QR Form/Instruction -->
+                <div id="formQR" style="display:none">
+                    <div style="text-align: center; padding: 1rem; background: var(--card2); border-radius: var(--r-sm); border: 1px dashed var(--border);">
+                        <div style="margin-bottom: 0.5rem;">
+                            <img src="/static/images/Scan & Pay.png" alt="Scan & Pay" style="max-width: 120px; height: auto; border-radius: 8px;" />
+                        </div>
+                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">Scan & Pay</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="defaultMethodCheckbox" style="margin-top: 2rem; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="isDefaultMethod" checked />
+                <label for="isDefaultMethod" style="font-size: 0.85rem; color: var(--muted);">Set as default payment method</label>
+            </div>
+
+            <button class="btn btn-primary" id="savePaymentMethodBtn"
+                style="width:100%;margin-top:1.5rem;padding:.875rem;font-size:.95rem;border-radius:var(--r-sm);justify-content:center"
+                onclick="savePaymentMethod()">
+                Add Method
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══ CANCEL SUBSCRIPTION CONFIRMATION MODAL ═══ -->
+    <div class="modal-overlay" id="cancelSubscriptionModalOverlay" onclick="handleCancelSubscriptionOverlay(event)">
+        <div class="modal" style="max-width: 420px; text-align: center;">
+            <div style="width: 60px; height: 60px; background: rgba(255, 95, 95, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem;">⚠️</div>
+            <div class="modal-title" style="margin-bottom: 0.5rem;">Cancel Subscription?</div>
+            <div class="modal-sub" style="line-height: 1.5; color: var(--muted);">Are you sure you want to cancel your subscription? You will lose premium features at the end of the billing period.</div>
+
+            <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <button class="btn" id="confirmCancelSubscriptionBtn" 
+                        style="width: 100%; background: var(--red); color: white; border: none; padding: 0.875rem; border-radius: var(--r-sm); font-weight: 700;">
+                    Yes, Cancel Subscription
+                </button>
+                <button class="btn btn-ghost" onclick="closeCancelSubscriptionModal()" 
+                        style="width: 100%; padding: 0.875rem; color: var(--muted);">
+                    I've Changed My Mind
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DELETE ACCOUNT CONFIRMATION MODAL ═══ -->
+    <div class="modal-overlay" id="deleteAccountModalOverlay" onclick="handleDeleteAccountOverlay(event)">
+        <div class="modal" style="max-width: 420px; text-align: center;">
+            <div style="width: 60px; height: 60px; background: rgba(255, 95, 95, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem;">⚠️</div>
+            <div class="modal-title" style="margin-bottom: 0.5rem;">Delete Account?</div>
+            <div class="modal-sub" style="line-height: 1.5; color: var(--muted);">WARNING: This action is permanent. All your transactions, budgets, and settings will be wiped forever. Are you sure?</div>
+
+            <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <button class="btn" id="confirmDeleteAccountBtn" 
+                        style="width: 100%; background: var(--red); color: white; border: none; padding: 0.875rem; border-radius: var(--r-sm); font-weight: 700;">
+                    Yes, Delete My Account
+                </button>
+                <button class="btn btn-ghost" onclick="closeDeleteAccountModal()" 
+                        style="width: 100%; padding: 0.875rem; color: var(--muted);">
+                    I've Changed My Mind
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        window.isRedirecting = false;
+        
         function escapeHTML(str) {
             if (!str) return '';
             return String(str).replace(/[&<>'"]/g, 
@@ -4112,10 +4487,39 @@
                     'Authorization': `Bearer ${this.token()}`
                 };
             },
-            async _handleResponse(r) {
+            async _handleResponse(r, originalRequest) {
                 if (!r.ok) {
                     if (r.status === 401) {
-                        // Avoid multiple redundant redirects
+                        if (window.isRedirecting) return new Promise(() => {});
+                        window.isRedirecting = true; // Block other concurrent fetches from trying to refresh
+                        try {
+                            const refreshRes = await fetch('/api/auth/refresh', { method: 'POST' });
+                            if (refreshRes.ok) {
+                                const refreshData = await refreshRes.json();
+                                if (refreshData.access_token) {
+                                    localStorage.setItem('ss_token', refreshData.access_token);
+                                    window.isRedirecting = false; // Reset if successful
+                                    if (originalRequest) {
+                                        const newHeaders = {
+                                            ...originalRequest.headers,
+                                            'Authorization': `Bearer ${refreshData.access_token}`
+                                        };
+                                        const retryRes = await fetch(originalRequest.url, {
+                                            ...originalRequest,
+                                            headers: newHeaders
+                                        });
+                                        if (retryRes.ok) return retryRes.json();
+                                    }
+                                }
+                            }
+                        } catch(e) {
+                            console.error('Token refresh failed', e);
+                        }
+
+                        // Avoid multiple redundant redirects and toasts
+                        localStorage.removeItem('ss_token');
+                        localStorage.removeItem('ss_user');
+
                         if (window.location.pathname !== '/') {
                             window.location.replace('/?auth=login');
                         }
@@ -4125,34 +4529,33 @@
                 return r.json();
             },
             async get(path) {
+                if (window.isRedirecting) return new Promise(() => {});
                 try {
-                    const r = await fetch(path, { 
-                        headers: this.headers(),
-                        cache: 'no-store'
-                    });
-                    return this._handleResponse(r);
+                    const options = { headers: this.headers(), cache: 'no-store' };
+                    const r = await fetch(path, options);
+                    return this._handleResponse(r, { url: path, ...options });
                 } catch (e) {
                     console.error('API GET error:', e);
                     return { error: 'Network error' };
                 }
             },
             async post(path, body) {
+                if (window.isRedirecting) return new Promise(() => {});
                 try {
-                    const r = await fetch(path, { 
-                        method: 'POST', 
-                        headers: this.headers(), 
-                        body: JSON.stringify(body) 
-                    });
-                    return this._handleResponse(r);
+                    const options = { method: 'POST', headers: this.headers(), body: JSON.stringify(body) };
+                    const r = await fetch(path, options);
+                    return this._handleResponse(r, { url: path, ...options });
                 } catch (e) {
                     console.error('API POST error:', e);
                     return { error: 'Network error' };
                 }
             },
             async del(path) {
+                if (window.isRedirecting) return new Promise(() => {});
                 try {
-                    const r = await fetch(path, { method: 'DELETE', headers: this.headers() });
-                    return this._handleResponse(r);
+                    const options = { method: 'DELETE', headers: this.headers() };
+                    const r = await fetch(path, options);
+                    return this._handleResponse(r, { url: path, ...options });
                 } catch (e) {
                     console.error('API DEL error:', e);
                     return { error: 'Network error' };
@@ -4165,6 +4568,72 @@
         // ═══════════════════════════════════════
         let TRANSACTIONS = [];
 
+        // ═══════════════════════════════════════
+        // SUBSCRIPTION SYNC logic
+        // ═══════════════════════════════════════
+        const PLAN_RANK = { 
+            'FREE': 0, 'STARTER': 0, 
+            'PRO': 1, 
+            'TEAM': 2 
+        };
+
+        function syncPlanUI(planType) {
+            if (!planType) return;
+            const p = planType.toUpperCase().trim();
+            const rank = PLAN_RANK[p] !== undefined ? PLAN_RANK[p] : 0;
+            const normalizedPlan = (rank === 0) ? 'STARTER' : p;
+
+            // 1. Sidebar
+            const sb = document.getElementById('sb-plan');
+            if (sb) sb.textContent = normalizedPlan + ' PLAN';
+
+            // 2. Profile Dropdown Panel
+            const pt = document.getElementById('pt-display');
+            if (pt) pt.textContent = (rank >= 1 ? '⚡ ' : '') + normalizedPlan + ' PLAN';
+            
+            const ui = document.getElementById('upgradeToProItem');
+            if (ui) ui.style.display = (rank >= 1) ? 'none' : 'flex';
+
+            // 3. Settings - Billing Section
+            const at = document.getElementById('activePlanTitle');
+            if (at) at.textContent = normalizedPlan + ' PLAN';
+
+            // 4. My Profile View
+            const ppp = document.getElementById('profile-pp-plan');
+            if (ppp) ppp.textContent = (rank >= 1 ? '⚡ ' : '') + normalizedPlan + ' PLAN';
+
+            // 5. Pricing Modal Buttons
+            ['STARTER', 'PRO', 'TEAM'].forEach(id => {
+                const btn = document.getElementById('planBtn_' + id);
+                if (!btn) return;
+                
+                const targetRank = PLAN_RANK[id];
+                if (targetRank === rank) {
+                    btn.textContent = 'Current';
+                    btn.className = 'plan-btn btn-current';
+                    btn.disabled = true;
+                } else if (targetRank > rank) {
+                    btn.textContent = 'Upgrade';
+                    btn.className = 'plan-btn btn-upgrade';
+                    btn.disabled = false;
+                } else {
+                    btn.textContent = 'Downgrade';
+                    btn.className = 'plan-btn btn-downgrade';
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        // Cross-tab Synchronization
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'ss_user') {
+                try {
+                    const u = JSON.parse(e.newValue);
+                    if (u && u.plan) syncPlanUI(u.plan);
+                } catch(err) { console.error('Storage sync error:', err); }
+            }
+        });
+
         // Load user info into sidebar
         (function loadUser() {
             try {
@@ -4173,9 +4642,6 @@
                     const nameEl = document.querySelector('.sb-user-name');
                     const avEl = document.querySelector('.sb-av');
                     const pnDisplay = document.getElementById('pn-display');
-                    const ptDisplay = document.getElementById('pt-display');
-                    const sbPlan = document.getElementById('sb-plan');
-                    const upgradeItem = document.getElementById('upgradeToProItem');
                     const pavBig = document.getElementById('profileAvatarBig');
 
                     // Function to get proper initials
@@ -4192,7 +4658,6 @@
                     if (nameEl) nameEl.textContent = u.full_name;
                     if (avEl) avEl.textContent = userInitials;
                     if (pnDisplay) pnDisplay.textContent = u.full_name;
-                    if (sbPlan) sbPlan.textContent = (u.plan || 'FREE').toUpperCase() + ' PLAN';
                     
                     const pam = document.getElementById('profileAvMini');
                     if (pam) pam.textContent = userInitials;
@@ -4208,20 +4673,25 @@
                         if (peInput) peInput.value = u.email;
                     }
                     
-                    if (u.plan === 'pro') {
-                        if (ptDisplay) ptDisplay.textContent = '⚡ PRO PLAN';
-                        if (upgradeItem) upgradeItem.style.display = 'none';
-                    } else {
-                        if (ptDisplay) ptDisplay.textContent = 'FREE PLAN';
-                        if (upgradeItem) upgradeItem.style.display = 'flex';
-                    }
+                    // Initial flash sync from local storage
+                    syncPlanUI(u.plan || 'starter');
+                    
+                    // Background Truth Check (Verify with backend)
+                    SS_API.get('/api/billing/').then(data => {
+                        if (data && data.status === 'success') {
+                            const actualPlan = data.billing.plan_type || 'STARTER';
+                            if (u.plan !== actualPlan.toLowerCase()) {
+                                u.plan = actualPlan.toLowerCase();
+                                localStorage.setItem('ss_user', JSON.stringify(u));
+                                syncPlanUI(actualPlan);
+                            }
+                        }
+                    });
                 }
-                // Redundant check removed as SS_API logic handles this, 
-                // but we check once on mount if no token exists yet.
                 if (!SS_API.token()) {
                     window.location.replace('/?auth=login');
                 }
-            } catch (e) { }
+            } catch (e) { console.error('loadUser error:', e); }
         })();
 
         // ─── Load analytics summary into stat cards ─────────────────────
@@ -4235,10 +4705,13 @@
             const incEl = document.getElementById('statIncome');
             const expEl = document.getElementById('statExpenses');
             const savEl = document.getElementById('statSavings');
+            const sbBalVal = document.getElementById('sbBalanceVal');
+            
             if (balEl) balEl.textContent = fmt(data.balance);
             if (incEl) incEl.textContent = fmt(data.income);
             if (expEl) expEl.textContent = fmt(data.expenses);
             if (savEl) savEl.textContent = data.savings_rate + '%';
+            if (sbBalVal) sbBalVal.textContent = fmt(data.balance);
 
             // Analytics IDs
             const anaInc = document.getElementById('anaIncome');
@@ -4345,6 +4818,7 @@
         }
 
         // Init on load
+        loadSettings();
         loadSummary().then(success => {
             if (success) {
                 loadTransactions();
@@ -4413,12 +4887,102 @@
         }
 
         // ═══════════════════════════════════════
-        // THEME
+        // THEME & SETTINGS
         // ═══════════════════════════════════════
+        function loadSettings() {
+            try {
+                const settings = JSON.parse(localStorage.getItem('ss_settings')) || {};
+                
+                // Set default if not exist
+                const defaults = {
+                    toggleBudgetAlerts: true, toggleWeeklySummary: true,
+                    toggleGoalMilestones: true, toggleLargeTransactions: false,
+                    toggleAiDigest: true, toggleCompactView: false,
+                    toggleAutoCat: true, toggleSidebarBal: true,
+                    darkModeToggle: true, voiceEntryLanguage: 'English (India)'
+                };
+
+                for (let key in defaults) {
+                    if (settings[key] === undefined) settings[key] = defaults[key];
+                }
+                
+                // Apply toggles
+                ['toggleBudgetAlerts', 'toggleWeeklySummary', 'toggleGoalMilestones',
+                 'toggleLargeTransactions', 'toggleAiDigest', 'toggleCompactView',
+                 'toggleAutoCat', 'toggleSidebarBal', 'darkModeToggle'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        if (settings[id]) el.classList.add('on');
+                        else el.classList.remove('on');
+                    }
+                });
+
+                // Apply Voice Language
+                const langEl = document.getElementById('voiceEntryLanguage');
+                if (langEl) {
+                    langEl.value = settings.voiceEntryLanguage;
+                    langEl.onchange = () => {
+                        saveSetting('voiceEntryLanguage', langEl.value);
+                    };
+                }
+
+                // Apply Theme
+                setTheme(settings.darkModeToggle ? 'dark' : 'light');
+                
+                // Apply Compact View
+                applyCompactView(settings.toggleCompactView);
+                
+                // Apply Sidebar Balance
+                applySidebarBalance(settings.toggleSidebarBal);
+
+            } catch (e) {}
+        }
+
+        function toggleSetting(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.toggle('on');
+            const isOn = el.classList.contains('on');
+            saveSetting(id, isOn);
+            
+            if (id === 'darkModeToggle') {
+                setTheme(isOn ? 'dark' : 'light');
+            } else if (id === 'toggleCompactView') {
+                applyCompactView(isOn);
+            } else if (id === 'toggleSidebarBal') {
+                applySidebarBalance(isOn);
+            }
+        }
+
+        function saveSetting(key, value) {
+            try {
+                const settings = JSON.parse(localStorage.getItem('ss_settings')) || {};
+                settings[key] = value;
+                localStorage.setItem('ss_settings', JSON.stringify(settings));
+            } catch(e) {}
+        }
+
+        function applyCompactView(isCompact) {
+            if (isCompact) {
+                document.body.classList.add('compact-mode');
+            } else {
+                document.body.classList.remove('compact-mode');
+            }
+        }
+
+        function applySidebarBalance(show) {
+            const sbBal = document.getElementById('sbBalanceWrap');
+            if (sbBal) {
+                sbBal.style.display = show ? 'block' : 'none';
+            }
+        }
+
         function setTheme(t) {
             document.documentElement.setAttribute('data-theme', t);
-            document.getElementById('darkOpt').classList.toggle('active', t === 'dark');
-            document.getElementById('lightOpt').classList.toggle('active', t === 'light');
+            const darkOpt = document.getElementById('darkOpt');
+            const lightOpt = document.getElementById('lightOpt');
+            if (darkOpt) darkOpt.classList.toggle('active', t === 'dark');
+            if (lightOpt) lightOpt.classList.toggle('active', t === 'light');
         }
 
 
@@ -4436,7 +5000,9 @@
         }
 
         function upgradeToPro() {
-            alert('Upgrade to Pro functionality coming soon!');
+            const panel = document.getElementById('profilePanel');
+            if (panel) panel.classList.remove('active');
+            openPricingModal();
         }
 
         function showPlansBilling() {
@@ -4468,34 +5034,13 @@
 
         async function loadBillingData() {
             try {
-                const response = await fetch('/api/billing/', {
-                    headers: SS_API.headers()
-                });
-                const data = await response.json();
+                const data = await SS_API.get('/api/billing/');
                 
-                if (data.status === 'success') {
-                    // Update Active Plan Display
+                if (data && data.status === 'success') {
                     const planType = data.billing.plan_type || 'STARTER';
-                    const activePlanLabel = planType.charAt(0) + planType.slice(1).toLowerCase() + " Plan";
-                    document.getElementById('activePlanTitle').textContent = activePlanLabel;
-
-                    // Update Pricing Modal buttons
-                    ['STARTER', 'PRO', 'TEAM'].forEach(p => {
-                        const btn = document.getElementById(`planBtn_${p}`);
-                        if(btn) {
-                            if (p === planType) {
-                                btn.textContent = 'Current Plan';
-                                btn.className = 'btn btn-ghost';
-                                btn.style.pointerEvents = 'none';
-                                btn.style.opacity = '0.7';
-                            } else {
-                                btn.textContent = p === 'STARTER' ? 'Downgrade' : (p === 'PRO' ? 'Upgrade to Pro' : 'Upgrade to Team');
-                                btn.className = 'btn btn-primary';
-                                btn.style.pointerEvents = 'auto';
-                                btn.style.opacity = '1';
-                            }
-                        }
-                    });
+                    
+                    // Unified Sync across sidebar, profile panel, settings, and modal
+                    syncPlanUI(planType);
                     
                     // Update Form
                     document.getElementById('billingEmailInput').value = data.billing.billing_email || '';
@@ -4559,19 +5104,20 @@
 
         async function changePlan(newPlan) {
             try {
-                const response = await fetch('/api/billing/update_plan', {
-                    method: 'POST',
-                    headers: SS_API.headers(),
-                    body: JSON.stringify({ plan_type: newPlan })
-                });
-                const data = await response.json();
-                if (data.status === 'success') {
+                const data = await SS_API.post('/api/billing/update_plan', { plan_type: newPlan });
+                if (data && data.status === 'success') {
                     showToast(`Successfully changed plan to ${newPlan}`, 'success');
-                    // Ensure the visual elements in profile gets updated
+                    
+                    // Update localStorage
                     const u = JSON.parse(localStorage.getItem('ss_user') || '{}');
                     u.plan = newPlan.toLowerCase();
                     localStorage.setItem('ss_user', JSON.stringify(u));
-                    setTimeout(() => window.location.reload(), 1000); // Reload to reflect changes globally
+                    
+                    // Sync UI everywhere immediately
+                    syncPlanUI(newPlan);
+                    
+                    // Close modal
+                    setTimeout(() => closePricingModal(), 600);
                 } else {
                     showToast(data.error || 'Failed to update plan', 'error');
                 }
@@ -4589,13 +5135,8 @@
             };
             
             try {
-                const response = await fetch('/api/billing/update_config', {
-                    method: 'POST',
-                    headers: SS_API.headers(),
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                if (data.status === 'success') {
+                const data = await SS_API.post('/api/billing/update_config', payload);
+                if (data && data.status === 'success') {
                     showToast('Billing information saved!', 'success');
                 } else {
                     showToast('Failed to save billing info', 'error');
@@ -4721,6 +5262,7 @@
         // TOAST
         // ═══════════════════════════════════════
         function showToast(msg, type = 'success') {
+            if (window.isRedirecting && type === 'error') return;
             const tc = document.getElementById('toastContainer');
             const t = document.createElement('div');
             t.className = `toast ${type}`;
@@ -4741,13 +5283,28 @@
                  .replace(/'/g, "&#039;");
         }
 
+        let currentSearchQuery = '';
+
+        function filterTransactions(query) {
+            currentSearchQuery = (query || '').toLowerCase();
+            renderTransactions();
+        }
+
         function renderTransactions() {
             const list = document.getElementById('txList');
             const recentList = document.getElementById('recentTxList');
             
+            // Apply search filter
+            const filteredTx = TRANSACTIONS.filter(tx => {
+                if (!currentSearchQuery) return true;
+                const nameMatch = (tx.name || '').toLowerCase().includes(currentSearchQuery);
+                const catMatch = (tx.cat || '').toLowerCase().includes(currentSearchQuery);
+                return nameMatch || catMatch;
+            });
+            
             // Render full table if in table view
             if (list) {
-                list.innerHTML = TRANSACTIONS.map((tx, idx) => `
+                list.innerHTML = filteredTx.map((tx, idx) => `
                     <div class="tx-table-row">
                         <div class="tx-cell tx-cell-name">
                             <div class="tx-emo">${escapeHtml(tx.icon)}</div>
@@ -4756,14 +5313,14 @@
                         <div class="tx-cell"><span class="badge ${tx.type === 'credit' ? 'badge-green' : 'badge-red'}">${escapeHtml(tx.cat)}</span></div>
                         <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${escapeHtml(tx.date)}</div>
                         <div class="tx-cell mono ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
-                        <div class="tx-cell"><button class="btn-icon" onclick="deleteTransaction(${tx.id}, ${idx})">🗑</button></div>
+                        <div class="tx-cell"><button class="btn-icon" onclick="deleteTransaction(${tx.id}, ${TRANSACTIONS.indexOf(tx)})">🗑</button></div>
                     </div>
                 `).join('') || '<div style="padding:2rem;text-align:center;color:var(--muted)">No transactions found</div>';
             }
 
             // Render recent list if in dashboard view
             if (recentList) {
-                const recent = TRANSACTIONS.slice(0, 6);
+                const recent = filteredTx.slice(0, 6);
                 recentList.innerHTML = recent.map(tx => `
                     <div class="tx-row">
                         <div class="tx-emo">${escapeHtml(tx.icon)}</div>
@@ -5104,7 +5661,16 @@
                     body: JSON.stringify({ message: text })
                 });
 
-                if (!response.ok || !response.body) throw new Error('Stream failed');
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        if (window.isRedirecting) return;
+                        window.isRedirecting = true;
+                        window.location.replace('/?auth=login');
+                        return;
+                    }
+                    throw new Error('Stream failed');
+                }
+                if (!response.body) throw new Error('No body');
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();

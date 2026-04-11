@@ -88,30 +88,90 @@ document.addEventListener('DOMContentLoaded', () => {
         exportJsonBtn.addEventListener('click', () => downloadBlob('/api/reports/export_json', 'SmartSpend_Data_Export.json'));
     }
 
+    // --- DATA & PRIVACY (Custom Modal) ---
     const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    const deleteModal = document.getElementById('deleteAccountModalOverlay');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteAccountBtn');
+
     if (deleteAccountBtn) {
-        deleteAccountBtn.addEventListener('click', async () => {
-            if (!confirm("WARNING: This will permanently delete your account and ALL data. Are you absolutely sure?")) return;
-            
+        deleteAccountBtn.addEventListener('click', () => {
+            if (deleteModal) {
+                deleteModal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    }
+
+    window.closeDeleteAccountModal = () => {
+        if (deleteModal) {
+            deleteModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    };
+
+    window.handleDeleteAccountOverlay = (e) => {
+        if (e.target === deleteModal) closeDeleteAccountModal();
+    };
+
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async () => {
+            const originalText = confirmDeleteBtn.innerHTML;
+            confirmDeleteBtn.innerHTML = `<span class="spin" style="width:14px;height:14px;display:inline-block;border:2px solid;border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite"></span> Deleting...`;
+            confirmDeleteBtn.disabled = true;
+
             try {
                 const res = await fetch('/api/auth/account', {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
                 if (res.ok) {
-                    alert("Your account has been deleted.");
+                    if (window.showToast) window.showToast("Your account has been deleted.", "error");
+                    else alert("Your account has been deleted.");
+                    
                     localStorage.clear();
-                    window.location.replace('/?auth=login');
-                } else alert("Failed to delete account");
-            } catch (err) { alert("Error occurred: " + err.message); }
+                    setTimeout(() => {
+                        window.location.replace('/?auth=login');
+                    }, 1000);
+                } else {
+                    alert("Failed to delete account");
+                    confirmDeleteBtn.innerHTML = originalText;
+                    confirmDeleteBtn.disabled = false;
+                }
+            } catch (err) {
+                alert("Error occurred: " + err.message);
+                confirmDeleteBtn.innerHTML = originalText;
+                confirmDeleteBtn.disabled = false;
+            }
         });
     }
 
     // --- SUBSCRIPTION ---
-    const cancelSubBtn = document.getElementById('cancelSubscriptionBtn');
-    if (cancelSubBtn) {
-        cancelSubBtn.addEventListener('click', async () => {
-            if (!confirm("Are you sure you want to cancel your subscription? You will lose premium features at the end of the billing period.")) return;
+    const cancelSubModal = document.getElementById('cancelSubscriptionModalOverlay');
+    const confirmCancelBtn = document.getElementById('confirmCancelSubscriptionBtn');
+
+    window.openCancelSubscriptionModal = () => {
+        if (cancelSubModal) {
+            cancelSubModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeCancelSubscriptionModal = () => {
+        if (cancelSubModal) {
+            cancelSubModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    };
+
+    window.handleCancelSubscriptionOverlay = (e) => {
+        if (e.target === cancelSubModal) closeCancelSubscriptionModal();
+    };
+
+    if (confirmCancelBtn) {
+        confirmCancelBtn.addEventListener('click', async () => {
+            const originalText = confirmCancelBtn.innerHTML;
+            confirmCancelBtn.innerHTML = `<span class="spin" style="width:14px;height:14px;display:inline-block;border:2px solid;border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite"></span> Canceling...`;
+            confirmCancelBtn.disabled = true;
             
             try {
                 const res = await fetch('/api/billing/cancel', {
@@ -119,9 +179,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: getAuthHeaders()
                 });
                 const data = await res.json();
-                if (res.ok) alert("Subscription canceled successfully.");
-                else alert(data.error || "Failed to cancel subscription");
-            } catch (err) { alert("Error occurred: " + err.message); }
+                if (res.ok) {
+                    if (window.showToast) window.showToast("Subscription canceled successfully.", "success");
+                    else alert("Subscription canceled successfully.");
+                    closeCancelSubscriptionModal();
+                } else {
+                    alert(data.error || "Failed to cancel subscription");
+                }
+            } catch (err) { 
+                alert("Error occurred: " + err.message); 
+            } finally {
+                confirmCancelBtn.innerHTML = originalText;
+                confirmCancelBtn.disabled = false;
+            }
         });
     }
 
