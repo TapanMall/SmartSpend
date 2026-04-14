@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Only initialize if we're on a page containing the billing section
     if(!document.getElementById('invoicesTableBody')) return;
 
-    fetchBillingData();
+    if (localStorage.getItem('ss_token')) {
+        fetchBillingData();
+    }
 });
 
 const getAuthHeaders = () => {
@@ -18,10 +20,15 @@ const getAuthHeaders = () => {
 };
 
 async function fetchBillingData() {
+    if (window.isRedirecting) return;
     try {
         const res = await fetch('/api/billing/', {
             headers: getAuthHeaders()
         });
+        if (!res.ok) {
+            if (res.status === 401) { window.isRedirecting = true; window.location.replace('/?auth=login'); return; }
+        }
+        if (window.isRedirecting) return;
         const data = await res.json();
         
         if (data.status === 'success') {

@@ -28,9 +28,15 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.config['SWAGGER'] = {'title': 'SmartSpend API', 'uiversion': 3}
 
 # Initialize extensions
-limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "50 per hour"])
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri=os.getenv("RATELIMIT_STORAGE_URI", "memory://"),
+)
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
 swagger = Swagger(app)
+app.config['CACHE'] = cache
 
 # Initialize database and store in app context for dependency injection
 db = Database()

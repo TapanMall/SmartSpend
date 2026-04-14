@@ -253,6 +253,26 @@ class Database:
                 cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN upi_id VARCHAR(255)")
             except Error:
                 pass
+            try:
+                cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN card_last4 VARCHAR(4)")
+            except Error:
+                pass
+            try:
+                cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN exp_month INT")
+            except Error:
+                pass
+            try:
+                cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN exp_year INT")
+            except Error:
+                pass
+            try:
+                cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN brand VARCHAR(50)")
+            except Error:
+                pass
+            try:
+                cursor.execute("ALTER TABLE user_payment_methods ADD COLUMN is_default BOOLEAN DEFAULT FALSE")
+            except Error:
+                pass
 
             # Invoices Table
             cursor.execute("""
@@ -386,7 +406,7 @@ class Database:
             WHERE user_id = %s
             GROUP BY DATE_FORMAT(date, '%Y-%m'), DATE_FORMAT(date, '%b')
             ORDER BY DATE_FORMAT(date, '%Y-%m') DESC
-            LIMIT 6
+            LIMIT 12
         """
         monthly_res = self.fetch_all(monthly_query, (user_id,))
         for row in monthly_res:

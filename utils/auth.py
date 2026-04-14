@@ -1,28 +1,31 @@
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from functools import wraps
 from flask import request, jsonify, current_app
+from werkzeug.exceptions import HTTPException
 from config import JWT_SECRET, JWT_ALGORITHM
 
 def generate_token(user_data):
     """Generate short-lived JWT token for user (15m)"""
+    now_utc = datetime.now(UTC)
     payload = {
         'user_id': user_data['id'],
         'email': user_data['email'],
         'full_name': user_data['full_name'],
         'plan': user_data['plan'],
-        'exp': datetime.utcnow() + timedelta(minutes=15),
-        'iat': datetime.utcnow()
+        'exp': now_utc + timedelta(minutes=15),
+        'iat': now_utc
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 def generate_refresh_token(user_data):
     """Generate long-lived refresh token for user (30d)"""
+    now_utc = datetime.now(UTC)
     payload = {
         'user_id': user_data['id'],
         'type': 'refresh',
-        'exp': datetime.utcnow() + timedelta(days=30),
-        'iat': datetime.utcnow()
+        'exp': now_utc + timedelta(days=30),
+        'iat': now_utc
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
@@ -61,12 +64,16 @@ def token_required(f):
             current_user = decode_token(token)
             if not current_user:
                 return jsonify({'error': 'Token is invalid'}), 401
-            
+
             # Add user to request context
             request.current_user = current_user
-            return f(*args, **kwargs)
-            
         except Exception as e:
+            # Preserve framework-raised HTTP errors (e.g. 429 from rate limiter).
+            if isinstance(e, HTTPException):
+                raise
             return jsonify({'error': 'Token is invalid'}), 401
+
+        # Execute wrapped endpoint outside token decode try/except.
+        return f(*args, **kwargs)
     
     return decorated
