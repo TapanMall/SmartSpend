@@ -105,8 +105,9 @@ def transactions():
                 
             tx = db.create_transaction(user_id, name, category, amount_val, type_, icon, date_str)
             if tx:
-                from app import cache
-                cache.delete(f'analytics_summary_{user_id}')
+                cache = current_app.config.get('CACHE')
+                if cache:
+                    cache.delete(f'analytics_summary_{user_id}')
                 return jsonify({
                     'message': 'Transaction added successfully',
                     'transaction': Transaction.format_transaction(tx)
@@ -125,8 +126,9 @@ def delete_transaction(tx_id):
         db = get_db()
         user_id = request.current_user['user_id']
         if db.delete_transaction(tx_id, user_id):
-            from app import cache
-            cache.delete(f'analytics_summary_{user_id}')
+            cache = current_app.config.get('CACHE')
+            if cache:
+                cache.delete(f'analytics_summary_{user_id}')
             return jsonify({'message': 'Transaction deleted successfully'})
         else:
             return jsonify({'error': 'Failed to delete transaction'}), 500

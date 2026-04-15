@@ -25,5 +25,7 @@ def get_summary():
             
         return jsonify(summary)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         current_app.logger.error(str(e))
         return jsonify({'error': 'An internal server error occurred'}), 500

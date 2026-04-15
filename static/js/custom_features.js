@@ -199,8 +199,13 @@ async function saveBudget() {
 
 // ─── LOAD & RENDER BUDGETS ───────────────────────────────────────────────────
 async function loadBudgets() {
+    if (window.isRedirecting) return;
     try {
         const res = await fetch('/api/budgets/', { headers: cfHeaders() });
+        if (!res.ok) {
+            if (res.status === 401) { window.isRedirecting = true; window.location.replace('/?auth=login'); return; }
+        }
+        if (window.isRedirecting) return;
         const data = await res.json();
         const budgets = data.budgets || [];
         
@@ -326,8 +331,13 @@ async function saveGoal() {
 
 // ─── LOAD & RENDER GOALS ─────────────────────────────────────────────────────
 async function loadGoals() {
+    if (window.isRedirecting) return;
     try {
         const res = await fetch('/api/goals/', { headers: cfHeaders() });
+        if (!res.ok) {
+            if (res.status === 401) { window.isRedirecting = true; window.location.replace('/?auth=login'); return; }
+        }
+        if (window.isRedirecting) return;
         const data = await res.json();
         const goals = data.goals || [];
         
@@ -516,6 +526,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     // Initial data load for budgets & goals
-    loadBudgets();
-    loadGoals();
+    if (localStorage.getItem('ss_token')) {
+        loadBudgets();
+        loadGoals();
+    }
 });

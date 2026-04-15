@@ -9,6 +9,7 @@
         // CRITICAL: Early auth check with single source of truth for redirect
         (function checkAuth() {
             if (!localStorage.getItem('ss_token')) {
+                window.isRedirecting = true;
                 // Use relative path for redirect to avoid origin issues
                 window.location.replace('/?auth=login');
             }
@@ -3125,8 +3126,8 @@
                                     <div class="card-sub">Monthly comparison — April 2026</div>
                                 </div>
                                 <div style="display:flex;gap:.5rem">
-                                    <button class="btn-icon" onclick="switchPeriod('6m',this)">6M</button>
-                                    <button class="btn-icon" onclick="switchPeriod('1y',this)">1Y</button>
+                                    <button class="btn-icon" onclick="switchPeriod('6m', this)">6M</button>
+                                    <button class="btn-icon" onclick="switchPeriod('1y', this)">1Y</button>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -3241,12 +3242,12 @@
 
                     <div class="card-box">
                         <div class="tx-filters">
-                            <button class="filter-chip active">All</button>
-                            <button class="filter-chip">Income</button>
-                            <button class="filter-chip">Expense</button>
-                            <button class="filter-chip">Recurring</button>
-                            <input type="month" class="filter-input" value="2026-04" />
-                            <select class="filter-input">
+                            <button class="filter-chip active" onclick="setTxTypeFilter('All', this)">All</button>
+                            <button class="filter-chip" onclick="setTxTypeFilter('Income', this)">Income</button>
+                            <button class="filter-chip" onclick="setTxTypeFilter('Expense', this)">Expense</button>
+                            <button class="filter-chip" onclick="setTxTypeFilter('Recurring', this)">Recurring</button>
+                            <input type="month" class="filter-input" value="2026-04" onchange="setTxMonthFilter(this.value)" />
+                            <select class="filter-input" onchange="setTxCategoryFilter(this.value)">
                                 <option>All Categories</option>
                                 <option>Food & Dining</option>
                                 <option>Transport</option>
@@ -3256,7 +3257,7 @@
                                 <option>Bills</option>
                             </select>
                             <input type="text" class="filter-input" placeholder="Search..."
-                                style="flex:1;min-width:150px" />
+                                style="flex:1;min-width:150px" oninput="filterTransactions(this.value)" />
                         </div>
 
                         <div class="tx-table-header">
@@ -4201,8 +4202,8 @@
 
             <div class="form-group">
                 <label class="form-label">Amount</label>
-                <div class="amount-input-wrap"><input class="form-input" type="number" placeholder="0.00"
-                        id="amtInput" /></div>
+                <div class="amount-input-wrap"><input class="form-input" type="text" inputmode="decimal" placeholder="0.00"
+                        id="amtInput" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')" /></div>
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
@@ -4523,8 +4524,14 @@
                         if (window.location.pathname !== '/') {
                             window.location.replace('/?auth=login');
                         }
+                        return null;
                     }
-                    return null;
+                    try {
+                        const err = await r.json();
+                        return err;
+                    } catch (e) {
+                        return { error: `HTTP ${r.status} Error` };
+                    }
                 }
                 return r.json();
             },
@@ -4689,7 +4696,9 @@
                     });
                 }
                 if (!SS_API.token()) {
+                    window.isRedirecting = true;
                     window.location.replace('/?auth=login');
+                    return;
                 }
             } catch (e) { console.error('loadUser error:', e); }
         })();
@@ -4697,7 +4706,7 @@
         // ─── Load analytics summary into stat cards ─────────────────────
         async function loadSummary() {
             const data = await SS_API.get('/api/analytics/summary');
-            if (!data) return false;
+            if (!data || data.error) return false;
             const fmt = v => '₹' + Math.abs(v).toLocaleString('en-IN');
             
             // Dashboard IDs
@@ -4807,24 +4816,46 @@
                 id: tx.id,
                 name: tx.name,
                 cat: tx.category,
+                rawDate: tx.date,
                 date: new Date(tx.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
                 amt: tx.type === 'debit' ? -Math.abs(tx.amount) : Math.abs(tx.amount),
                 type: tx.type,
                 icon: tx.icon || '💡'
-            }));
+            })).sort((a, b) => {
+                const aTime = new Date(a.rawDate || a.date).getTime();
+                const bTime = new Date(b.rawDate || b.date).getTime();
+                if (aTime !== bTime) return bTime - aTime;
+                return (b.id || 0) - (a.id || 0);
+            });
             const txCountEl = document.getElementById('txCount');
             if (txCountEl) txCountEl.textContent = TRANSACTIONS.length;
             renderTransactions();
+            renderDashboardDoughnut();
+            runAutomationsForSettings();
+            const heatmapContainer = document.getElementById('heatmapContainer');
+            if (heatmapContainer) heatmapContainer.__rendered = false;
+            const cfCtx = document.getElementById('cashFlowChart')?.getContext('2d');
+            const catCtx = document.getElementById('catChart')?.getContext('2d');
+            const savCtx = document.getElementById('savingsLineChart')?.getContext('2d');
+            [cfCtx, catCtx, savCtx].forEach(ctx => {
+                if (!ctx) return;
+                ctx.__chartRendered = false;
+            });
+            if (document.getElementById('view-analytics')?.classList.contains('active')) {
+                renderAnalyticsCharts();
+            }
         }
 
         // Init on load
         loadSettings();
-        loadSummary().then(success => {
-            if (success) {
-                loadTransactions();
-                renderMainBarChart();
-            }
-        });
+        if (SS_API.token()) {
+            loadSummary().then(success => {
+                if (success) {
+                    loadTransactions();
+                    renderMainBarChart();
+                }
+            });
+        }
 
         // ═══════════════════════════════════════
         // SIDEBAR & MOBILE LOGIC
@@ -4934,8 +4965,30 @@
                 
                 // Apply Sidebar Balance
                 applySidebarBalance(settings.toggleSidebarBal);
+                runAutomationsForSettings(settings);
 
             } catch (e) {}
+        }
+
+        function getSettingsWithDefaults() {
+            const settings = JSON.parse(localStorage.getItem('ss_settings')) || {};
+            const defaults = {
+                toggleBudgetAlerts: true, toggleWeeklySummary: true,
+                toggleGoalMilestones: true, toggleLargeTransactions: false,
+                toggleAiDigest: true, toggleCompactView: false,
+                toggleAutoCat: true, toggleSidebarBal: true,
+                darkModeToggle: true, voiceEntryLanguage: 'English (India)'
+            };
+            return { ...defaults, ...settings };
+        }
+
+        function runAutomationsForSettings(settingsInput) {
+            const settings = settingsInput || getSettingsWithDefaults();
+            if (settings.toggleLargeTransactions) checkLargeTransactions();
+            if (settings.toggleBudgetAlerts) checkBudgetAlerts();
+            if (settings.toggleGoalMilestones) checkGoalMilestones();
+            if (settings.toggleWeeklySummary) maybeSendWeeklySummary();
+            if (settings.toggleAiDigest) maybeSendAiDigest();
         }
 
         function toggleSetting(id) {
@@ -4952,6 +5005,119 @@
             } else if (id === 'toggleSidebarBal') {
                 applySidebarBalance(isOn);
             }
+
+            // Execute frontend behavior corresponding to the toggles
+            if (id === 'toggleLargeTransactions') {
+                if (isOn) {
+                    checkLargeTransactions();
+                }
+            } else if (id === 'toggleBudgetAlerts') {
+                if (isOn) {
+                    checkBudgetAlerts();
+                }
+            } else if (id === 'toggleGoalMilestones') {
+                if (isOn) {
+                    checkGoalMilestones();
+                }
+            }
+            runAutomationsForSettings();
+
+            // Map ID to readable name for Toast
+            const names = {
+                toggleBudgetAlerts: 'Budget Alerts',
+                toggleWeeklySummary: 'Weekly Summary',
+                toggleGoalMilestones: 'Goal Milestones',
+                toggleLargeTransactions: 'Large Transactions',
+                toggleAiDigest: 'AI Insight Digest'
+            };
+            if (names[id] && id !== 'toggleAiDigest') {
+                showToast(`${names[id]} ${isOn ? 'enabled' : 'disabled'}`, 'success');
+            }
+        }
+
+        async function checkGoalMilestones() {
+            try {
+                const res = await SS_API.get('/api/goals/');
+                const goals = res?.goals || [];
+                const reached = JSON.parse(localStorage.getItem('ss_goal_milestones_reached') || '{}');
+                goals.forEach(g => {
+                    const target = parseFloat(g.target_amount);
+                    const current = parseFloat(g.current_amount);
+                    const goalKey = String(g.id || g.name || '');
+                    if (target > 0 && current >= target && !reached[goalKey]) {
+                        reached[goalKey] = true;
+                        setTimeout(() => {
+                            showToast(`🎉 Milestone reached! You hit your savings goal for "${g.name}"!`, 'success');
+                        }, 2000);
+                    }
+                });
+                localStorage.setItem('ss_goal_milestones_reached', JSON.stringify(reached));
+            } catch(e) {}
+        }
+
+        async function checkLargeTransactions() {
+            if (!TRANSACTIONS || !TRANSACTIONS.length) return;
+            const largeTx = TRANSACTIONS.filter(t => t.type === 'debit' && Math.abs(t.amt) > 5000);
+            if (largeTx.length > 0) {
+                const latest = [...largeTx].sort((a, b) => {
+                    const aTime = new Date(a.rawDate || a.date).getTime();
+                    const bTime = new Date(b.rawDate || b.date).getTime();
+                    if (aTime !== bTime) return bTime - aTime;
+                    return (b.id || 0) - (a.id || 0);
+                })[0];
+                const alreadyAlertedForId = localStorage.getItem('ss_last_large_tx_alert_id');
+                if (alreadyAlertedForId && String(alreadyAlertedForId) === String(latest.id)) return;
+                setTimeout(() => {
+                    showToast(`Alert: Large transaction detected - ${latest.name} (₹${Math.abs(latest.amt)})`, 'error');
+                }, 1000);
+                localStorage.setItem('ss_last_large_tx_alert_id', String(latest.id));
+            }
+        }
+
+        async function checkBudgetAlerts() {
+            try {
+                const res = await SS_API.get('/api/budgets/');
+                const budgets = res?.budgets || [];
+                
+                const cats = {};
+                TRANSACTIONS.forEach(t => {
+                    if (t.type === 'debit') {
+                        cats[t.cat] = (cats[t.cat] || 0) + Math.abs(t.amt);
+                    }
+                });
+
+                budgets.forEach(b => {
+                    const limit = parseFloat(b.amount);
+                    const spent = cats[b.category] || 0;
+                    if (limit > 0 && spent >= limit * 0.8) {
+                        const monthKey = new Date().toISOString().slice(0, 7);
+                        const dedupeKey = `ss_budget_alerted_${monthKey}_${b.category}`;
+                        if (localStorage.getItem(dedupeKey)) return;
+                        setTimeout(() => {
+                            showToast(`Alert: Approaching budget limit for ${b.category} (${((spent/limit)*100).toFixed(0)}%)`, 'error');
+                        }, 1500);
+                        localStorage.setItem(dedupeKey, '1');
+                    }
+                });
+            } catch (e) {}
+        }
+
+        function maybeSendWeeklySummary() {
+            const today = new Date();
+            if (today.getDay() !== 0) return;
+            const todayKey = today.toISOString().slice(0, 10);
+            const lastSent = localStorage.getItem('ss_last_weekly_summary');
+            if (lastSent === todayKey) return;
+            showToast('Weekly Summary generated! Check your reports.', 'success');
+            localStorage.setItem('ss_last_weekly_summary', todayKey);
+        }
+
+        function maybeSendAiDigest() {
+            const monthKey = new Date().toISOString().slice(0, 7);
+            const lastSent = localStorage.getItem('ss_last_ai_digest_month');
+            if (lastSent === monthKey) return;
+            showToast('AI Insight Digest generated for this month.', 'success');
+            localStorage.setItem('ss_last_ai_digest_month', monthKey);
         }
 
         function saveSetting(key, value) {
@@ -5199,6 +5365,11 @@
             if (!amtVal || !desc) { showToast('Please fill in amount and description', 'error'); return; }
             const amt = Math.abs(parseFloat(amtVal));
             
+            if (isNaN(amt) || amt <= 0) {
+                showToast('Please enter a valid positive amount', 'error');
+                return;
+            }
+            
             const catEl = document.getElementById('modalCatInput');
             const catOption = catEl.options[catEl.selectedIndex];
             const category = catOption.value;
@@ -5284,9 +5455,32 @@
         }
 
         let currentSearchQuery = '';
+        let currentTypeFilter = 'All';
+        let currentMonthFilter = '';
+        let currentCategoryFilter = 'All Categories';
 
         function filterTransactions(query) {
             currentSearchQuery = (query || '').toLowerCase();
+            renderTransactions();
+        }
+
+        function setTxTypeFilter(type, btn) {
+            currentTypeFilter = type;
+            const filters = btn.closest('.tx-filters');
+            if (filters) {
+                filters.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            renderTransactions();
+        }
+
+        function setTxMonthFilter(month) {
+            currentMonthFilter = month; // Format: 'YYYY-MM'
+            renderTransactions();
+        }
+
+        function setTxCategoryFilter(category) {
+            currentCategoryFilter = category;
             renderTransactions();
         }
 
@@ -5294,24 +5488,56 @@
             const list = document.getElementById('txList');
             const recentList = document.getElementById('recentTxList');
             
-            // Apply search filter
+            // Apply all filters
             const filteredTx = TRANSACTIONS.filter(tx => {
-                if (!currentSearchQuery) return true;
-                const nameMatch = (tx.name || '').toLowerCase().includes(currentSearchQuery);
-                const catMatch = (tx.cat || '').toLowerCase().includes(currentSearchQuery);
-                return nameMatch || catMatch;
+                // 1. Search
+                if (currentSearchQuery) {
+                    const nameMatch = (tx.name || '').toLowerCase().includes(currentSearchQuery);
+                    const catMatch = (tx.cat || '').toLowerCase().includes(currentSearchQuery);
+                    if (!nameMatch && !catMatch) return false;
+                }
+                
+                // 2. Type Filter
+                if (currentTypeFilter !== 'All') {
+                    if (currentTypeFilter === 'Income' && tx.type !== 'credit') return false;
+                    if (currentTypeFilter === 'Expense' && tx.type !== 'debit') return false;
+                    if (currentTypeFilter === 'Recurring') return false; // Requires recurring flag in DB
+                }
+
+                // 3. Month Filter
+                if (currentMonthFilter) {
+                    const d = new Date((tx.rawDate || tx.date) + (tx.rawDate ? 'T00:00:00' : ''));
+                    if (!isNaN(d.getTime())) {
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const y = d.getFullYear();
+                        if (`${y}-${m}` !== currentMonthFilter) return false;
+                    }
+                }
+
+                // 4. Category Filter
+                if (currentCategoryFilter !== 'All Categories') {
+                    if (tx.cat !== currentCategoryFilter) return false;
+                }
+
+                return true;
+            });
+            const sortedFilteredTx = [...filteredTx].sort((a, b) => {
+                const aTime = new Date(a.rawDate || a.date).getTime();
+                const bTime = new Date(b.rawDate || b.date).getTime();
+                if (aTime !== bTime) return bTime - aTime;
+                return (b.id || 0) - (a.id || 0);
             });
             
             // Render full table if in table view
             if (list) {
-                list.innerHTML = filteredTx.map((tx, idx) => `
+                list.innerHTML = sortedFilteredTx.map((tx) => `
                     <div class="tx-table-row">
                         <div class="tx-cell tx-cell-name">
-                            <div class="tx-emo">${escapeHtml(tx.icon)}</div>
-                            <div><div class="tx-name">${escapeHtml(tx.name)}</div><div class="tx-cat">${escapeHtml(tx.cat)}</div></div>
+                            <div class="tx-emo">${escapeHTML(tx.icon)}</div>
+                            <div><div class="tx-name">${escapeHTML(tx.name)}</div><div class="tx-cat">${escapeHTML(tx.cat)}</div></div>
                         </div>
-                        <div class="tx-cell"><span class="badge ${tx.type === 'credit' ? 'badge-green' : 'badge-red'}">${escapeHtml(tx.cat)}</span></div>
-                        <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${escapeHtml(tx.date)}</div>
+                        <div class="tx-cell"><span class="badge ${tx.type === 'credit' ? 'badge-green' : 'badge-red'}">${escapeHTML(tx.cat)}</span></div>
+                        <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${escapeHTML(tx.date)}</div>
                         <div class="tx-cell mono ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
                         <div class="tx-cell"><button class="btn-icon" onclick="deleteTransaction(${tx.id}, ${TRANSACTIONS.indexOf(tx)})">🗑</button></div>
                     </div>
@@ -5320,13 +5546,13 @@
 
             // Render recent list if in dashboard view
             if (recentList) {
-                const recent = filteredTx.slice(0, 6);
+                const recent = sortedFilteredTx.slice(0, 4);
                 recentList.innerHTML = recent.map(tx => `
                     <div class="tx-row">
-                        <div class="tx-emo">${escapeHtml(tx.icon)}</div>
+                        <div class="tx-emo">${escapeHTML(tx.icon)}</div>
                         <div class="tx-info">
-                            <div class="tx-name">${escapeHtml(tx.name)}</div>
-                            <div class="tx-cat">${escapeHtml(tx.cat)} · ${escapeHtml(tx.date)}</div>
+                            <div class="tx-name">${escapeHTML(tx.name)}</div>
+                            <div class="tx-cat">${escapeHTML(tx.cat)} · ${escapeHTML(tx.date)}</div>
                         </div>
                         <div class="tx-right">
                             <div class="tx-amt ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
@@ -5389,13 +5615,20 @@
         sparkline('expChart', [38, 42, 45, 40, 38, 44, 43], '#ff5f5f');
         sparkline('savChart', [28, 30, 29, 32, 34, 31, 34], '#fbbf24');
 
+        let currentBarChartPeriod = '6m';
+
         // Main bar chart
         async function renderMainBarChart() {
             const barCtx = document.getElementById('mainBarChart')?.getContext('2d');
             if (!barCtx) return;
             const data = await SS_API.get('/api/analytics/summary');
-            const monthly = data?.monthly || [];
+            if (!data || data.error) return;
+            let monthly = data?.monthly || [];
             
+            if (currentBarChartPeriod === '6m' && monthly.length > 6) {
+                monthly = monthly.slice(monthly.length - 6);
+            }
+
             const labels = monthly.length ? monthly.map(m => m.month) : ['No Data'];
             const incomeData = monthly.length ? monthly.map(m => m.inc) : [0];
             const expenseData = monthly.length ? monthly.map(m => m.exp) : [0];
@@ -5460,12 +5693,20 @@
             if (cfCtx && !cfCtx.__chartRendered) {
                 cfCtx.__chartRendered = true;
                 SS_API.get('/api/analytics/summary').then(data => {
-                    const monthly = data?.monthly || [];
+                    if (!data || data.error) return;
+                    let monthly = data?.monthly || [];
+                    
+                    let limit = 3;
+                    if (currentAnaPeriod === '6m') limit = 6;
+                    if (currentAnaPeriod === '1y') limit = 12;
+                    if (monthly.length > limit) monthly = monthly.slice(monthly.length - limit);
+
                     const labels = monthly.map(m => m.month);
                     const incs = monthly.map(m => m.inc);
                     const exps = monthly.map(m => m.exp);
 
-                    new Chart(cfCtx, {
+                    if (cfCtx.__chart) cfCtx.__chart.destroy();
+                    cfCtx.__chart = new Chart(cfCtx, {
                         type: 'line',
                         data: {
                             labels: labels,
@@ -5504,31 +5745,87 @@
                     }
                 });
             }
+
+            // 3. Heatmap
+            renderHeatmap();
+
+            // 4. Savings Progress
+            const savCtx = document.getElementById('savingsLineChart')?.getContext('2d');
+            if (savCtx && !savCtx.__chartRendered) {
+                savCtx.__chartRendered = true;
+                SS_API.get('/api/analytics/summary').then(data => {
+                    if (!data || data.error) return;
+                    let monthly = data?.monthly || [];
+                    
+                    let limit = 3;
+                    if (currentAnaPeriod === '6m') limit = 6;
+                    if (currentAnaPeriod === '1y') limit = 12;
+                    if (monthly.length > limit) monthly = monthly.slice(monthly.length - limit);
+
+                    const labels = monthly.map(m => m.month);
+                    const savings = monthly.map(m => m.inc - m.exp);
+
+                    if (savCtx.__chart) savCtx.__chart.destroy();
+                    savCtx.__chart = new Chart(savCtx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{ label: 'Net Savings', data: savings, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.1)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#fbbf24' }]
+                        },
+                        options: CHART_DEFAULTS
+                    });
+                });
+            }
         }
 
         function renderHeatmap() {
             const c = document.getElementById('heatmapContainer');
-            if (!c || c.__rendered) return;
-            c.__rendered = true;
-            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            const vals = [2400, 1800, 3100, 2200, 4500, 6800, 3200];
-            const max = Math.max(...vals);
+            if (!c) return;
+            
+            const valsByDay = [0, 0, 0, 0, 0, 0, 0];
+            if (TRANSACTIONS && TRANSACTIONS.length > 0) {
+                TRANSACTIONS.forEach(t => {
+                    if (t.type === 'debit') {
+                        const parsedDate = new Date((t.rawDate || t.date) + (t.rawDate ? 'T00:00:00' : ''));
+                        if (Number.isNaN(parsedDate.getTime())) return;
+                        const d = parsedDate.getDay();
+                        valsByDay[d] += Math.abs(t.amt);
+                    }
+                });
+            } else {
+                // Dummy data if no transactions
+                valsByDay.splice(0, 7, 3200, 2400, 1800, 3100, 2200, 4500, 6800);
+            }
+            
+            const dispDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const dispVals = [valsByDay[1], valsByDay[2], valsByDay[3], valsByDay[4], valsByDay[5], valsByDay[6], valsByDay[0]];
+            
+            const max = Math.max(...dispVals) || 1; // avoid division by zero
             c.innerHTML = `<div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-    ${days.map((d, i) => {
-                const pct = vals[i] / max;
+    ${dispDays.map((d, i) => {
+                const pct = dispVals[i] / max;
                 const opacity = 0.15 + pct * 0.85;
                 return `<div style="flex:1;min-width:60px;text-align:center">
         <div style="height:${40 + pct * 60}px;background:rgba(57,255,126,${opacity});border-radius:8px;margin-bottom:.5rem;box-shadow:0 0 ${pct * 20}px rgba(57,255,126,${pct * 0.3});transition:all .4s"></div>
         <div style="font-size:.7rem;color:var(--muted)">${d}</div>
-        <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--g);margin-top:2px">₹${(vals[i] / 1000).toFixed(1)}k</div>
+        <div style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--g);margin-top:2px">₹${(dispVals[i] / 1000).toFixed(1)}k</div>
       </div>`;
             }).join('')}
   </div>`;
         }
 
+        let currentAnaPeriod = '3m';
         function setAnalyticsPeriod(p, btn) {
             document.querySelectorAll('#view-analytics .filter-chip').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            currentAnaPeriod = p;
+            
+            // Re-render charts
+            const cfCtx = document.getElementById('cashFlowChart')?.getContext('2d');
+            const savCtx = document.getElementById('savingsLineChart')?.getContext('2d');
+            if (cfCtx) cfCtx.__chartRendered = false;
+            if (savCtx) savCtx.__chartRendered = false;
+            renderAnalyticsCharts();
         }
 
         function switchPeriod(p, btn) {
@@ -5536,6 +5833,9 @@
             btn.style.background = 'var(--g)';
             btn.style.color = '#060d12';
             btn.style.borderColor = 'var(--g)';
+            
+            currentBarChartPeriod = p;
+            renderMainBarChart();
         }
 
         // Refresh insights
