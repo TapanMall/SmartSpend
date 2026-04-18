@@ -2085,8 +2085,8 @@
             color: var(--muted);
         }
 
-        #voiceEntryLanguage + .ss-select-wrapper,
-        #voiceEntryLanguage + .ss-select-wrapper > .ss-select-trigger {
+        #voiceEntryLanguage+.ss-select-wrapper,
+        #voiceEntryLanguage+.ss-select-wrapper>.ss-select-trigger {
             width: 180px;
         }
 
@@ -2312,11 +2312,12 @@
             color: var(--text);
         }
 
-        .popular .price-val, .popular .price-curr {
+        .popular .price-val,
+        .popular .price-curr {
             color: var(--g);
         }
-        
-        [data-theme="light"] .popular .price-val, 
+
+        [data-theme="light"] .popular .price-val,
         [data-theme="light"] .popular .price-curr {
             color: var(--g700);
         }
@@ -2773,10 +2774,13 @@
         /* ══════════════════════════════════════
            RESPONSIVE REFINEMENTS
            ══════════════════════════════════════ */
-        
+
         /* Universal Responsiveness */
-        .stat-card, .analytics-card, .glass-card {
-            min-width: 0 !important; /* Prevent flex/grid overflow */
+        .stat-card,
+        .analytics-card,
+        .glass-card {
+            min-width: 0 !important;
+            /* Prevent flex/grid overflow */
         }
 
         .dash-row1 {
@@ -2828,6 +2832,7 @@
             :root {
                 --sidebar-w: 240px;
             }
+
             .search-bar {
                 width: 180px;
             }
@@ -2839,19 +2844,24 @@
                 width: var(--sidebar-w) !important;
                 visibility: hidden;
             }
+
             .sidebar.mobile-active {
                 transform: translateX(0);
                 visibility: visible;
             }
+
             .main {
                 margin-left: 0 !important;
             }
+
             .hamburger-btn {
                 display: flex;
             }
+
             .sb-collapse {
                 display: none;
             }
+
             .topbar-breadcrumb {
                 display: none;
             }
@@ -2861,32 +2871,43 @@
             .topbar {
                 padding: 0 1rem;
             }
+
             .search-bar {
-                display: none; /* Accessible via dedicated search if added, or simply hide for compactness */
+                display: none;
+                /* Accessible via dedicated search if added, or simply hide for compactness */
             }
+
             .topbar-right {
                 gap: 0.5rem;
             }
+
             .btn-primary {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.8rem;
             }
+
             .btn-primary span {
-                display: none; /* Hide label, keep icon/sign */
+                display: none;
+                /* Hide label, keep icon/sign */
             }
+
             .btn-primary::after {
                 content: 'Add';
                 margin-left: 4px;
             }
+
             .dash-row1 {
                 grid-template-columns: 1fr;
             }
+
             .stat-value.big {
                 font-size: 1.5rem !important;
             }
+
             .view {
                 padding: 1rem;
             }
+
             .profile-panel {
                 width: calc(100vw - 2rem);
                 right: -1rem;
@@ -2898,17 +2919,36 @@
             .topbar-title {
                 font-size: 1rem;
             }
+
             .stat-card.featured {
                 padding: 1.25rem 1rem;
             }
         }
+
         /* Compact Mode adjustments */
-        body.compact-mode .tx-table-row { padding: 0.5rem 1.25rem; }
-        body.compact-mode .tx-row { padding: 0.5rem 1.25rem; }
-        body.compact-mode .card-box { padding: 1rem; }
-        body.compact-mode .card-header { margin-bottom: 0.75rem; }
-        body.compact-mode .setting-row { padding: 0.75rem 0; }
-        body.compact-mode .sc-top { margin-bottom: 0.5rem; }
+        body.compact-mode .tx-table-row {
+            padding: 0.5rem 1.25rem;
+        }
+
+        body.compact-mode .tx-row {
+            padding: 0.5rem 1.25rem;
+        }
+
+        body.compact-mode .card-box {
+            padding: 1rem;
+        }
+
+        body.compact-mode .card-header {
+            margin-bottom: 0.75rem;
+        }
+
+        body.compact-mode .setting-row {
+            padding: 0.75rem 0;
+        }
+
+        body.compact-mode .sc-top {
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 
@@ -2926,10 +2966,13 @@
                 </a>
                 <button class="sb-collapse" id="sbCollapse" title="Collapse sidebar">◀</button>
             </div>
-            
-            <div id="sbBalanceWrap" style="padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+
+            <div id="sbBalanceWrap"
+                style="padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
                 <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 4px;">Total Balance</div>
-                <div id="sbBalanceVal" style="font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--g);">₹0</div>
+                <div id="sbBalanceVal"
+                    style="font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--g);">₹0
+                </div>
             </div>
 
             <nav class="sb-nav">
@@ -2993,7 +3036,8 @@
             <!-- TOPBAR -->
             <header class="topbar">
                 <div class="topbar-left">
-                    <button class="hamburger-btn" id="mobileToggle" onclick="toggleMobileSidebar()" style="margin-right: 1rem;">☰</button>
+                    <button class="hamburger-btn" id="mobileToggle" onclick="toggleMobileSidebar()"
+                        style="margin-right: 1rem;">☰</button>
                     <div>
                         <div class="topbar-title" id="topbarTitle">Dashboard</div>
                         <div class="topbar-breadcrumb">
@@ -3006,7 +3050,8 @@
                 <div class="topbar-right">
                     <div class="search-bar">
                         <span class="si">🔍</span>
-                        <input type="text" id="globalSearchInput" placeholder="Search transactions..." onkeyup="filterTransactions(this.value)" />
+                        <input type="text" id="globalSearchInput" placeholder="Search transactions..."
+                            onkeyup="filterTransactions(this.value)" />
                     </div>
                     <button class="btn btn-primary" onclick="openModal()">＋ Add Transaction</button>
                     <button class="topbar-icon-btn" id="notifBtn" onclick="toggleNotif()" title="Notifications">
@@ -3191,7 +3236,8 @@
                             <div class="insight-card">
                                 <div class="insight-chip">🤖 AI Insight</div>
                                 <div class="insight-text" id="aiInsightText">
-                                    Our AI is scanning your spending patterns... <strong>Stay tuned for personalized insights!</strong>
+                                    Our AI is scanning your spending patterns... <strong>Stay tuned for personalized
+                                        insights!</strong>
                                 </div>
                             </div>
                         </div>
@@ -3200,7 +3246,7 @@
                     <div class="dash-row4">
                         <div class="card-box" style="padding:1.25rem">
                             <div class="section-label">Quick Stats</div>
-                                                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">
+                            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">
                                 <div class="quick-stat">
                                     <div class="qs-icon">📅</div>
                                     <div class="qs-val" id="statDays">--</div>
@@ -3232,7 +3278,8 @@
                         <div>
                             <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">All Transactions
                             </h2>
-                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px"><span id="txCount">0</span> transactions · April 2026</p>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px"><span id="txCount">0</span>
+                                transactions · April 2026</p>
                         </div>
                         <div style="display:flex;gap:.75rem">
                             <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
@@ -3246,7 +3293,8 @@
                             <button class="filter-chip" onclick="setTxTypeFilter('Income', this)">Income</button>
                             <button class="filter-chip" onclick="setTxTypeFilter('Expense', this)">Expense</button>
                             <button class="filter-chip" onclick="setTxTypeFilter('Recurring', this)">Recurring</button>
-                            <input type="month" class="filter-input" value="2026-04" onchange="setTxMonthFilter(this.value)" />
+                            <input type="month" class="filter-input" value="2026-04"
+                                onchange="setTxMonthFilter(this.value)" />
                             <select class="filter-input" onchange="setTxCategoryFilter(this.value)">
                                 <option>All Categories</option>
                                 <option>Food & Dining</option>
@@ -3293,13 +3341,16 @@
                     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
                         <div class="stat-card">
                             <div class="sc-label">Avg Daily Spend</div>
-                            <div class="sc-value" id="anaAvgDaily" style="font-size:1.5rem;color:var(--amber);margin-top:.5rem">₹0</div>
+                            <div class="sc-value" id="anaAvgDaily"
+                                style="font-size:1.5rem;color:var(--amber);margin-top:.5rem">₹0</div>
                             <div class="sc-change down" style="margin-top:4px">↑ vs last month</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Highest Spend Day</div>
-                            <div class="sc-value" id="anaHighestDay" style="font-size:1.5rem;color:var(--red);margin-top:.5rem">₹0</div>
-                            <div id="anaHighestDayDetail" style="font-size:.72rem;color:var(--muted);margin-top:4px">No transactions yet</div>
+                            <div class="sc-value" id="anaHighestDay"
+                                style="font-size:1.5rem;color:var(--red);margin-top:.5rem">₹0</div>
+                            <div id="anaHighestDayDetail" style="font-size:.72rem;color:var(--muted);margin-top:4px">No
+                                transactions yet</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Total Transactions</div>
@@ -3307,7 +3358,8 @@
                             <div class="sc-change up" style="margin-top:4px">↑ 12% vs last month</div>
                         </div>
                         <div class="stat-card">
-                            <div class="sc-value" id="anaNetWorthGrowth" style="font-size:1.5rem;color:var(--g);margin-top:.5rem">--%</div>
+                            <div class="sc-value" id="anaNetWorthGrowth"
+                                style="font-size:1.5rem;color:var(--g);margin-top:.5rem">--%</div>
                             <div class="sc-change up" style="margin-top:4px">Since account creation</div>
                         </div>
                     </div>
@@ -3353,34 +3405,43 @@
                         <div>
                             <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Budget Manager
                             </h2>
-                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">April 2026 · <span id="budCountTotal">0</span> active budgets
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px">April 2026 · <span
+                                    id="budCountTotal">0</span> active budgets
                             </p>
                         </div>
-                        <button class="btn btn-primary" id="newBudgetBtn">＋ New Budget</button>
+                        <button class="btn btn-primary" id="newBudgetBtn" onclick="addBudget()">＋ New Budget</button>
                     </div>
 
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
                         <div class="stat-card">
                             <div class="sc-label">Total Budget</div>
-                            <div class="sc-value" id="budTotal" style="color:var(--g);font-size:1.6rem;margin-top:.5rem">₹0</div>
+                            <div class="sc-value" id="budTotal"
+                                style="color:var(--g);font-size:1.6rem;margin-top:.5rem">₹0</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Total Spent</div>
-                            <div class="sc-value" id="budSpent" style="color:var(--red);font-size:1.6rem;margin-top:.5rem">₹0</div>
+                            <div class="sc-value" id="budSpent"
+                                style="color:var(--red);font-size:1.6rem;margin-top:.5rem">₹0</div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-label">Remaining</div>
-                            <div class="sc-value" id="budRemTotal" style="color:var(--amber);font-size:1.6rem;margin-top:.5rem">₹0</div>
+                            <div class="sc-value" id="budRemTotal"
+                                style="color:var(--amber);font-size:1.6rem;margin-top:.5rem">₹0</div>
                         </div>
                     </div>
 
                     <div class="budget-grid" id="budgetGrid">
                         <!-- Dynamic budgets or empty state -->
-                        <div style="grid-column:1/-1;padding:4rem;text-align:center;background:var(--card);border-radius:var(--r-md);border:1px dashed var(--border)">
+                        <div
+                            style="grid-column:1/-1;padding:4rem;text-align:center;background:var(--card);border-radius:var(--r-md);border:1px dashed var(--border)">
                             <div style="font-size:3rem;margin-bottom:1.5rem">🎯</div>
-                            <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Budgets Set</h3>
-                            <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Track your spending by setting monthly limits for categories like Food, Travel, or Shopping.</p>
-                            <button class="btn btn-primary" style="margin:0 auto" id="createFirstBudgetBtn">＋ Create Your First Budget</button>
+                            <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Budgets
+                                Set</h3>
+                            <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Track
+                                your spending by setting monthly limits for categories like Food, Travel, or Shopping.
+                            </p>
+                            <button class="btn btn-primary" style="margin:0 auto" id="createFirstBudgetBtn">＋ Create
+                                Your First Budget</button>
                         </div>
                     </div>
                 </div>
@@ -3391,16 +3452,21 @@
                         <div>
                             <h2 style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">Financial Goals
                             </h2>
-                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px"><span id="goalCountTotal">0</span> active goals</p>
+                            <p style="font-size:.82rem;color:var(--muted);margin-top:3px"><span
+                                    id="goalCountTotal">0</span> active goals</p>
                         </div>
-                        <button class="btn btn-primary" id="newGoalBtn">＋ New Goal</button>
+                        <button class="btn btn-primary" id="newGoalBtn" onclick="addGoal()">＋ New Goal</button>
                     </div>
-                        <div id="goalGrid" style="grid-column:1/-1;padding:4rem;text-align:center;background:var(--card);border-radius:var(--r-md);border:1px dashed var(--border)">
-                            <div style="font-size:3rem;margin-bottom:1.5rem">🎯</div>
-                            <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Goals Set</h3>
-                            <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Set savings goals for vacations, gadgets, or your emergency fund to stay motivated.</p>
-                            <button class="btn btn-primary" style="margin:0 auto" id="createFirstGoalBtn">＋ Create Your First Goal</button>
-                        </div>
+                    <div id="goalGrid"
+                        style="grid-column:1/-1;padding:4rem;text-align:center;background:var(--card);border-radius:var(--r-md);border:1px dashed var(--border)">
+                        <div style="font-size:3rem;margin-bottom:1.5rem">🎯</div>
+                        <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Goals Set
+                        </h3>
+                        <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Set savings
+                            goals for vacations, gadgets, or your emergency fund to stay motivated.</p>
+                        <button class="btn btn-primary" style="margin:0 auto" id="createFirstGoalBtn">＋ Create Your
+                            First Goal</button>
+                    </div>
                 </div>
 
                 <!-- ═══ INVESTMENTS VIEW ═══ -->
@@ -3471,7 +3537,8 @@
                                 <div class="bc-bar-fill" style="width:24%;background:var(--red)"></div>
                             </div>
                             <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)">
-                                <span>₹14L Paid</span><span>₹56L Total</span></div>
+                                <span>₹14L Paid</span><span>₹56L Total</span>
+                            </div>
                             <div
                                 style="margin-top:1.5rem;padding:1rem;background:var(--card2);border-radius:12px;display:flex;justify-content:space-between;align-items:center">
                                 <div>
@@ -3499,7 +3566,8 @@
                                 <div class="bc-bar-fill" style="width:68%;background:var(--blue)"></div>
                             </div>
                             <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)">
-                                <span>₹8.8L Paid</span><span>₹13L Total</span></div>
+                                <span>₹8.8L Paid</span><span>₹13L Total</span>
+                            </div>
                             <div
                                 style="margin-top:1.5rem;padding:1rem;background:var(--card2);border-radius:12px;display:flex;justify-content:space-between;align-items:center">
                                 <div>
@@ -3559,7 +3627,8 @@
                                     <div
                                         style="display:flex;justify-content:space-between;padding-bottom:.5rem;border-bottom:1px solid var(--border)">
                                         <span style="font-weight:600;color:var(--red)">Liabilities</span><span
-                                            style="font-family:'JetBrains Mono';font-weight:700">₹46,70,000</span></div>
+                                            style="font-family:'JetBrains Mono';font-weight:700">₹46,70,000</span>
+                                    </div>
                                     <div style="display:flex;justify-content:space-between;padding-top:.5rem"><span
                                             style="font-weight:800">Net Position</span><span
                                             style="font-family:'JetBrains Mono';font-weight:800;color:var(--g)">₹54,28,450</span>
@@ -3602,7 +3671,7 @@
                                     style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.25rem">
                                     SmartSpend AI Summary</div>
                                 <div style="font-size:.875rem;color:var(--muted);line-height:1.6" id="aiSummaryLong">
-                                    Our AI is currently analyzing your data. Check back in a few moments for a deep-dive 
+                                    Our AI is currently analyzing your data. Check back in a few moments for a deep-dive
                                     into your income, expenses, and savings rate.
                                 </div>
                             </div>
@@ -3610,7 +3679,8 @@
                     </div>
 
                     <div class="ai-insights-grid">
-                        <div id="aiCardsList" style="grid-column: 1/-1; padding: 2rem; text-align: center; color: var(--muted);">
+                        <div id="aiCardsList"
+                            style="grid-column: 1/-1; padding: 2rem; text-align: center; color: var(--muted);">
                             <span class="spin"></span> Generating AI insights based on your spending history...
                         </div>
                     </div>
@@ -3633,7 +3703,8 @@
                                 Monthly Report</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Full income & expense
                                 breakdown for any month</div>
-                            <button class="btn btn-primary" id="monthlyPdfBtn" style="width:100%">Generate PDF →</button>
+                            <button class="btn btn-primary" id="monthlyPdfBtn" style="width:100%">Generate PDF
+                                →</button>
                         </div>
                         <div class="card-box"
                             style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
@@ -3681,7 +3752,8 @@
                                 Budget Report</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Budget vs actual
                                 spending analysis</div>
-                            <button class="btn btn-ghost" id="exportBudgetCsvBtn" style="width:100%">Download CSV →</button>
+                            <button class="btn btn-ghost" id="exportBudgetCsvBtn" style="width:100%">Download CSV
+                                →</button>
                         </div>
                         <div class="card-box"
                             style="padding:1.75rem;text-align:center;cursor:pointer;transition:all .3s"
@@ -3693,7 +3765,8 @@
                                 Goals Progress</div>
                             <div style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Track your savings
                                 goals over time</div>
-                            <button class="btn btn-ghost" id="exportGoalsCsvBtn" style="width:100%">Download CSV →</button>
+                            <button class="btn btn-ghost" id="exportGoalsCsvBtn" style="width:100%">Download CSV
+                                →</button>
                         </div>
                     </div>
                 </div>
@@ -3746,19 +3819,23 @@
                         <div style="display:flex;flex-direction:column;gap:1.25rem">
                             <div class="card-box">
                                 <div class="card-header">
-                                    <div class="card-title">Personal Information</div><button class="btn btn-ghost" id="saveProfileBtn">Save
+                                    <div class="card-title">Personal Information</div><button class="btn btn-ghost"
+                                        id="saveProfileBtn">Save
                                         Changes</button>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-row" style="margin-bottom:1rem">
-                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">Full Name</label><input class="form-input" id="profileFullNameInput" value="" /></div>
+                                        <div class="form-group" style="margin-bottom:0"><label class="form-label">Full
+                                                Name</label><input class="form-input" id="profileFullNameInput"
+                                                value="" /></div>
                                     </div>
                                     <div class="form-group"><label class="form-label">Email Address</label><input
                                             class="form-input" id="profileEmailInput" value="" type="email" /></div>
                                     <div class="form-group"><label class="form-label">Phone Number</label><input
                                             class="form-input" id="profilePhoneInput" value="" type="tel" /></div>
                                     <div class="form-group" style="margin-bottom:0"><label
-                                            class="form-label">Currency</label><select class="form-input" id="profileCurrencyInput">
+                                            class="form-label">Currency</label><select class="form-input"
+                                            id="profileCurrencyInput">
                                             <option selected>₹ INR — Indian Rupee</option>
                                             <option>$ USD</option>
                                             <option>€ EUR</option>
@@ -3767,18 +3844,21 @@
                             </div>
                             <div class="card-box">
                                 <div class="card-header">
-                                    <div class="card-title">Security</div><button class="btn btn-ghost" id="saveSecurityBtn">Save Changes</button>
+                                    <div class="card-title">Security</div><button class="btn btn-ghost"
+                                        id="saveSecurityBtn">Save Changes</button>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group"><label class="form-label">Current Password</label><input
-                                            class="form-input" id="profileCurrentPasswordInput" type="password" placeholder="••••••••" /></div>
+                                            class="form-input" id="profileCurrentPasswordInput" type="password"
+                                            placeholder="••••••••" /></div>
                                     <div class="form-row">
                                         <div class="form-group" style="margin-bottom:0"><label class="form-label">New
-                                                Password</label><input class="form-input" id="profileNewPasswordInput" type="password"
-                                                placeholder="Min 8 characters" /></div>
+                                                Password</label><input class="form-input" id="profileNewPasswordInput"
+                                                type="password" placeholder="Min 8 characters" /></div>
                                         <div class="form-group" style="margin-bottom:0"><label
                                                 class="form-label">Confirm Password</label><input class="form-input"
-                                                id="profileConfirmPasswordInput" type="password" placeholder="••••••••" /></div>
+                                                id="profileConfirmPasswordInput" type="password"
+                                                placeholder="••••••••" /></div>
                                     </div>
                                 </div>
                             </div>
@@ -3795,22 +3875,33 @@
                     <!-- Row 1: Subscription -->
                     <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
                         <div style="flex: 0 0 350px; padding-right: 2rem;">
-                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Subscription Plan</div>
-                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">Each organization has it's own subscription plan, billing cycle, payment methods and usage quotas.</div>
+                            <div
+                                style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                Subscription Plan</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">Each organization has
+                                it's own subscription plan, billing cycle, payment methods and usage quotas.</div>
                         </div>
                         <div style="flex: 1;">
-                            <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.5rem;">
+                            <div
+                                style="background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.5rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <div>
-                                        <div style="color: var(--g); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem;" id="activePlanTitle">FREE PLAN</div>
+                                        <div style="color: var(--g); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem;"
+                                            id="activePlanTitle">FREE PLAN</div>
                                     </div>
-                                    <button class="btn btn-ghost" id="billingChangeBtn" onclick="openPricingModal()" style="font-size: 0.85rem;">Change Plan</button>
+                                    <button class="btn btn-ghost" id="billingChangeBtn" onclick="openPricingModal()"
+                                        style="font-size: 0.85rem;">Change Plan</button>
                                 </div>
-                                <div style="margin-top: 1.5rem; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: flex-start;">
+                                <div
+                                    style="margin-top: 1.5rem; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: flex-start;">
                                     <span style="font-size: 1.2rem; opacity: 0.7;">ℹ️</span>
                                     <div style="font-size: 0.85rem; line-height: 1.5;">
-                                        <div style="font-weight: 700; margin-bottom: 0.25rem;">This organization is limited by the included usage</div>
-                                        <div style="color: var(--muted);">Projects may become unresponsive when this organization exceeds its <span style="color: var(--text); font-weight: 600;">included usage quota</span>. To scale seamlessly, upgrade to a paid plan.</div>
+                                        <div style="font-weight: 700; margin-bottom: 0.25rem;">This organization is
+                                            limited by the included usage</div>
+                                        <div style="color: var(--muted);">Projects may become unresponsive when this
+                                            organization exceeds its <span
+                                                style="color: var(--text); font-weight: 600;">included usage
+                                                quota</span>. To scale seamlessly, upgrade to a paid plan.</div>
                                     </div>
                                 </div>
                             </div>
@@ -3820,14 +3911,18 @@
                     <!-- Row 2: Past Invoices -->
                     <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
                         <div style="flex: 0 0 350px; padding-right: 2rem;">
-                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Past Invoices</div>
-                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">You get an invoice every time you change your plan or when your monthly billing cycle resets.</div>
+                            <div
+                                style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                Past Invoices</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">You get an invoice
+                                every time you change your plan or when your monthly billing cycle resets.</div>
                         </div>
                         <div style="flex: 1;">
                             <div class="card-box" style="padding: 0; overflow-x: auto;">
                                 <table style="width:100%; border-collapse:collapse; min-width:600px">
                                     <thead>
-                                        <tr style="border-bottom: 1px solid var(--border); color: var(--muted); font-size: .8rem; text-align: left; letter-spacing: 1px">
+                                        <tr
+                                            style="border-bottom: 1px solid var(--border); color: var(--muted); font-size: .8rem; text-align: left; letter-spacing: 1px">
                                             <th style="padding: 1rem; font-weight: 600;">DATE</th>
                                             <th style="padding: 1rem; font-weight: 600;">AMOUNT</th>
                                             <th style="padding: 1rem; font-weight: 600;">INVOICE NUMBER</th>
@@ -3836,14 +3931,21 @@
                                         </tr>
                                     </thead>
                                     <tbody id="invoicesTableBody">
-                                        <tr><td colspan="5" style="padding: 2rem; text-align: center; color: var(--muted);">No invoices found</td></tr>
+                                        <tr>
+                                            <td colspan="5"
+                                                style="padding: 2rem; text-align: center; color: var(--muted);">No
+                                                invoices found</td>
+                                        </tr>
                                     </tbody>
                                 </table>
-                                <div style="padding: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .85rem;">
+                                <div
+                                    style="padding: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .85rem;">
                                     <div id="invoiceCountTxt">Showing 0 invoices</div>
                                     <div style="display: flex; gap: 5px;">
-                                        <button class="btn-icon" style="border: 1px solid var(--border); border-radius: 6px; width: 28px; height: 28px;">&lt;</button>
-                                        <button class="btn-icon" style="border: 1px solid var(--border); border-radius: 6px; width: 28px; height: 28px;">&gt;</button>
+                                        <button class="btn-icon"
+                                            style="border: 1px solid var(--border); border-radius: 6px; width: 28px; height: 28px;">&lt;</button>
+                                        <button class="btn-icon"
+                                            style="border: 1px solid var(--border); border-radius: 6px; width: 28px; height: 28px;">&gt;</button>
                                     </div>
                                 </div>
                             </div>
@@ -3853,19 +3955,26 @@
                     <!-- Row 3: Payment Methods -->
                     <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
                         <div style="flex: 0 0 350px; padding-right: 2rem;">
-                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Payment Methods</div>
-                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">Payments for your subscription are made using the default card.</div>
+                            <div
+                                style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                Payment Methods</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">Payments for your
+                                subscription are made using the default card.</div>
                         </div>
                         <div style="flex: 1;">
                             <div class="card-box" style="padding: 0;">
                                 <div class="card-body">
                                     <div id="paymentMethodsList">
-                                        <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.5rem;">
-                                            <div style="display: flex; align-items: center; color: var(--muted);"><span style="margin-right: 12px; font-size: 1.2rem;">💳</span>No payment methods</div>
+                                        <div
+                                            style="background: var(--card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.5rem;">
+                                            <div style="display: flex; align-items: center; color: var(--muted);"><span
+                                                    style="margin-right: 12px; font-size: 1.2rem;">💳</span>No payment
+                                                methods</div>
                                         </div>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right;">
-                                        <button class="btn btn-ghost" onclick="openPaymentModal()" style="font-size: .85rem;">+ Add Payment Method</button>
+                                        <button class="btn btn-ghost" onclick="openPaymentModal()"
+                                            style="font-size: .85rem;">+ Add Payment Method</button>
                                     </div>
                                 </div>
                             </div>
@@ -3875,24 +3984,31 @@
                     <!-- Row 4: Email Recipient -->
                     <div style="display: flex; padding: 2.5rem 0; border-bottom: 1px solid var(--border);">
                         <div style="flex: 0 0 350px; padding-right: 2rem;">
-                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Email Recipient</div>
-                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">All billing correspondence will go to this email.</div>
+                            <div
+                                style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                Email Recipient</div>
+                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5;">All billing
+                                correspondence will go to this email.</div>
                         </div>
                         <div style="flex: 1;">
                             <div class="card-box">
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label class="form-label">Email address</label>
-                                        <input type="email" class="form-input" id="billingEmailInput" placeholder="sanjay@example.com" />
+                                        <input type="email" class="form-input" id="billingEmailInput"
+                                            placeholder="sanjay@example.com" />
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label class="form-label">Additional emails <span style="font-size: 0.8rem; opacity: 0.5;">ℹ️</span></label>
+                                        <label class="form-label">Additional emails <span
+                                                style="font-size: 0.8rem; opacity: 0.5;">ℹ️</span></label>
                                         <input type="text" class="form-input" placeholder="Add additional recipients" />
                                     </div>
                                 </div>
-                                <div style="border-top: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--card2);">
+                                <div
+                                    style="border-top: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--card2);">
                                     <button class="btn btn-ghost" style="font-size: 0.85rem;">Cancel</button>
-                                    <button class="btn btn-primary" onclick="saveBillingConfig()" style="font-size: 0.85rem; background: #006b3d; padding: 0.5rem 1rem;">Save</button>
+                                    <button class="btn btn-primary" onclick="saveBillingConfig()"
+                                        style="font-size: 0.85rem; background: #006b3d; padding: 0.5rem 1rem;">Save</button>
                                 </div>
                             </div>
                         </div>
@@ -3901,16 +4017,23 @@
                     <!-- Row 5: Billing Address -->
                     <div style="display: flex; padding: 2.5rem 0;">
                         <div style="flex: 0 0 350px; padding-right: 2rem;">
-                            <div style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">Billing Address & Tax ID</div>
-                            <div style="color:var(--muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.75rem;">Changes will be reflected in every upcoming invoice, past invoices are not affected.</div>
-                            <div style="color:var(--muted); font-size: 0.85rem;">A Tax ID is only required for registered businesses.</div>
+                            <div
+                                style="font-weight:700; font-family:'Syne',sans-serif; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                                Billing Address & Tax ID</div>
+                            <div
+                                style="color:var(--muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                                Changes will be reflected in every upcoming invoice, past invoices are not affected.
+                            </div>
+                            <div style="color:var(--muted); font-size: 0.85rem;">A Tax ID is only required for
+                                registered businesses.</div>
                         </div>
                         <div style="flex: 1;">
                             <div class="card-box">
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label class="form-label">Full name</label>
-                                        <input type="text" class="form-input" id="billingNameInput" value="Sanjay's Org" />
+                                        <input type="text" class="form-input" id="billingNameInput"
+                                            value="Sanjay's Org" />
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Country or region</label>
@@ -3923,15 +4046,20 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Address</label>
-                                        <input type="text" class="form-input" id="billingAddressInput" placeholder="Address line 1" />
+                                        <input type="text" class="form-input" id="billingAddressInput"
+                                            placeholder="Address line 1" />
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <label class="form-label">Business Tax ID <span style="font-size: 0.8rem; opacity: 0.5;">ℹ️</span></label>
-                                        <input type="text" class="form-input" id="billingTaxInput" placeholder="Enter Tax ID (GST/VAT)" />
+                                        <label class="form-label">Business Tax ID <span
+                                                style="font-size: 0.8rem; opacity: 0.5;">ℹ️</span></label>
+                                        <input type="text" class="form-input" id="billingTaxInput"
+                                            placeholder="Enter Tax ID (GST/VAT)" />
                                     </div>
                                 </div>
-                                <div style="border-top: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--card2);">
-                                    <button class="btn btn-primary" onclick="saveBillingConfig()" style="font-size: 0.85rem; background: #006b3d; padding: 0.5rem 1rem;">Save</button>
+                                <div
+                                    style="border-top: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; background: var(--card2);">
+                                    <button class="btn btn-primary" onclick="saveBillingConfig()"
+                                        style="font-size: 0.85rem; background: #006b3d; padding: 0.5rem 1rem;">Save</button>
                                 </div>
                             </div>
                         </div>
@@ -3956,35 +4084,40 @@
                                             <h4>Budget Alerts</h4>
                                             <p>Notify when you approach budget limits</p>
                                         </div>
-                                        <div class="toggle-switch on" id="toggleBudgetAlerts" onclick="toggleSetting('toggleBudgetAlerts')"></div>
+                                        <div class="toggle-switch on" id="toggleBudgetAlerts"
+                                            onclick="toggleSetting('toggleBudgetAlerts')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Weekly Summary</h4>
                                             <p>Weekly spending report every Sunday</p>
                                         </div>
-                                        <div class="toggle-switch on" id="toggleWeeklySummary" onclick="toggleSetting('toggleWeeklySummary')"></div>
+                                        <div class="toggle-switch on" id="toggleWeeklySummary"
+                                            onclick="toggleSetting('toggleWeeklySummary')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Goal Milestones</h4>
                                             <p>Celebrate when you hit a savings goal</p>
                                         </div>
-                                        <div class="toggle-switch on" id="toggleGoalMilestones" onclick="toggleSetting('toggleGoalMilestones')"></div>
+                                        <div class="toggle-switch on" id="toggleGoalMilestones"
+                                            onclick="toggleSetting('toggleGoalMilestones')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Large Transactions</h4>
                                             <p>Alert for transactions over ₹5,000</p>
                                         </div>
-                                        <div class="toggle-switch" id="toggleLargeTransactions" onclick="toggleSetting('toggleLargeTransactions')"></div>
+                                        <div class="toggle-switch" id="toggleLargeTransactions"
+                                            onclick="toggleSetting('toggleLargeTransactions')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>AI Insight Digest</h4>
                                             <p>Monthly AI-generated financial analysis</p>
                                         </div>
-                                        <div class="toggle-switch on" id="toggleAiDigest" onclick="toggleSetting('toggleAiDigest')"></div>
+                                        <div class="toggle-switch on" id="toggleAiDigest"
+                                            onclick="toggleSetting('toggleAiDigest')"></div>
                                     </div>
                                 </div>
                             </div>
@@ -4000,28 +4133,32 @@
                                             <h4>Dark Mode</h4>
                                             <p>Toggle dark / light interface theme</p>
                                         </div>
-                                        <div class="toggle-switch on" id="darkModeToggle" onclick="toggleSetting('darkModeToggle')"></div>
+                                        <div class="toggle-switch on" id="darkModeToggle"
+                                            onclick="toggleSetting('darkModeToggle')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Compact View</h4>
                                             <p>Show more data with reduced spacing</p>
                                         </div>
-                                        <div class="toggle-switch" id="toggleCompactView" onclick="toggleSetting('toggleCompactView')"></div>
+                                        <div class="toggle-switch" id="toggleCompactView"
+                                            onclick="toggleSetting('toggleCompactView')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Auto-categorize</h4>
                                             <p>AI auto-assigns categories to new transactions</p>
                                         </div>
-                                        <div class="toggle-switch on" id="toggleAutoCat" onclick="toggleSetting('toggleAutoCat')"></div>
+                                        <div class="toggle-switch on" id="toggleAutoCat"
+                                            onclick="toggleSetting('toggleAutoCat')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <h4>Show Balance in Sidebar</h4>
                                             <p>Display balance in the nav</p>
                                         </div>
-                                        <div class="toggle-switch on" id="toggleSidebarBal" onclick="toggleSetting('toggleSidebarBal')"></div>
+                                        <div class="toggle-switch on" id="toggleSidebarBal"
+                                            onclick="toggleSetting('toggleSidebarBal')"></div>
                                     </div>
                                     <div class="setting-row">
                                         <div class="setting-info">
@@ -4046,7 +4183,8 @@
                                     <div class="setting-info">
                                         <h4>Export All Data</h4>
                                         <p>Download a complete copy of your data</p>
-                                    </div><button class="btn btn-ghost" id="exportJsonBtn" style="font-size:.8rem">Export JSON</button>
+                                    </div><button class="btn btn-ghost" id="exportJsonBtn"
+                                        style="font-size:.8rem">Export JSON</button>
                                 </div>
                                 <div class="setting-row">
                                     <div class="setting-info">
@@ -4074,13 +4212,15 @@
                                     <div class="setting-info">
                                         <h4>Billing History</h4>
                                         <p>View past invoices</p>
-                                    </div><button class="btn btn-ghost" style="font-size:.8rem" onclick="showPlansBilling()">View →</button>
+                                    </div><button class="btn btn-ghost" style="font-size:.8rem"
+                                        onclick="showPlansBilling()">View →</button>
                                 </div>
                                 <div class="setting-row" style="border:none">
                                     <div class="setting-info">
                                         <h4>Cancel Subscription</h4>
                                         <p>Cancels at end of billing period</p>
-                                    </div><button class="btn btn-ghost" id="cancelSubscriptionBtnCustom" onclick="openCancelSubscriptionModal()"
+                                    </div><button class="btn btn-ghost" id="cancelSubscriptionBtnCustom"
+                                        onclick="openCancelSubscriptionModal()"
                                         style="font-size:.8rem;color:var(--red)">Cancel</button>
                                 </div>
                             </div>
@@ -4110,7 +4250,8 @@
             <button class="btn-icon" onclick="toggleAiChat()">✕</button>
         </div>
         <div class="chat-messages" id="chatMsgs">
-            <div class="msg bot" id="chatWelcomeMsg">Hello! I'm your SmartSpend assistant. How can I help you with your finances today?</div>
+            <div class="msg bot" id="chatWelcomeMsg">Hello! I'm your SmartSpend assistant. How can I help you with your
+                finances today?</div>
         </div>
         <div class="chat-input-area">
             <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..."
@@ -4202,8 +4343,9 @@
 
             <div class="form-group">
                 <label class="form-label">Amount</label>
-                <div class="amount-input-wrap"><input class="form-input" type="text" inputmode="decimal" placeholder="0.00"
-                        id="amtInput" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')" /></div>
+                <div class="amount-input-wrap"><input class="form-input" type="text" inputmode="decimal"
+                        placeholder="0.00" id="amtInput"
+                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')" /></div>
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
@@ -4242,14 +4384,17 @@
 
     <!-- ═══ PRICING MODAL ═══ -->
     <div class="modal-overlay" id="pricingModalOverlay" onclick="handlePricingOverlay(event)">
-        <div class="modal" style="max-width: 1100px; width: 95%; background: var(--bg); border: 1px solid var(--border2); padding: 3rem 2rem;">
+        <div class="modal"
+            style="max-width: 1100px; width: 95%; background: var(--bg); border: 1px solid var(--border2); padding: 3rem 2rem;">
             <button
                 style="position:absolute;top:1.5rem;right:1.5rem;width:36px;height:36px;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10"
                 onclick="closePricingModal()" onmouseover="this.style.background='var(--g)';this.style.color='#060d12'"
                 onmouseout="this.style.background='var(--card2)';this.style.color='var(--muted)'">✕</button>
-            
+
             <div style="text-align: center; margin-bottom: 3.5rem;">
-                <h2 style="font-family:'Syne',sans-serif; font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem;">Change Subscription Plan</h2>
+                <h2
+                    style="font-family:'Syne',sans-serif; font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem;">
+                    Change Subscription Plan</h2>
                 <p style="color: var(--muted); font-size: 1.05rem;">Choose the best plan for your financial goals</p>
             </div>
 
@@ -4271,7 +4416,7 @@
                     </ul>
                     <button class="plan-btn" id="planBtn_STARTER" onclick="changePlan('STARTER')">Current Plan</button>
                 </div>
-                
+
                 <!-- Pro Plan -->
                 <div class="pricing-card popular" id="pricingCard_PRO">
                     <div class="popular-badge">Most Popular</div>
@@ -4289,9 +4434,10 @@
                         <li><i>✓</i> AI Insights & nudges</li>
                         <li><i>✓</i> OCR Receipt Scanning</li>
                     </ul>
-                    <button class="plan-btn btn-upgrade" id="planBtn_PRO" onclick="changePlan('PRO')">Upgrade to Pro</button>
+                    <button class="plan-btn btn-upgrade" id="planBtn_PRO" onclick="changePlan('PRO')">Upgrade to
+                        Pro</button>
                 </div>
-                
+
                 <!-- Team Plan -->
                 <div class="pricing-card" id="pricingCard_TEAM">
                     <div class="plan-name">Team</div>
@@ -4307,7 +4453,8 @@
                         <li><i>✓</i> Shared budgets & goals</li>
                         <li><i>✓</i> Advanced AI group reporting</li>
                     </ul>
-                    <button class="plan-btn btn-downgrade" id="planBtn_TEAM" onclick="changePlan('TEAM')">Start Free Trial</button>
+                    <button class="plan-btn btn-downgrade" id="planBtn_TEAM" onclick="changePlan('TEAM')">Start Free
+                        Trial</button>
                 </div>
             </div>
         </div>
@@ -4329,20 +4476,27 @@
                 <div class="setting-info">
                     <h4>FAQ & Documentation</h4>
                     <p>Read guides on budgeting and tracking</p>
-                </div><button class="btn btn-ghost" style="font-size:.8rem" onclick="window.open('/about.html', '_blank')">View →</button>
+                </div><button class="btn btn-ghost" style="font-size:.8rem"
+                    onclick="window.open('/about.html', '_blank')">View →</button>
             </div>
             <div class="setting-row">
                 <div class="setting-info">
                     <h4>Ask SmartSpend AI</h4>
                     <p>Instant answers from our smart assistant</p>
-                </div><button class="btn btn-ghost" style="font-size:.8rem; color:var(--g)" onclick="closeHelpModal(); document.getElementById('aiChatOpenBtn').click();">Chat Now</button>
+                </div><button class="btn btn-ghost" style="font-size:.8rem; color:var(--g)"
+                    onclick="closeHelpModal(); document.getElementById('aiChatOpenBtn').click();">Chat Now</button>
             </div>
-            
-            <div style="background:var(--g-dim);border:1px solid rgba(57,255,126,.2);border-radius:var(--r-sm);padding:1.25rem;margin-top:1.5rem">
-                <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--g);margin-bottom:.5rem; font-size:1.1rem">Still need help?</div>
-                <div style="font-size:.85rem;color:var(--text); margin-bottom: 1rem; line-height: 1.5;">Our support team is available Monday to Friday, 9 AM - 6 PM IST. We typically respond within 24 hours.</div>
-                
-                <button class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem;" onclick="showToast('Support ticket created! We will email you shortly.', 'success'); closeHelpModal();">
+
+            <div
+                style="background:var(--g-dim);border:1px solid rgba(57,255,126,.2);border-radius:var(--r-sm);padding:1.25rem;margin-top:1.5rem">
+                <div
+                    style="font-family:'Syne',sans-serif;font-weight:700;color:var(--g);margin-bottom:.5rem; font-size:1.1rem">
+                    Still need help?</div>
+                <div style="font-size:.85rem;color:var(--text); margin-bottom: 1rem; line-height: 1.5;">Our support team
+                    is available Monday to Friday, 9 AM - 6 PM IST. We typically respond within 24 hours.</div>
+
+                <button class="btn btn-primary" style="width:100%; justify-content:center; padding:0.75rem;"
+                    onclick="showToast('Support ticket created! We will email you shortly.', 'success'); closeHelpModal();">
                     ✉️ Email Support
                 </button>
             </div>
@@ -4371,16 +4525,19 @@
                 <div id="formCARD">
                     <div class="form-group">
                         <label class="form-label">Card Number</label>
-                        <input class="form-input" type="text" id="cardNumberInput" placeholder="0000 0000 0000 0000" maxlength="19" />
+                        <input class="form-input" type="text" id="cardNumberInput" placeholder="0000 0000 0000 0000"
+                            maxlength="19" />
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Expiry (MM/YY)</label>
-                            <input class="form-input" type="text" id="cardExpiryInput" placeholder="MM/YY" maxlength="5" />
+                            <input class="form-input" type="text" id="cardExpiryInput" placeholder="MM/YY"
+                                maxlength="5" />
                         </div>
                         <div class="form-group">
                             <label class="form-label">CVV</label>
-                            <input class="form-input" type="password" id="cardCvvInput" placeholder="***" maxlength="3" />
+                            <input class="form-input" type="password" id="cardCvvInput" placeholder="***"
+                                maxlength="3" />
                         </div>
                     </div>
                 </div>
@@ -4390,15 +4547,18 @@
                     <div class="form-group">
                         <label class="form-label">UPI ID (VPA)</label>
                         <input class="form-input" type="text" id="upiIdInput" placeholder="username@bank" />
-                        <div style="font-size: 0.7rem; color: var(--muted); margin-top: 8px;">Example: user@okaxis, 0000000000@upi</div>
+                        <div style="font-size: 0.7rem; color: var(--muted); margin-top: 8px;">Example: user@okaxis,
+                            0000000000@upi</div>
                     </div>
                 </div>
 
                 <!-- QR Form/Instruction -->
                 <div id="formQR" style="display:none">
-                    <div style="text-align: center; padding: 1rem; background: var(--card2); border-radius: var(--r-sm); border: 1px dashed var(--border);">
+                    <div
+                        style="text-align: center; padding: 1rem; background: var(--card2); border-radius: var(--r-sm); border: 1px dashed var(--border);">
                         <div style="margin-bottom: 0.5rem;">
-                            <img src="/static/images/Scan & Pay.png" alt="Scan & Pay" style="max-width: 120px; height: auto; border-radius: 8px;" />
+                            <img src="/static/images/Scan & Pay.png" alt="Scan & Pay"
+                                style="max-width: 120px; height: auto; border-radius: 8px;" />
                         </div>
                         <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">Scan & Pay</div>
                     </div>
@@ -4407,7 +4567,8 @@
 
             <div id="defaultMethodCheckbox" style="margin-top: 2rem; display: flex; align-items: center; gap: 10px;">
                 <input type="checkbox" id="isDefaultMethod" checked />
-                <label for="isDefaultMethod" style="font-size: 0.85rem; color: var(--muted);">Set as default payment method</label>
+                <label for="isDefaultMethod" style="font-size: 0.85rem; color: var(--muted);">Set as default payment
+                    method</label>
             </div>
 
             <button class="btn btn-primary" id="savePaymentMethodBtn"
@@ -4421,17 +4582,20 @@
     <!-- ═══ CANCEL SUBSCRIPTION CONFIRMATION MODAL ═══ -->
     <div class="modal-overlay" id="cancelSubscriptionModalOverlay" onclick="handleCancelSubscriptionOverlay(event)">
         <div class="modal" style="max-width: 420px; text-align: center;">
-            <div style="width: 60px; height: 60px; background: rgba(255, 95, 95, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem;">⚠️</div>
+            <div
+                style="width: 60px; height: 60px; background: rgba(255, 95, 95, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem;">
+                ⚠️</div>
             <div class="modal-title" style="margin-bottom: 0.5rem;">Cancel Subscription?</div>
-            <div class="modal-sub" style="line-height: 1.5; color: var(--muted);">Are you sure you want to cancel your subscription? You will lose premium features at the end of the billing period.</div>
+            <div class="modal-sub" style="line-height: 1.5; color: var(--muted);">Are you sure you want to cancel your
+                subscription? You will lose premium features at the end of the billing period.</div>
 
             <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                <button class="btn" id="confirmCancelSubscriptionBtn" 
-                        style="width: 100%; background: var(--red); color: white; border: none; padding: 0.875rem; border-radius: var(--r-sm); font-weight: 700;">
+                <button class="btn" id="confirmCancelSubscriptionBtn"
+                    style="width: 100%; background: var(--red); color: white; border: none; padding: 0.875rem; border-radius: var(--r-sm); font-weight: 700;">
                     Yes, Cancel Subscription
                 </button>
-                <button class="btn btn-ghost" onclick="closeCancelSubscriptionModal()" 
-                        style="width: 100%; padding: 0.875rem; color: var(--muted);">
+                <button class="btn btn-ghost" onclick="closeCancelSubscriptionModal()"
+                    style="width: 100%; padding: 0.875rem; color: var(--muted);">
                     I've Changed My Mind
                 </button>
             </div>
@@ -4441,17 +4605,20 @@
     <!-- ═══ DELETE ACCOUNT CONFIRMATION MODAL ═══ -->
     <div class="modal-overlay" id="deleteAccountModalOverlay" onclick="handleDeleteAccountOverlay(event)">
         <div class="modal" style="max-width: 420px; text-align: center;">
-            <div style="width: 60px; height: 60px; background: rgba(255, 95, 95, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem;">⚠️</div>
+            <div
+                style="width: 60px; height: 60px; background: rgba(255, 95, 95, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem;">
+                ⚠️</div>
             <div class="modal-title" style="margin-bottom: 0.5rem;">Delete Account?</div>
-            <div class="modal-sub" style="line-height: 1.5; color: var(--muted);">WARNING: This action is permanent. All your transactions, budgets, and settings will be wiped forever. Are you sure?</div>
+            <div class="modal-sub" style="line-height: 1.5; color: var(--muted);">WARNING: This action is permanent. All
+                your transactions, budgets, and settings will be wiped forever. Are you sure?</div>
 
             <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                <button class="btn" id="confirmDeleteAccountBtn" 
-                        style="width: 100%; background: var(--red); color: white; border: none; padding: 0.875rem; border-radius: var(--r-sm); font-weight: 700;">
+                <button class="btn" id="confirmDeleteAccountBtn"
+                    style="width: 100%; background: var(--red); color: white; border: none; padding: 0.875rem; border-radius: var(--r-sm); font-weight: 700;">
                     Yes, Delete My Account
                 </button>
-                <button class="btn btn-ghost" onclick="closeDeleteAccountModal()" 
-                        style="width: 100%; padding: 0.875rem; color: var(--muted);">
+                <button class="btn btn-ghost" onclick="closeDeleteAccountModal()"
+                    style="width: 100%; padding: 0.875rem; color: var(--muted);">
                     I've Changed My Mind
                 </button>
             </div>
@@ -4463,10 +4630,10 @@
 
     <script>
         window.isRedirecting = false;
-        
+
         function escapeHTML(str) {
             if (!str) return '';
-            return String(str).replace(/[&<>'"]/g, 
+            return String(str).replace(/[&<>'"]/g,
                 tag => ({
                     '&': '&amp;',
                     '<': '&lt;',
@@ -4491,7 +4658,7 @@
             async _handleResponse(r, originalRequest) {
                 if (!r.ok) {
                     if (r.status === 401) {
-                        if (window.isRedirecting) return new Promise(() => {});
+                        if (window.isRedirecting) return new Promise(() => { });
                         window.isRedirecting = true; // Block other concurrent fetches from trying to refresh
                         try {
                             const refreshRes = await fetch('/api/auth/refresh', { method: 'POST' });
@@ -4513,7 +4680,7 @@
                                     }
                                 }
                             }
-                        } catch(e) {
+                        } catch (e) {
                             console.error('Token refresh failed', e);
                         }
 
@@ -4536,7 +4703,7 @@
                 return r.json();
             },
             async get(path) {
-                if (window.isRedirecting) return new Promise(() => {});
+                if (window.isRedirecting) return new Promise(() => { });
                 try {
                     const options = { headers: this.headers(), cache: 'no-store' };
                     const r = await fetch(path, options);
@@ -4547,7 +4714,7 @@
                 }
             },
             async post(path, body) {
-                if (window.isRedirecting) return new Promise(() => {});
+                if (window.isRedirecting) return new Promise(() => { });
                 try {
                     const options = { method: 'POST', headers: this.headers(), body: JSON.stringify(body) };
                     const r = await fetch(path, options);
@@ -4558,7 +4725,7 @@
                 }
             },
             async del(path) {
-                if (window.isRedirecting) return new Promise(() => {});
+                if (window.isRedirecting) return new Promise(() => { });
                 try {
                     const options = { method: 'DELETE', headers: this.headers() };
                     const r = await fetch(path, options);
@@ -4578,10 +4745,10 @@
         // ═══════════════════════════════════════
         // SUBSCRIPTION SYNC logic
         // ═══════════════════════════════════════
-        const PLAN_RANK = { 
-            'FREE': 0, 'STARTER': 0, 
-            'PRO': 1, 
-            'TEAM': 2 
+        const PLAN_RANK = {
+            'FREE': 0, 'STARTER': 0,
+            'PRO': 1,
+            'TEAM': 2
         };
 
         function syncPlanUI(planType) {
@@ -4597,7 +4764,7 @@
             // 2. Profile Dropdown Panel
             const pt = document.getElementById('pt-display');
             if (pt) pt.textContent = (rank >= 1 ? '⚡ ' : '') + normalizedPlan + ' PLAN';
-            
+
             const ui = document.getElementById('upgradeToProItem');
             if (ui) ui.style.display = (rank >= 1) ? 'none' : 'flex';
 
@@ -4613,7 +4780,7 @@
             ['STARTER', 'PRO', 'TEAM'].forEach(id => {
                 const btn = document.getElementById('planBtn_' + id);
                 if (!btn) return;
-                
+
                 const targetRank = PLAN_RANK[id];
                 if (targetRank === rank) {
                     btn.textContent = 'Current';
@@ -4637,7 +4804,7 @@
                 try {
                     const u = JSON.parse(e.newValue);
                     if (u && u.plan) syncPlanUI(u.plan);
-                } catch(err) { console.error('Storage sync error:', err); }
+                } catch (err) { console.error('Storage sync error:', err); }
             }
         });
 
@@ -4659,13 +4826,13 @@
                         }
                         return name.charAt(0).toUpperCase();
                     }
-                    
+
                     const userInitials = getInitials(u.full_name);
-                    
+
                     if (nameEl) nameEl.textContent = u.full_name;
                     if (avEl) avEl.textContent = userInitials;
                     if (pnDisplay) pnDisplay.textContent = u.full_name;
-                    
+
                     const pam = document.getElementById('profileAvMini');
                     if (pam) pam.textContent = userInitials;
                     if (pavBig) {
@@ -4679,10 +4846,10 @@
                         if (pnInput) pnInput.value = u.full_name;
                         if (peInput) peInput.value = u.email;
                     }
-                    
+
                     // Initial flash sync from local storage
                     syncPlanUI(u.plan || 'starter');
-                    
+
                     // Background Truth Check (Verify with backend)
                     SS_API.get('/api/billing/').then(data => {
                         if (data && data.status === 'success') {
@@ -4708,14 +4875,14 @@
             const data = await SS_API.get('/api/analytics/summary');
             if (!data || data.error) return false;
             const fmt = v => '₹' + Math.abs(v).toLocaleString('en-IN');
-            
+
             // Dashboard IDs
             const balEl = document.getElementById('statBalance');
             const incEl = document.getElementById('statIncome');
             const expEl = document.getElementById('statExpenses');
             const savEl = document.getElementById('statSavings');
             const sbBalVal = document.getElementById('sbBalanceVal');
-            
+
             if (balEl) balEl.textContent = fmt(data.balance);
             if (incEl) incEl.textContent = fmt(data.income);
             if (expEl) expEl.textContent = fmt(data.expenses);
@@ -4741,7 +4908,7 @@
             const qsNet = document.getElementById('statNetSavings');
             const qsAcc = document.getElementById('statAccounts');
             if (qsDays) qsDays.textContent = new Date().getDate();
-            if (qsRec) qsRec.textContent = fmt(0); 
+            if (qsRec) qsRec.textContent = fmt(0);
             if (qsNet) qsNet.textContent = fmt(data.balance);
             if (qsAcc) qsAcc.textContent = '1';
 
@@ -4804,11 +4971,221 @@
                     </div>
                 `;
             }
-            
+
             return true;
         }
 
         // ─── Load transactions from API ────────────────────────────────
+
+        let BUDGETS = [];
+        let GOALS = [];
+
+        async function loadBudgets() {
+            const data = await SS_API.get('/api/budgets/');
+            if (!data) return;
+            BUDGETS = data.budgets || [];
+            const countEl = document.getElementById('budCountTotal');
+            if (countEl) countEl.textContent = BUDGETS.length;
+            renderBudgets();
+        }
+
+        function renderBudgets() {
+            const dashGrid = document.getElementById('dashBudgetList');
+            if (dashGrid) {
+                if (BUDGETS.length === 0) {
+                    dashGrid.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:0.8rem">No active budgets</div>';
+                } else {
+                    dashGrid.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--muted);font-size:0.8rem">' + BUDGETS.length + ' budgets active</div>';
+                }
+            }
+
+            const grid = document.getElementById('budgetGrid');
+            if (!grid) return;
+
+            // Set style
+            grid.style.display = 'grid';
+            if (BUDGETS.length === 0) {
+                grid.style.display = 'block';
+                grid.innerHTML = `
+                <div style="grid-column:1/-1;padding:4rem;text-align:center;background:var(--card);border-radius:var(--r-md);border:1px dashed var(--border)">
+                    <div style="font-size:3rem;margin-bottom:1.5rem">🎯</div>
+                    <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Budgets Set</h3>
+                    <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Track your spending by setting monthly limits for categories.</p>
+                    <button class="btn btn-primary" style="margin:0 auto" id="createFirstBudgetBtn" onclick="addBudget()">+ Create Your First Budget</button>
+                </div>`;
+                return;
+            }
+
+            const cats = {};
+            TRANSACTIONS.forEach(t => {
+                const tType = (t.type || '').toLowerCase();
+                const amt = t.amount || t.amt || 0;
+                const cat = t.category || t.cat || '';
+                if (tType === 'expense' || tType === 'debit') {
+                    cats[cat] = (cats[cat] || 0) + Math.abs(amt);
+                }
+            });
+
+            let totalBud = 0;
+            let totalSpent = 0;
+
+            grid.innerHTML = BUDGETS.map(b => {
+                const limit = parseFloat(b.amount);
+                const spent = cats[b.category] || 0;
+                totalBud += limit;
+                totalSpent += spent;
+                const pct = Math.min(100, (spent / limit) * 100);
+                const color = pct > 90 ? 'var(--red)' : (pct > 75 ? 'var(--amber)' : 'var(--g)');
+
+                return `
+                <div class="budget-item" style="background:var(--card);padding:1.5rem;border-radius:var(--r-md);border:1px solid var(--border)">
+                    <div class="budget-top" style="display:flex;justify-content:space-between;margin-bottom:1rem">
+                        <div class="budget-cat" style="font-weight:600">${b.category}</div>
+                        <div class="budget-nums" style="font-family:'Syne',sans-serif;font-size:1.1rem">₹${spent.toLocaleString('en-IN')} / ₹${limit.toLocaleString('en-IN')}</div>
+                    </div>
+                    <div class="progress-track" style="height:8px;background:var(--card2);border-radius:4px;overflow:hidden">
+                        <div class="progress-fill" style="width:${pct}%;background:${color};height:100%;border-radius:4px;transition:width 0.5s ease"></div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const bt = document.getElementById('budTotal');
+            const bs = document.getElementById('budSpent');
+            const br = document.getElementById('budRemTotal');
+            if (bt) bt.textContent = '₹' + totalBud.toLocaleString('en-IN');
+            if (bs) bs.textContent = '₹' + totalSpent.toLocaleString('en-IN');
+
+            const rem = totalBud - totalSpent;
+            if (br) br.textContent = '₹' + (rem > 0 ? rem : 0).toLocaleString('en-IN');
+        }
+
+        async function addBudget() {
+            const cat = prompt("Enter Budget Category (e.g., Food & Dining, Travel, Shopping):");
+            if (!cat) return;
+            const amtStr = prompt("Enter Monthly Limit Amount (₹):");
+            if (!amtStr) return;
+            const amt = parseFloat(amtStr);
+            if (isNaN(amt) || amt <= 0) {
+                showToast("Invalid amount. Please enter a valid number.", "error"); return;
+            }
+
+            try {
+                const req = await SS_API.post('/api/budgets/', { category: cat, amount: amt });
+                if (req && req.budget) {
+                    showToast("Budget created successfully!", "success");
+                    await loadBudgets();
+                    await loadSummary();
+                } else {
+                    showToast(req?.error || "Failed to create budget", "error");
+                }
+            } catch (e) {
+                showToast("Network error creating budget", "error");
+            }
+        }
+
+        async function loadGoals() {
+            const data = await SS_API.get('/api/goals/');
+            if (!data) return;
+            GOALS = data.goals || [];
+            const countEl = document.getElementById('goalCountTotal');
+            if (countEl) countEl.textContent = GOALS.length;
+            renderGoals();
+        }
+
+        function renderGoals() {
+            const grid = document.getElementById('goalGrid');
+            if (!grid) return;
+
+            grid.style.display = 'grid';
+            grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            grid.style.gap = '1rem';
+            grid.style.padding = '0';
+            grid.style.background = 'transparent';
+            grid.style.border = 'none';
+            grid.style.textAlign = 'left';
+
+            if (GOALS.length === 0) {
+                grid.style.display = 'block';
+                grid.style.padding = '4rem';
+                grid.style.textAlign = 'center';
+                grid.style.background = 'var(--card)';
+                grid.style.border = '1px dashed var(--border)';
+                grid.innerHTML = `
+                    <div style="font-size:3rem;margin-bottom:1.5rem">🏆</div>
+                    <h3 style="font-family:'Syne',sans-serif;font-size:1.25rem;margin-bottom:.5rem">No Goals Set</h3>
+                    <p style="color:var(--muted);font-size:.875rem;max-width:300px;margin:0 auto 1.5rem">Set savings goals to stay motivated.</p>
+                    <button class="btn btn-primary" style="margin:0 auto" id="createFirstGoalBtn" onclick="addGoal()">+ Create Your First Goal</button>
+                `;
+                return;
+            }
+
+            grid.innerHTML = GOALS.map(g => {
+                const target = parseFloat(g.target_amount);
+                const current = parseFloat(g.current_amount || 0);
+                const pct = Math.min(100, (current / target) * 100);
+                return `
+                <div class="goal-card" style="background:var(--card);padding:1.5rem;border-radius:var(--r-md);border:1px solid var(--border)">
+                    <div style="font-weight:600;font-size:1.1rem;margin-bottom:4px">${g.name}</div>
+                    <div style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem">Target: ₹${target.toLocaleString('en-IN')}</div>
+                    
+                    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px">
+                        <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--g)">₹${current.toLocaleString('en-IN')} Saved</div>
+                        <div style="font-size:0.85rem;font-weight:700">${pct.toFixed(0)}%</div>
+                    </div>
+                    
+                    <div class="progress-track" style="height:10px;background:var(--card2);border-radius:5px;overflow:hidden;margin-bottom:1rem">
+                        <div class="progress-fill" style="width:${pct}%;background:var(--g);height:100%;border-radius:5px;transition:width 0.5s ease"></div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" style="width:100%;font-size:0.8rem;padding:0.4rem" onclick="addGoalProgress(${g.id}, '${g.name}')">Add Funds to Goal</button>
+                </div>`;
+            }).join('');
+        }
+
+        async function addGoal() {
+            const name = prompt("Enter Goal Name (e.g., Vacation, Emergency Fund):");
+            if (!name) return;
+            const targetStr = prompt("Enter Target Amount (₹):");
+            if (!targetStr) return;
+            const target = parseFloat(targetStr);
+            if (isNaN(target) || target <= 0) {
+                showToast("Invalid target amount.", "error"); return;
+            }
+
+            try {
+                const req = await SS_API.post('/api/goals/', { name: name, target_amount: target });
+                if (req && req.goal) {
+                    showToast("Goal created successfully!", "success");
+                    await loadGoals();
+                } else {
+                    showToast(req?.error || "Failed to create goal", "error");
+                }
+            } catch (e) {
+                showToast("Network error creating goal", "error");
+            }
+        }
+
+        async function addGoalProgress(goalId, goalName) {
+            const addStr = prompt(`Add funds to "${goalName}":\nEnter amount to add (₹):`);
+            if (!addStr) return;
+            const amt = parseFloat(addStr);
+            if (isNaN(amt) || amt <= 0) {
+                showToast("Invalid amount.", "error"); return;
+            }
+
+            try {
+                const req = await SS_API.post('/api/goals/' + goalId + '/add', { amount: amt });
+                if (req && req.message) {
+                    showToast("Progress updated successfully!", "success");
+                    await loadGoals();
+                } else {
+                    showToast(req?.error || "Failed to update progress", "error");
+                }
+            } catch (e) {
+                showToast("Network error updating goal", "error");
+            }
+        }
+
         async function loadTransactions() {
             const data = await SS_API.get('/api/transactions/');
             if (!data) return;
@@ -4910,7 +5287,15 @@
             if (navEl) navEl.classList.add('active');
             document.getElementById('topbarTitle').textContent = topbarTitles[viewId] || viewId;
             document.getElementById('topbarCrumb').textContent = crumbs[viewId] || viewId;
+
+            if (viewId === 'budget') renderBudgets();
+            if (viewId === 'goals') renderGoals();
+
+            if (viewId === 'budget') renderBudgets();
+            if (viewId === 'goals') renderGoals();
             if (viewId === 'dashboard') renderDashboardDoughnut();
+
+
             if (viewId === 'transactions') renderTransactions();
             if (viewId === 'analytics') renderAnalyticsCharts();
             if (viewId === 'investments') renderInvestmentCharts();
@@ -4923,7 +5308,7 @@
         function loadSettings() {
             try {
                 const settings = JSON.parse(localStorage.getItem('ss_settings')) || {};
-                
+
                 // Set default if not exist
                 const defaults = {
                     toggleBudgetAlerts: true, toggleWeeklySummary: true,
@@ -4936,17 +5321,17 @@
                 for (let key in defaults) {
                     if (settings[key] === undefined) settings[key] = defaults[key];
                 }
-                
+
                 // Apply toggles
                 ['toggleBudgetAlerts', 'toggleWeeklySummary', 'toggleGoalMilestones',
-                 'toggleLargeTransactions', 'toggleAiDigest', 'toggleCompactView',
-                 'toggleAutoCat', 'toggleSidebarBal', 'darkModeToggle'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        if (settings[id]) el.classList.add('on');
-                        else el.classList.remove('on');
-                    }
-                });
+                    'toggleLargeTransactions', 'toggleAiDigest', 'toggleCompactView',
+                    'toggleAutoCat', 'toggleSidebarBal', 'darkModeToggle'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            if (settings[id]) el.classList.add('on');
+                            else el.classList.remove('on');
+                        }
+                    });
 
                 // Apply Voice Language
                 const langEl = document.getElementById('voiceEntryLanguage');
@@ -4959,15 +5344,15 @@
 
                 // Apply Theme
                 setTheme(settings.darkModeToggle ? 'dark' : 'light');
-                
+
                 // Apply Compact View
                 applyCompactView(settings.toggleCompactView);
-                
+
                 // Apply Sidebar Balance
                 applySidebarBalance(settings.toggleSidebarBal);
                 runAutomationsForSettings(settings);
 
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function getSettingsWithDefaults() {
@@ -4997,7 +5382,7 @@
             el.classList.toggle('on');
             const isOn = el.classList.contains('on');
             saveSetting(id, isOn);
-            
+
             if (id === 'darkModeToggle') {
                 setTheme(isOn ? 'dark' : 'light');
             } else if (id === 'toggleCompactView') {
@@ -5052,7 +5437,7 @@
                     }
                 });
                 localStorage.setItem('ss_goal_milestones_reached', JSON.stringify(reached));
-            } catch(e) {}
+            } catch (e) { }
         }
 
         async function checkLargeTransactions() {
@@ -5078,10 +5463,11 @@
             try {
                 const res = await SS_API.get('/api/budgets/');
                 const budgets = res?.budgets || [];
-                
+
                 const cats = {};
                 TRANSACTIONS.forEach(t => {
-                    if (t.type === 'debit') {
+                    const tType = (t.type || '').toLowerCase();
+                    if (tType === 'debit' || tType === 'expense') {
                         cats[t.cat] = (cats[t.cat] || 0) + Math.abs(t.amt);
                     }
                 });
@@ -5094,12 +5480,12 @@
                         const dedupeKey = `ss_budget_alerted_${monthKey}_${b.category}`;
                         if (localStorage.getItem(dedupeKey)) return;
                         setTimeout(() => {
-                            showToast(`Alert: Approaching budget limit for ${b.category} (${((spent/limit)*100).toFixed(0)}%)`, 'error');
+                            showToast(`Alert: Approaching budget limit for ${b.category} (${((spent / limit) * 100).toFixed(0)}%)`, 'error');
                         }, 1500);
                         localStorage.setItem(dedupeKey, '1');
                     }
                 });
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function maybeSendWeeklySummary() {
@@ -5125,7 +5511,7 @@
                 const settings = JSON.parse(localStorage.getItem('ss_settings')) || {};
                 settings[key] = value;
                 localStorage.setItem('ss_settings', JSON.stringify(settings));
-            } catch(e) {}
+            } catch (e) { }
         }
 
         function applyCompactView(isCompact) {
@@ -5174,13 +5560,13 @@
         function showPlansBilling() {
             const panel = document.getElementById('profilePanel');
             if (panel) panel.classList.remove('active');
-            
+
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('view-billing').classList.add('active');
-            
+
             // Switch sidebar active
             document.querySelectorAll('.sidebar-nav-item').forEach(item => item.classList.remove('active'));
-            
+
             loadBillingData();
         }
 
@@ -5201,19 +5587,19 @@
         async function loadBillingData() {
             try {
                 const data = await SS_API.get('/api/billing/');
-                
+
                 if (data && data.status === 'success') {
                     const planType = data.billing.plan_type || 'STARTER';
-                    
+
                     // Unified Sync across sidebar, profile panel, settings, and modal
                     syncPlanUI(planType);
-                    
+
                     // Update Form
                     document.getElementById('billingEmailInput').value = data.billing.billing_email || '';
                     document.getElementById('billingCountryInput').value = data.billing.country || '';
                     document.getElementById('billingAddressInput').value = data.billing.address || '';
                     // Tax ID select handling if populated
-                    
+
                     // Update Invoices
                     const tbody = document.getElementById('invoicesTableBody');
                     if (data.invoices && data.invoices.length > 0) {
@@ -5222,7 +5608,7 @@
                             const tr = document.createElement('tr');
                             tr.style.borderBottom = '1px solid var(--border)';
                             tr.innerHTML = `
-                                <td style="padding:1rem;color:var(--text)">📄 ${new Date(inv.date_issued).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</td>
+                                <td style="padding:1rem;color:var(--text)">📄 ${new Date(inv.date_issued).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                                 <td style="padding:1rem;font-family:'Syne',sans-serif;font-weight:600">$${inv.amount.toFixed(2)}</td>
                                 <td style="padding:1rem;color:var(--muted)">${inv.invoice_number}</td>
                                 <td style="padding:1rem">
@@ -5242,7 +5628,7 @@
                         tbody.innerHTML = '<tr><td colspan="5" style="padding:2rem;text-align:center;color:var(--muted)">No invoices found</td></tr>';
                         document.getElementById('invoiceCountTxt').textContent = 'Showing 0 invoices';
                     }
-                    
+
                     // Update Payment Methods
                     if (data.payment_methods && data.payment_methods.length > 0) {
                         const pmList = document.getElementById('paymentMethodsList');
@@ -5273,21 +5659,21 @@
                 const data = await SS_API.post('/api/billing/update_plan', { plan_type: newPlan });
                 if (data && data.status === 'success') {
                     showToast(`Successfully changed plan to ${newPlan}`, 'success');
-                    
+
                     // Update localStorage
                     const u = JSON.parse(localStorage.getItem('ss_user') || '{}');
                     u.plan = newPlan.toLowerCase();
                     localStorage.setItem('ss_user', JSON.stringify(u));
-                    
+
                     // Sync UI everywhere immediately
                     syncPlanUI(newPlan);
-                    
+
                     // Close modal
                     setTimeout(() => closePricingModal(), 600);
                 } else {
                     showToast(data.error || 'Failed to update plan', 'error');
                 }
-            } catch(e) {
+            } catch (e) {
                 showToast('Network error during plan update', 'error');
             }
         }
@@ -5299,7 +5685,7 @@
                 address: document.getElementById('billingAddressInput').value,
                 business_tax_id: document.getElementById('billingTaxInput').value
             };
-            
+
             try {
                 const data = await SS_API.post('/api/billing/update_config', payload);
                 if (data && data.status === 'success') {
@@ -5307,7 +5693,7 @@
                 } else {
                     showToast('Failed to save billing info', 'error');
                 }
-            } catch(e) {
+            } catch (e) {
                 showToast('Network error syncing billing info', 'error');
             }
         }
@@ -5315,7 +5701,7 @@
         function showHelpSupport() {
             const panel = document.getElementById('profilePanel');
             if (panel) panel.classList.remove('active');
-            
+
             document.getElementById('helpModalOverlay').classList.add('open');
             document.body.style.overflow = 'hidden';
         }
@@ -5325,8 +5711,8 @@
             document.body.style.overflow = '';
         }
 
-        function handleHelpOverlay(e) { 
-            if (e.target === document.getElementById('helpModalOverlay')) closeHelpModal(); 
+        function handleHelpOverlay(e) {
+            if (e.target === document.getElementById('helpModalOverlay')) closeHelpModal();
         }
 
         function logout() {
@@ -5364,17 +5750,17 @@
             const desc = document.getElementById('descInput').value.trim();
             if (!amtVal || !desc) { showToast('Please fill in amount and description', 'error'); return; }
             const amt = Math.abs(parseFloat(amtVal));
-            
+
             if (isNaN(amt) || amt <= 0) {
                 showToast('Please enter a valid positive amount', 'error');
                 return;
             }
-            
+
             const catEl = document.getElementById('modalCatInput');
             const catOption = catEl.options[catEl.selectedIndex];
             const category = catOption.value;
             const icon = catOption.getAttribute('data-icon') || '💡';
-            
+
             const type = txType === 'income' ? 'credit' : 'debit';
             const dateVal = document.getElementById('dateInput')?.value || new Date().toISOString().split('T')[0];
 
@@ -5447,11 +5833,11 @@
         // ═══════════════════════════════════════
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
-                 .replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;")
-                 .replace(/"/g, "&quot;")
-                 .replace(/'/g, "&#039;");
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         let currentSearchQuery = '';
@@ -5487,7 +5873,7 @@
         function renderTransactions() {
             const list = document.getElementById('txList');
             const recentList = document.getElementById('recentTxList');
-            
+
             // Apply all filters
             const filteredTx = TRANSACTIONS.filter(tx => {
                 // 1. Search
@@ -5496,7 +5882,7 @@
                     const catMatch = (tx.cat || '').toLowerCase().includes(currentSearchQuery);
                     if (!nameMatch && !catMatch) return false;
                 }
-                
+
                 // 2. Type Filter
                 if (currentTypeFilter !== 'All') {
                     if (currentTypeFilter === 'Income' && tx.type !== 'credit') return false;
@@ -5527,7 +5913,7 @@
                 if (aTime !== bTime) return bTime - aTime;
                 return (b.id || 0) - (a.id || 0);
             });
-            
+
             // Render full table if in table view
             if (list) {
                 list.innerHTML = sortedFilteredTx.map((tx) => `
@@ -5624,7 +6010,7 @@
             const data = await SS_API.get('/api/analytics/summary');
             if (!data || data.error) return;
             let monthly = data?.monthly || [];
-            
+
             if (currentBarChartPeriod === '6m' && monthly.length > 6) {
                 monthly = monthly.slice(monthly.length - 6);
             }
@@ -5658,10 +6044,11 @@
         function renderDashboardDoughnut() {
             const dCtx = document.getElementById('doughnutChart')?.getContext('2d');
             if (!dCtx || !TRANSACTIONS.length) return;
-            
+
             const cats = {};
             TRANSACTIONS.forEach(t => {
-                if (t.type === 'debit') {
+                const tType = (t.type || '').toLowerCase();
+                if (tType === 'debit' || tType === 'expense') {
                     cats[t.cat] = (cats[t.cat] || 0) + Math.abs(t.amt);
                 }
             });
@@ -5695,7 +6082,7 @@
                 SS_API.get('/api/analytics/summary').then(data => {
                     if (!data || data.error) return;
                     let monthly = data?.monthly || [];
-                    
+
                     let limit = 3;
                     if (currentAnaPeriod === '6m') limit = 6;
                     if (currentAnaPeriod === '1y') limit = 12;
@@ -5725,12 +6112,13 @@
             if (catCtx && !catCtx.__chartRendered) {
                 const cats = {};
                 TRANSACTIONS.forEach(t => {
-                    if (t.type === 'debit') {
+                    const tType = (t.type || '').toLowerCase();
+                    if (tType === 'debit' || tType === 'expense') {
                         cats[t.cat] = (cats[t.cat] || 0) + Math.abs(t.amt);
                     }
                 });
-                const sortedCats = Object.entries(cats).sort((a,b) => b[1] - a[1]);
-                
+                const sortedCats = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+
                 catCtx.__chartRendered = true;
                 new Chart(catCtx, {
                     type: 'bar',
@@ -5756,7 +6144,7 @@
                 SS_API.get('/api/analytics/summary').then(data => {
                     if (!data || data.error) return;
                     let monthly = data?.monthly || [];
-                    
+
                     let limit = 3;
                     if (currentAnaPeriod === '6m') limit = 6;
                     if (currentAnaPeriod === '1y') limit = 12;
@@ -5781,11 +6169,12 @@
         function renderHeatmap() {
             const c = document.getElementById('heatmapContainer');
             if (!c) return;
-            
+
             const valsByDay = [0, 0, 0, 0, 0, 0, 0];
             if (TRANSACTIONS && TRANSACTIONS.length > 0) {
                 TRANSACTIONS.forEach(t => {
-                    if (t.type === 'debit') {
+                    const tType = (t.type || '').toLowerCase();
+                    if (tType === 'debit' || tType === 'expense') {
                         const parsedDate = new Date((t.rawDate || t.date) + (t.rawDate ? 'T00:00:00' : ''));
                         if (Number.isNaN(parsedDate.getTime())) return;
                         const d = parsedDate.getDay();
@@ -5796,10 +6185,10 @@
                 // Dummy data if no transactions
                 valsByDay.splice(0, 7, 3200, 2400, 1800, 3100, 2200, 4500, 6800);
             }
-            
+
             const dispDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             const dispVals = [valsByDay[1], valsByDay[2], valsByDay[3], valsByDay[4], valsByDay[5], valsByDay[6], valsByDay[0]];
-            
+
             const max = Math.max(...dispVals) || 1; // avoid division by zero
             c.innerHTML = `<div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
     ${dispDays.map((d, i) => {
@@ -5819,7 +6208,7 @@
             document.querySelectorAll('#view-analytics .filter-chip').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentAnaPeriod = p;
-            
+
             // Re-render charts
             const cfCtx = document.getElementById('cashFlowChart')?.getContext('2d');
             const savCtx = document.getElementById('savingsLineChart')?.getContext('2d');
@@ -5833,7 +6222,7 @@
             btn.style.background = 'var(--g)';
             btn.style.color = '#060d12';
             btn.style.borderColor = 'var(--g)';
-            
+
             currentBarChartPeriod = p;
             renderMainBarChart();
         }
@@ -5915,7 +6304,7 @@
                 if (el && firstName) {
                     el.textContent = `Hey ${firstName}! 👋 I'm SmartSpend AI — your personal finance assistant. Ask me anything about your money!`;
                 }
-            } catch(e) {}
+            } catch (e) { }
         })();
 
         // ── Simple markdown renderer for AI replies ───────────────────────
@@ -5998,7 +6387,7 @@
                                 tMsg.innerHTML = renderMarkdown(fullReply);
                                 msgs.scrollTop = msgs.scrollHeight;
                             }
-                        } catch (_) {}
+                        } catch (_) { }
                     }
                 }
                 if (!fullReply) tMsg.textContent = getMockAiResponse(text);
@@ -6013,7 +6402,7 @@
             const q = query.toLowerCase();
             const bal = document.getElementById('statBalance')?.textContent || '₹0';
             const exp = document.getElementById('statExpenses')?.textContent || '₹0';
-            
+
             if (q.includes('balance')) return `Your current total balance is ${bal}. You're doing great with your savings!`;
             if (q.includes('spend') || q.includes('expense')) return `You've spent ${exp} so far this month. Would you like a breakdown of your top categories?`;
             if (q.includes('invest') || q.includes('portfolio')) return "Your investment portfolio is being tracked. Stay tuned for real-time market updates!";
@@ -6031,10 +6420,11 @@
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         }
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="/static/js/custom_features.js"></script>
-    <script src="/static/js/reports_and_settings.js"></script>
+    <script src="/static/js/reports_and_settings.js?v=5"></script>
     <script src="/static/js/customDropdown.js"></script>
     <script src="/static/js/billing.js"></script>
 </body>
+
 </html>
