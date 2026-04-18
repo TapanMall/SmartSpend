@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("Reports & Settings Script Initialized");
     const token = localStorage.getItem('ss_token');
     
     // Auth Headers Helper
@@ -23,11 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Helper to download blob
-    const downloadBlob = async (url, filename) => {
+    const downloadBlob = async (e, url, filename) => {
         try {
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<span class="spin" style="width:14px;height:14px;display:inline-block;border:2px solid;border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite"></span> Downloading...`;
+            let btn = null;
+            let originalText = '';
+            if (e && e.currentTarget) {
+                btn = e.currentTarget;
+                originalText = btn.innerHTML;
+                btn.innerHTML = `<span class="spin" style="width:14px;height:14px;display:inline-block;border:2px solid;border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite"></span> Downloading...`;
+            }
             
             const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error("Failed to download");
@@ -39,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.click();
             document.body.removeChild(a);
             
-            btn.innerHTML = originalText;
+            if (btn) btn.innerHTML = originalText;
         } catch (err) {
             console.error(err);
             alert("Error downloading file: " + err.message);
@@ -85,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DATA & PRIVACY ---
     const exportJsonBtn = document.getElementById('exportJsonBtn');
     if (exportJsonBtn) {
-        exportJsonBtn.addEventListener('click', () => downloadBlob('/api/reports/export_json', 'SmartSpend_Data_Export.json'));
+        exportJsonBtn.addEventListener('click', (e) => downloadBlob(e, '/api/reports/export_json', 'SmartSpend_Data_Export.json'));
     }
 
     // --- DATA & PRIVACY (Custom Modal) ---
@@ -197,191 +202,287 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CSV EXPORTS ---
     const dlCsvBtn = document.getElementById('downloadCsvBtn');
-    if (dlCsvBtn) dlCsvBtn.addEventListener('click', () => downloadBlob('/api/reports/export_raw_csv', 'Transactions.csv'));
+    if (dlCsvBtn) dlCsvBtn.addEventListener('click', (e) => downloadBlob(e, '/api/reports/export_raw_csv', 'Transactions.csv'));
     
     const expBudgetCsvBtn = document.getElementById('exportBudgetCsvBtn');
-    if (expBudgetCsvBtn) expBudgetCsvBtn.addEventListener('click', () => downloadBlob('/api/reports/export_budget_csv', 'Budgets.csv'));
+    if (expBudgetCsvBtn) expBudgetCsvBtn.addEventListener('click', (e) => downloadBlob(e, '/api/reports/export_budget_csv', 'Budgets.csv'));
     
     const expGoalsCsvBtn = document.getElementById('exportGoalsCsvBtn');
-    if (expGoalsCsvBtn) expGoalsCsvBtn.addEventListener('click', () => downloadBlob('/api/reports/export_goals_csv', 'Goals.csv'));
+    if (expGoalsCsvBtn) expGoalsCsvBtn.addEventListener('click', (e) => downloadBlob(e, '/api/reports/export_goals_csv', 'Goals.csv'));
 
-    // --- PDF EXPORTS (THEMED) ---
+    // --- PDF EXPORTS (jsPDF Direct - No html2canvas needed) ---
     const generatePdf = async (type, btnId) => {
         const btn = document.getElementById(btnId);
         const originalText = btn.innerHTML;
         btn.innerHTML = `<span class="spin" style="width:14px;height:14px;display:inline-block;border:2px solid;border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite"></span> Generating...`;
         
         try {
-            // Fetch the user's data to display in the PDF
             const res = await fetch('/api/reports/export_json', { headers: { 'Authorization': `Bearer ${token}` }});
             const data = await res.json();
-            
-            // Create a visually rich HTML template identical to the proper dashboard theme
-            const containerDiv = document.createElement('div');
-            containerDiv.style.position = 'absolute';
-            containerDiv.style.left = '-9999px';
-            containerDiv.style.top = '0';
-            containerDiv.style.width = '800px'; // fixed width for predictable PDF
-            containerDiv.style.background = 'white';
-            document.body.appendChild(containerDiv);
             
             const user = data.user || {};
             const txs = data.transactions || [];
             
-            let totalInc = txs.filter(t=>t.type==='credit').reduce((a,b)=>a+(b.amount||0), 0);
-            let totalExp = txs.filter(t=>t.type==='debit').reduce((a,b)=>a+(b.amount||0), 0);
+            const isIncome = (t) => {
+                const tp = (t.type||'').toLowerCase();
+                return tp === 'credit' || tp === 'income';
+            };
             
-            let contentBody = '';
-            
-            if (type === 'monthly' || type === 'annual') {
-                contentBody = `
-                    <div style="font-family: 'Syne', sans-serif; padding: 40px; color: #060d12; background: linear-gradient(135deg, #e4f9ee 0%, #f4fdf8 100%); min-height: 1122px; width: 800px; box-sizing: border-box;">
-                        
-                        <!-- Header -->
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 40px;">
-                            <div>
-                                <h1 style="margin: 0; font-size: 42px; font-weight: 800; color: #060d12; line-height: 1.1;">
-                                    Your<br>Money.<br>
-                                    <span style="color: #39ff7e; text-shadow: 0 4px 20px rgba(57,255,126,0.4);">Smarter</span><br>
-                                    than<br>Ever<br>Before.
-                                </h1>
-                            </div>
-                            <div style="text-align: right; background: rgba(255,255,255,0.8); padding: 15px 20px; border-radius: 16px; border: 1px solid rgba(57,255,126,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
-                                <h3 style="margin: 0 0 5px 0; font-size: 16px; font-weight: 700; color: #060d12;">${type === 'monthly' ? 'Monthly Report' : 'Annual Summary'}</h3>
-                                <p style="margin: 0; font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif;">Generated: ${new Date().toLocaleDateString()}</p>
-                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05); text-align: left; font-family: 'Inter', sans-serif;">
-                                    <div style="font-size: 11px; color: #64748b; font-weight:600; text-transform:uppercase;">Account</div>
-                                    <div style="font-size: 13px; font-weight: 600; color: #060d12;">${user.full_name || 'User'}</div>
-                                    <div style="font-size: 11px; color: #64748b;">${user.email || ''}</div>
-                                </div>
-                            </div>
-                        </div>
+            let totalInc = txs.filter(isIncome).reduce((a,b) => a + (parseFloat(b.amount)||0), 0);
+            let totalExp = txs.filter(t => !isIncome(t)).reduce((a,b) => a + (parseFloat(b.amount)||0), 0);
+            const balance = totalInc - totalExp;
+            const fmt = (v) => 'Rs. ' + Math.abs(v).toLocaleString('en-IN');
 
-                        <!-- Main Dashboard Card -->
-                        <div style="background: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.5); border-radius: 24px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.04); position: relative;">
-                            
-                            <!-- Overview Tag -->
-                            <div style="position: absolute; top: 30px; right: 30px; background: #e4f9ee; color: #10b981; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px;">
-                                ${new Date().toLocaleString('default', { month: 'short', year: 'numeric' })}
-                            </div>
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            const W = 210, H = 297;
+            let y = 0;
 
-                            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">💼 Overview</div>
-                            <div style="font-size: 48px; font-weight: 800; color: #39ff7e; text-shadow: 0 4px 15px rgba(57,255,126,0.3); line-height: 1;">₹${(totalInc - totalExp).toLocaleString('en-IN', {minimumFractionDigits:0})}</div>
-                            <div style="font-size: 13px; color: #64748b; font-weight: 500; margin-top: 5px;">Total Balance / Net Savings</div>
-
-                            <div style="display: flex; gap: 15px; margin-top: 25px;">
-                                <div style="flex: 1; background: white; border-radius: 16px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;">
-                                    <div style="font-size: 11px; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 5px;">
-                                        <span style="color:#10b981">↑</span> Income
-                                    </div>
-                                    <div style="font-size: 20px; font-weight: 800; color: #10b981; margin-top: 5px;">₹${totalInc.toLocaleString('en-IN', {minimumFractionDigits:0})}</div>
-                                </div>
-                                <div style="flex: 1; background: white; border-radius: 16px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;">
-                                    <div style="font-size: 11px; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 5px;">
-                                        <span style="color:#ef4444">↓</span> Expenses
-                                    </div>
-                                    <div style="font-size: 20px; font-weight: 800; color: #ef4444; margin-top: 5px;">₹${totalExp.toLocaleString('en-IN', {minimumFractionDigits:0})}</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Graph Mockup -->
-                            <div style="margin-top: 30px; height: 80px; position: relative;">
-                                <svg viewBox="0 0 400 80" style="width: 100%; height: 100%; overflow: visible;">
-                                    <path d="M0,50 C50,40 100,70 150,55 C200,40 250,20 300,30 C350,40 400,10 400,10" fill="none" stroke="#39ff7e" stroke-width="3" />
-                                    <path d="M0,70 C50,65 100,75 150,68 C200,60 250,62 300,55 C350,48 400,40 400,40" fill="none" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
-                                </svg>
-                            </div>
-
-                            <!-- Transaction List -->
-                            <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 10px; font-family: 'Inter', sans-serif;">
-                                ${txs.slice(0, 5).map(t => `
-                                    <div style="background: white; border-radius: 16px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;">
-                                        <div style="display: flex; align-items: center; gap: 15px;">
-                                            <div style="width: 36px; height: 36px; background: #e4f9ee; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px;">
-                                                ${t.type==='credit' ? '💰' : '🏷️'}
-                                            </div>
-                                            <div>
-                                                <div style="font-weight: 700; color: #060d12; font-size: 14px;">${t.name}</div>
-                                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${t.category} • ${new Date(t.date).toLocaleDateString()}</div>
-                                            </div>
-                                        </div>
-                                        <div style="font-weight: 800; font-size: 14px; color: ${t.type==='credit'?'#10b981':'#ef4444'}">
-                                            ${t.type==='credit'?'+':'-'}₹${(t.amount||0).toLocaleString('en-IN')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                    </div>
-                `;
-            } else if (type === 'tax') {
-                 contentBody = `
-                    <div style="font-family: 'Syne', sans-serif; padding: 40px; color: #060d12; background: linear-gradient(135deg, #e4f9ee 0%, #f4fdf8 100%); min-height: 1122px; width: 800px; box-sizing: border-box;">
-                        
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 40px; border-bottom: 2px solid rgba(57,255,126,0.3); padding-bottom: 20px;">
-                            <div>
-                                <h1 style="margin: 0; font-size: 36px; font-weight: 800; color: #060d12;"><span style="color: #39ff7e;">Tax</span> Filing<br>Overview</h1>
-                                <p style="margin: 5px 0 0; font-size: 14px; color: #64748b; font-weight: 600;">Financial Year 2025-2026</p>
-                            </div>
-                            <div style="font-size: 42px;">🏛️</div>
-                        </div>
-                        
-                        <div style="background: rgba(255,255,255,0.9); border-radius: 20px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.04); margin-bottom: 30px;">
-                            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Taxpayer Information</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-family: 'Inter', sans-serif;">
-                                <div>
-                                    <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Name</div>
-                                    <div style="font-size: 15px; font-weight: 700; color: #060d12; margin-top: 4px;">${user.full_name || 'User'}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Email</div>
-                                    <div style="font-size: 15px; font-weight: 700; color: #060d12; margin-top: 4px;">${user.email || ''}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Phone</div>
-                                    <div style="font-size: 15px; font-weight: 700; color: #060d12; margin-top: 4px;">${user.phone || 'N/A'}</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Currency Base</div>
-                                    <div style="font-size: 15px; font-weight: 700; color: #060d12; margin-top: 4px;">${user.currency || 'INR'}</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="background: #060d12; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(57,255,126,0.15); text-align: center; margin-bottom: 30px; position:relative; overflow:hidden;">
-                            <div style="position: absolute; top:-50%; left:-20%; width: 200px; height: 200px; background: #39ff7e; filter: blur(100px); opacity:0.1;"></div>
-                            <div style="position: absolute; bottom:-50%; right:-20%; width: 200px; height: 200px; background: #10b981; filter: blur(100px); opacity:0.1;"></div>
-                            
-                            <div style="font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 2px;">Gross Taxable Income</div>
-                            <div style="font-size: 56px; font-weight: 800; color: #39ff7e; margin-top: 10px; line-height: 1;">₹${totalInc.toLocaleString('en-IN', {minimumFractionDigits:0})}</div>
-                            <div style="font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; margin-top: 15px;">Computed from sum of all aggregated credits</div>
-                        </div>
-
-                        <div style="background: #e4f9ee; padding: 25px; border-radius: 16px; border: 1px solid rgba(57,255,126,0.3);">
-                            <div style="display:flex; align-items:center; gap: 10px; margin-bottom: 10px;">
-                                <span style="font-size: 20px;">✓</span>
-                                <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: #060d12;">Verified Data Declaration</h4>
-                            </div>
-                            <p style="margin: 0; font-size: 13px; color: #475569; line-height: 1.6; font-family: 'Inter', sans-serif;">This report is automatically synthesized strictly from your input tracking and ledger logic verified under SmartSpend protocols. Please consult your localized chartered accountant prior to filing actual IT returns utilizing this output proxy.</p>
-                        </div>
-                    </div>
-                `;
-            }
-
-            containerDiv.innerHTML = contentBody;
-            
-            // html2pdf options
-            const opt = {
-                margin:       [0, 0, 0, 0],
-                filename:     `SmartSpend_${type}_Report.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            // Helper functions
+            const setColor = (hex) => {
+                const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+                doc.setTextColor(r, g, b);
+            };
+            const setFill = (hex) => {
+                const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+                doc.setFillColor(r, g, b);
+            };
+            const setDraw = (hex) => {
+                const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+                doc.setDrawColor(r, g, b);
             };
 
-            await html2pdf().set(opt).from(containerDiv).save();
-            document.body.removeChild(containerDiv);
+            // -- Background --
+            setFill('#e4f9ee');
+            doc.rect(0, 0, W, H, 'F');
+            setFill('#f4fdf8');
+            doc.rect(0, H/2, W, H/2, 'F');
+
+            if (type === 'monthly' || type === 'annual') {
+                // -- Title --
+                y = 25;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(28);
+                setColor('#060d12');
+                doc.text('Your Money.', 20, y);
+                y += 10;
+                setColor('#10b981');
+                doc.text('Smarter', 20, y);
+                y += 10;
+                setColor('#060d12');
+                doc.text('than Ever Before.', 20, y);
+
+                // -- Report Info Box --
+                setFill('#ffffff');
+                doc.roundedRect(120, 15, 75, 40, 3, 3, 'F');
+                setDraw('#d1fae5');
+                doc.roundedRect(120, 15, 75, 40, 3, 3, 'S');
+                
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                setColor('#060d12');
+                doc.text(type === 'monthly' ? 'Monthly Report' : 'Annual Summary', 125, 25);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                setColor('#64748b');
+                doc.text('Generated: ' + new Date().toLocaleDateString(), 125, 30);
+                doc.setFontSize(7);
+                setColor('#64748b');
+                doc.text('ACCOUNT', 125, 38);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                setColor('#060d12');
+                doc.text(user.full_name || 'User', 125, 43);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7);
+                setColor('#64748b');
+                doc.text(user.email || '', 125, 48);
+
+                // -- Main Card --
+                y = 70;
+                setFill('#ffffff');
+                doc.roundedRect(15, y, W - 30, 65, 4, 4, 'F');
+                setDraw('#e2e8f0');
+                doc.roundedRect(15, y, W - 30, 65, 4, 4, 'S');
+
+                // Date tag
+                setFill('#e4f9ee');
+                doc.roundedRect(155, y + 5, 30, 8, 2, 2, 'F');
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'bold');
+                setColor('#10b981');
+                doc.text(new Date().toLocaleString('default', { month: 'short', year: 'numeric' }), 158, y + 10);
+
+                // Overview
+                doc.setFontSize(7);
+                setColor('#64748b');
+                doc.text('OVERVIEW', 22, y + 12);
+                doc.setFontSize(26);
+                doc.setFont('helvetica', 'bold');
+                setColor('#10b981');
+                doc.text(fmt(balance), 22, y + 25);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                setColor('#64748b');
+                doc.text('Total Balance / Net Savings', 22, y + 32);
+
+                // Income Box
+                setFill('#ffffff');
+                doc.roundedRect(22, y + 38, 75, 20, 3, 3, 'F');
+                setDraw('#f1f5f9');
+                doc.roundedRect(22, y + 38, 75, 20, 3, 3, 'S');
+                doc.setFontSize(7);
+                setColor('#64748b');
+                doc.text('Income', 27, y + 46);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                setColor('#10b981');
+                doc.text(fmt(totalInc), 27, y + 54);
+
+                // Expense Box
+                setFill('#ffffff');
+                doc.roundedRect(105, y + 38, 75, 20, 3, 3, 'F');
+                setDraw('#f1f5f9');
+                doc.roundedRect(105, y + 38, 75, 20, 3, 3, 'S');
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'normal');
+                setColor('#64748b');
+                doc.text('Expenses', 110, y + 46);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                setColor('#ef4444');
+                doc.text(fmt(totalExp), 110, y + 54);
+
+                // -- Transaction Table --
+                y = 145;
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                setColor('#060d12');
+                doc.text('Recent Transactions', 20, y);
+                y += 6;
+
+                // Table Header
+                setFill('#f8fafc');
+                doc.rect(15, y, W - 30, 8, 'F');
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'bold');
+                setColor('#64748b');
+                doc.text('Transaction', 20, y + 5);
+                doc.text('Category', 75, y + 5);
+                doc.text('Date', 120, y + 5);
+                doc.text('Amount', 185, y + 5, { align: 'right' });
+                y += 10;
+
+                // Rows
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                const showTxs = txs.slice(0, 20);
+                showTxs.forEach((t, i) => {
+                    if (y > 270) return;
+                    
+                    if (i % 2 === 0) {
+                        setFill('#f8fafc');
+                        doc.rect(15, y - 3, W - 30, 8, 'F');
+                    }
+                    
+                    setColor('#060d12');
+                    doc.setFont('helvetica', 'bold');
+                    doc.text((t.name || 'N/A').substring(0, 25), 20, y + 2);
+                    doc.setFont('helvetica', 'normal');
+                    setColor('#64748b');
+                    doc.text((t.category || 'N/A').substring(0, 18), 75, y + 2);
+                    doc.text(t.date ? new Date(t.date).toLocaleDateString('en-IN') : 'N/A', 120, y + 2);
+                    
+                    const inc = isIncome(t);
+                    setColor(inc ? '#10b981' : '#ef4444');
+                    doc.setFont('helvetica', 'bold');
+                    doc.text((inc ? '+' : '-') + fmt(parseFloat(t.amount)||0), 185, y + 2, { align: 'right' });
+                    
+                    y += 8;
+                });
+
+            } else if (type === 'tax') {
+                // -- Tax Report --
+                y = 25;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(24);
+                setColor('#10b981');
+                doc.text('Tax', 20, y);
+                setColor('#060d12');
+                doc.text('Filing Overview', 42, y);
+                y += 8;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                setColor('#64748b');
+                doc.text('Financial Year 2025-2026', 20, y);
+                y += 4;
+                setDraw('#d1fae5');
+                doc.line(15, y, W - 15, y);
+
+                // Taxpayer Info
+                y += 10;
+                setFill('#ffffff');
+                doc.roundedRect(15, y, W - 30, 35, 3, 3, 'F');
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'bold');
+                setColor('#64748b');
+                doc.text('TAXPAYER INFORMATION', 22, y + 8);
+                
+                doc.setFontSize(8);
+                setColor('#94a3b8');
+                doc.text('Name', 22, y + 16);
+                doc.text('Email', 110, y + 16);
+                doc.text('Phone', 22, y + 26);
+                doc.text('Currency', 110, y + 26);
+                
+                doc.setFont('helvetica', 'bold');
+                setColor('#060d12');
+                doc.text(user.full_name || 'User', 22, y + 21);
+                doc.text(user.email || '', 110, y + 21);
+                doc.text(user.phone || 'N/A', 22, y + 31);
+                doc.text(user.currency || 'INR', 110, y + 31);
+
+                // Gross Income (dark card)
+                y += 45;
+                setFill('#060d12');
+                doc.roundedRect(15, y, W - 30, 45, 4, 4, 'F');
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                setColor('#94a3b8');
+                doc.text('GROSS TAXABLE INCOME', W/2, y + 12, { align: 'center' });
+                doc.setFontSize(28);
+                setColor('#10b981');
+                doc.text(fmt(totalInc), W/2, y + 28, { align: 'center' });
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                setColor('#64748b');
+                doc.text('Computed from sum of all aggregated credits', W/2, y + 36, { align: 'center' });
+
+                // Disclaimer
+                y += 55;
+                setFill('#e4f9ee');
+                doc.roundedRect(15, y, W - 30, 30, 3, 3, 'F');
+                setDraw('#d1fae5');
+                doc.roundedRect(15, y, W - 30, 30, 3, 3, 'S');
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                setColor('#060d12');
+                doc.text('Verified Data Declaration', 22, y + 10);
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'normal');
+                setColor('#475569');
+                const disclaimer = 'This report is automatically synthesized from your input tracking and ledger logic verified under SmartSpend protocols. Please consult your chartered accountant prior to filing actual IT returns.';
+                const lines = doc.splitTextToSize(disclaimer, W - 40);
+                doc.text(lines, 22, y + 16);
+            }
+
+            // -- Footer --
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            setColor('#94a3b8');
+            doc.text('SmartSpend  |  Generated on ' + new Date().toLocaleDateString() + '  |  Page 1', W/2, H - 10, { align: 'center' });
+
+            doc.save(`SmartSpend_${type}_Report.pdf`);
             
             btn.innerHTML = originalText;
         } catch (err) {

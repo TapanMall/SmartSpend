@@ -46,3 +46,29 @@ def goals():
     except Exception as e:
         current_app.logger.error(str(e))
         return jsonify({'error': 'An internal server error occurred'}), 500
+
+
+@goals_bp.route('/<int:goal_id>/add', methods=['POST'])
+@token_required
+def add_goal_funds(goal_id):
+    try:
+        db = get_db()
+        user_id = request.current_user['user_id']
+        data = request.get_json()
+        amount_to_add = float(data.get('amount', 0))
+
+        if amount_to_add <= 0:
+            return jsonify({'error': 'Amount must be greater than zero'}), 400
+
+        # Verify goal belongs to user
+        goal = db.fetch_one("SELECT * FROM goals WHERE id = %s AND user_id = %s", (goal_id, user_id))
+        if not goal:
+            return jsonify({'error': 'Goal not found'}), 404
+
+        new_total = float(goal.get('current_amount') or 0) + amount_to_add
+        db.execute("UPDATE goals SET current_amount = %s WHERE id = %s", (new_total, goal_id))
+        
+        return jsonify({'message': 'Goal progress updated successfully', 'new_total': new_total}), 200
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return jsonify({'error': 'An internal server error occurred'}), 500
