@@ -13,15 +13,19 @@ def app():
         # Setup testing database
         db = Database(db_name="smartspend_test")
         db.init_pool()
-        db.execute("DROP TABLE IF EXISTS transactions, categories, budgets, goals, user_billing, user_payment_methods, user_invoices, chat_history, users;")
+        db.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        db.execute("DROP TABLE IF EXISTS transactions, categories, budgets, goals, user_billing, user_payment_methods, user_invoices, chat_history, loans, users;")
+        db.execute("SET FOREIGN_KEY_CHECKS = 1;")
         db.initialize_db()
         flask_app.config['DB'] = db
         
     yield flask_app
     
     with flask_app.app_context():
-        db = flask_app.config['DB']
-        db.execute("DROP TABLE IF EXISTS transactions, categories, budgets, goals, user_billing, user_payment_methods, user_invoices, chat_history, users;")
+            db = flask_app.config['DB']
+            db.execute("SET FOREIGN_KEY_CHECKS = 0;")
+            db.execute("DROP TABLE IF EXISTS transactions, categories, budgets, goals, user_billing, user_payment_methods, user_invoices, chat_history, loans, users;")
+            db.execute("SET FOREIGN_KEY_CHECKS = 1;")
 
 @pytest.fixture
 def client(app):
