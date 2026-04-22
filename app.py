@@ -31,7 +31,7 @@ app.config['SWAGGER'] = {'title': 'SmartSpend API', 'uiversion': 3}
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=["2000 per day", "500 per hour"],
     storage_uri=os.getenv("RATELIMIT_STORAGE_URI", "memory://"),
 )
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
@@ -51,7 +51,9 @@ from routes.budgets import budgets_bp
 from routes.goals import goals_bp
 from routes.billing import billing_bp
 from routes.reports import reports_bp
+from routes.loans import loans_bp
 
+# Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(transactions_bp, url_prefix='/api/transactions')
 app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
@@ -59,6 +61,18 @@ app.register_blueprint(budgets_bp, url_prefix='/api/budgets')
 app.register_blueprint(goals_bp, url_prefix='/api/goals')
 app.register_blueprint(billing_bp, url_prefix='/api/billing')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
+app.register_blueprint(loans_bp, url_prefix='/api/loans')
+
+from werkzeug.exceptions import HTTPException
+
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    """Return JSON instead of HTML for HTTP errors."""
+    return jsonify({
+        "code": e.code,
+        "name": e.name,
+        "description": e.description,
+    }), e.code
 
 # Serve static files (handled by whitenoise in production, but keeping this for development if needed)
 @app.route('/static/<path:filename>')
@@ -74,6 +88,10 @@ def index():
 @app.route('/dashboard')
 def dashboard():
     return render_template('Dashboard.html')
+
+@app.route('/onboarding')
+def onboarding():
+    return render_template('onboarding.html')
 
 nvidia_client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to SmartSpend</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --base-bg: #060d12;
+            --base-surface: #0e161c;
+            /* Container bg */
+            --base-card: #151e26;
+            /* Inner inputs/cards bg */
+            --base-border: rgba(255, 255, 255, 0.06);
+            --base-border-hover: rgba(255, 255, 255, 0.15);
+            --base-text: #ffffff;
+            --base-muted: #7ca58d;
+            --green-500: #2bc866;
+            --accent: #39ff7e;
+            --accent-glow: rgba(57, 255, 126, 0.2);
+            --container-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03);
+            --clay-radius: 20px;
+            --clay-radius-sm: 14px;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        [data-theme="light"] {
+            --base-bg: #eaf3ed;
+            --base-surface: #ffffff;
+            --base-card: #f4f9f6;
+            --base-border: rgba(0, 0, 0, 0.05);
+            --base-border-hover: rgba(0, 0, 0, 0.15);
+            --base-text: #0e161c;
+            --base-muted: #5b7f6a;
+            --accent-glow: rgba(57, 255, 126, 0.4);
+            --container-shadow: 0 30px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--base-bg);
+            color: var(--base-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: background 0.4s var(--ease), color 0.4s var(--ease);
+            position: relative;
+        }
+
+        /* Ambient Glow behind container */
+        .ambient-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            filter: blur(60px);
+            opacity: 0.6;
+            transition: all 0.4s var(--ease);
+            animation: pulse-glow 6s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        /* --- Theme Toggle --- */
+        .theme-toggle-wrapper {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        .btn-theme-toggle {
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--base-text);
+            font-size: 1.1rem;
+            transition: all 0.2s var(--ease);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* --- Main Container --- */
+        .onboarding-container {
+            width: 100%;
+            max-width: 460px;
+            /* Slimmer to match Reset modal */
+            background: var(--base-surface);
+            border-radius: var(--clay-radius);
+            box-shadow: var(--container-shadow);
+            padding: 3rem 2.5rem;
+            position: relative;
+            z-index: 10;
+            transition: all 0.4s var(--ease);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .onboarding-container::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* Top Key/Icon Styling matches Image 1 */
+        .top-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            background: var(--base-card);
+            border: 1px solid rgba(57, 255, 126, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.6rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s var(--ease);
+        }
+
+        [data-theme="light"] .top-icon-wrapper {
+            background: rgba(57, 255, 126, 0.1);
+            border-color: rgba(57, 255, 126, 0.3);
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.65rem;
+            /* Exactly like image 1 */
+            font-weight: 900;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+            color: var(--base-text);
+            /* Stretch effect */
+            transform: scaleX(1.15);
+            transform-origin: center;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        p.subtitle {
+            color: var(--base-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        /* Step containers */
+        .step-content {
+            display: none;
+            animation: fadeIn 0.4s var(--ease) forwards;
+            width: 100%;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Input / Group Wrap mimicking Img 1 */
+        .field-group {
+            background: var(--base-surface);
+            /* Similar to outer */
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="light"] .field-group {
+            background: #ffffff;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--base-muted);
+            line-height: 1.4;
+        }
+
+        .form-sub-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--base-muted);
+            opacity: 0.7;
+            margin-top: -0.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: var(--base-muted);
+            font-size: 1.1rem;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 12px;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            color: var(--base-text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s var(--ease);
+            appearance: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--base-surface);
+        }
+
+        .form-input:focus+.input-icon,
+        .form-select:focus+.input-icon {
+            color: var(--accent);
+        }
+
+        /* Select arrow */
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 0.7rem;
+            color: var(--base-muted);
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        /* Choice Cards Full-width Stacked (Img 1 style) */
+        .choices-card-wrap {
+            background: var(--base-surface);
+            border: 1px solid var(--base-border);
+            border-radius: var(--clay-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .choices-card-wrap-title {
+            font-size: 0.95rem;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: var(--base-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .choices-card-wrap-sub {
+            font-size: 0.8rem;
+            color: var(--base-muted);
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            margin-top: -0.2rem;
+        }
+
+        .choice-row {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.2rem;
+            background: var(--base-card);
+            border: 1px solid var(--base-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+            gap: 1rem;
+        }
+
+        .choice-row:hover {
+            border-color: var(--base-border-hover);
+        }
+
+        .choice-row.selected {
+            border-color: var(--accent);
+            background: rgba(57, 255, 126, 0.04);
+        }
+
+        [data-theme="light"] .choice-row.selected {
+            background: rgba(57, 255, 126, 0.1);
+        }
+
+        .choice-row.selected .choice-text {
+            color: var(--accent);
+        }
+
+        .choice-icon-left {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-text-wrap {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .choice-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--base-text);
+            transition: color 0.2s;
+        }
+
+        .choice-text-sub {
+            font-size: 0.75rem;
+            color: var(--base-muted);
+            margin-top: 0.1rem;
+        }
+
+        /* Primary Button */
+        .btn-primary {
+            width: 100%;
+            background: var(--accent);
+            color: #000000;
+            border: none;
+            padding: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: #4efc8d;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--base-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--base-text);
+        }
+
+        /* Progress Bar (Hidden or subtle since Img1 has none, but useful for UX) */
+        .top-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: transparent;
+        }
+
+        .top-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 20%;
+            transition: width 0.4s var(--ease);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        @media (max-width: 600px) {
+            .onboarding-container {
+                min-height: 100vh;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 2rem 1.5rem;
+            }
+
+            .theme-toggle-wrapper {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle-wrapper">
+        <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle Theme">🌓</button>
+    </div>
+
+    <!-- Ambient Background -->
+    <div class="ambient-glow"></div>
+
+    <div class="onboarding-container">
+        <!-- Subtle Progress -->
+        <div class="top-progress">
+            <div class="top-progress-fill" id="progress"></div>
+        </div>
+
+        <!-- =========== STEP 1 =========== -->
+        <div class="step-content active" id="step1">
+            <div class="top-icon-wrapper">👋</div>
+            <h1>Welcome To SmartSpend</h1>
+            <p class="subtitle">Tell us about your income so we can personalize your dashboard.</p>
+
+            <div class="field-group">
+                <label class="form-label">Primary Income Source</label>
+                <div class="form-sub-label">Aapki aamdani ka mukhya srot kya hai?</div>
+                <div class="input-wrapper select-wrapper">
+                    <select class="form-select" id="incomeSource">
+                        <option value="salary">💎 Salary</option>
+                        <option value="business">🏢 Business</option>
+                        <option value="freelance">💻 Freelance</option>
+                        <option value="student">🎓 Student (Pocket Money)</option>
+                        <option value="other">📦 Other</option>
+                    </select>
+                    <div class="input-icon" style="left:1.1rem; color:transparent;"></div> <!-- Placeholder -->
+                </div>
+
+                <div style="margin-top: 1.5rem;"></div>
+
+                <label class="form-label">Average Monthly Income</label>
+                <div class="form-sub-label">Aapki masik aamdani lagbhag kitni hai?</div>
+                <div class="input-wrapper">
+                    <input type="number" id="monthlyIncome" class="form-input" placeholder="e.g., 50000" />
+                    <span class="input-icon">₹</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="nextStep(2)">
+                <svg viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+                Continue Setting Up
+            </button>
+        </div>
+
+
+        <!-- =========== STEP 2 =========== -->
+        <div class="step-content" id="step2">
+            <div class="top-icon-wrapper">🎯</div>
+            <h1>Your Goal</h1>
+            <p class="subtitle">What is your main goal with SmartSpend?</p>
+
+            <div class="choices-card-wrap">
+                <div class="choices-card-wrap-title">Select Primary Goal</div>
+                <div class="choices-card-wrap-sub">Aap SmartSpend ka use sabse zyada kis cheez ke liye karenge?</div>
+
+                <div class="choice-row selected" onclick="selectChoice(this, 'goal')">
+                    <div class="choice-icon-left">📊</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Track daily expenses</div>
+                        <div class="choice-text-sub">Roz ke kharche record karna</div>
+                    </div>
+                </div>
+
+                <div class="choice-row" onclick="selectChoice(this, 'goal')">
+                    <div class="choice-icon-left">💰</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Save money for a goal</div>
+                        <div class="choice-text-sub">Pese save karna</div>
+                    </div>
+                </div>
+
+                <div class="choice-row" onclick="selectChoice(this, 'goal')">
+                    <div class="choice-icon-left">🛡️</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Stick to a monthly budget</div>
+                        <div class="choice-text-sub">Budget maintain karna</div>
+                    </div>
+                </div>
+
+                <div class="choice-row" onclick="selectChoice(this, 'goal')">
+                    <div class="choice-icon-left">📉</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Pay off debt/loans</div>
+                        <div class="choice-text-sub">Loans ya udhaar chukana</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="nextStep(3)">
+                <svg viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+                Continue
+            </button>
+            <div class="back-link" onclick="prevStep(1)">← Back to Income</div>
+        </div>
+
+
+        <!-- =========== STEP 3 =========== -->
+        <div class="step-content" id="step3">
+            <div class="top-icon-wrapper">🧾</div>
+            <h1>Expenses & Bills</h1>
+            <p class="subtitle">Let's set up your monthly recurring tracking.</p>
+
+            <div class="field-group">
+                <label class="form-label">Necessary Monthly Bills</label>
+                <div class="form-sub-label">EMI, Rent, Bills me har mahine kitna kharch hota hai?</div>
+                <div class="input-wrapper">
+                    <input type="number" id="necessaryBills" class="form-input" placeholder="e.g., 20000" />
+                    <span class="input-icon">₹</span>
+                </div>
+            </div>
+
+            <div class="choices-card-wrap">
+                <div class="choices-card-wrap-title">Enable Auto-Budget?</div>
+                <div class="choices-card-wrap-sub">Start with the 50/30/20 rule (Needs, Wants, Savings).</div>
+
+                <div class="choice-row selected" onclick="selectChoice(this, 'autoBudget')">
+                    <div class="choice-icon-left">⚡</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Yes (Automate it!)</div>
+                        <div class="choice-text-sub">Recommended for easiest setup</div>
+                    </div>
+                </div>
+
+                <div class="choice-row" onclick="selectChoice(this, 'autoBudget')">
+                    <div class="choice-icon-left">⚙️</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">No (I'll set it up myself)</div>
+                        <div class="choice-text-sub">Manual budget allocation</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="nextStep(4)">
+                <svg viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+                Continue
+            </button>
+            <div class="back-link" onclick="prevStep(2)">← Back to Goal</div>
+        </div>
+
+
+        <!-- =========== STEP 4 =========== -->
+        <div class="step-content" id="step4">
+            <div class="top-icon-wrapper">🤖</div>
+            <h1>Meet Your AI Advisor</h1>
+            <p class="subtitle">How would you like your AI Financial Assistant to talk to you?</p>
+
+            <div class="choices-card-wrap">
+                <div class="choice-row" onclick="selectChoice(this, 'ai')">
+                    <div class="choice-icon-left">👔</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Strict & Professional</div>
+                        <div class="choice-text-sub">"You are 20% over budget. Cut expenses immediately."</div>
+                    </div>
+                </div>
+
+                <div class="choice-row selected" onclick="selectChoice(this, 'ai')">
+                    <div class="choice-icon-left">😊</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Friendly & Encouraging</div>
+                        <div class="choice-text-sub">"You got this! Try skipping eating out today."</div>
+                    </div>
+                </div>
+
+                <div class="choice-row" onclick="selectChoice(this, 'ai')">
+                    <div class="choice-icon-left">⚡</div>
+                    <div class="choice-text-wrap">
+                        <div class="choice-text">Direct & Minimalist</div>
+                        <div class="choice-text-sub">"₹1500 spent on Coffee. Goal at risk."</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="nextStep(5)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                Complete Setup
+            </button>
+            <div class="back-link" onclick="prevStep(3)">← Back to Bills</div>
+        </div>
+
+
+        <!-- =========== STEP 5 =========== -->
+        <div class="step-content" id="step5" style="text-align:center; padding-top:2rem;">
+            <div class="top-icon-wrapper"
+                style="border-color:var(--accent); background:rgba(57,255,126,0.1); color:var(--accent); margin-bottom: 2rem; width: 80px; height: 80px; font-size:2.5rem; animation: fp-pop 0.5s var(--ease);">
+                ✅</div>
+            <h1 style="transform:none; font-size: 2rem;">You're All Set!</h1>
+            <p class="subtitle" style="margin-bottom: 3rem; margin-top: 1rem;">Your AI assistant is ready and your
+                dashboard has been personalized.</p>
+
+            <button class="btn-primary" onclick="goToDashboard()" style="font-size:1.1rem; padding:1.1rem;">
+                Finish & Go to Dashboard 🚀
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Theme Toggle Logic ---
+        const html = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+
+        let isDark = localStorage.getItem('ss_theme') !== 'light';
+        if (localStorage.getItem('ss_theme') === null) isDark = true;
+
+        function applyTheme() {
+            html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            themeToggle.innerHTML = isDark ? '🌞' : '🌙';
+        }
+        applyTheme();
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            localStorage.setItem('ss_theme', isDark ? 'dark' : 'light');
+            applyTheme();
+        });
+
+        // --- Onboarding Logic ---
+        const userPrefs = {
+            incomeSource: 'salary',
+            income: 0,
+            goal: 'Track daily expenses',
+            necessaryBills: 0,
+            autoBudget: 'Yes (Automate it!)',
+            aiTone: 'Friendly & Encouraging'
+        };
+
+        const TOTAL_STEPS = 5;
+
+        function updateProgress(step) {
+            const progressPct = ((step) / TOTAL_STEPS) * 100;
+            document.getElementById('progress').style.width = progressPct + '%';
+        }
+
+        updateProgress(1); // init
+
+        function nextStep(step) {
+            if (step === 2) {
+                const inc = document.getElementById('monthlyIncome').value;
+                if (!inc || inc <= 0) {
+                    document.getElementById('monthlyIncome').style.borderColor = '#ff5f5f';
+                    document.getElementById('monthlyIncome').focus();
+                    return;
+                }
+                userPrefs.income = inc;
+                userPrefs.incomeSource = document.getElementById('incomeSource').value;
+                document.getElementById('monthlyIncome').style.borderColor = 'var(--base-border)';
+            }
+
+            if (step === 4) {
+                const bills = document.getElementById('necessaryBills').value;
+                if (!bills || bills < 0) {
+                    document.getElementById('necessaryBills').style.borderColor = '#ff5f5f';
+                    document.getElementById('necessaryBills').focus();
+                    return;
+                }
+                userPrefs.necessaryBills = bills;
+                document.getElementById('necessaryBills').style.borderColor = 'var(--base-border)';
+            }
+
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+
+            updateProgress(step);
+        }
+
+        function prevStep(step) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            updateProgress(step);
+        }
+
+        function selectChoice(element, type) {
+            element.parentElement.querySelectorAll('.choice-row').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            if (type === 'goal') {
+                userPrefs.goal = element.querySelector('.choice-text').innerText;
+            } else if (type === 'autoBudget') {
+                userPrefs.autoBudget = element.querySelector('.choice-text').innerText;
+            } else if (type === 'ai') {
+                userPrefs.aiTone = element.querySelector('.choice-text').innerText;
+            }
+        }
+
+        function goToDashboard() {
+            localStorage.setItem('ss_onboarded', 'true');
+            localStorage.setItem('ss_prefs', JSON.stringify(userPrefs));
+
+            const btn = document.querySelector('#step5 .btn-primary');
+            btn.innerHTML = '<span style="opacity:0.7">Taking you there...</span>';
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 600);
+        }
+    </script>
+</body>
+
+</html>

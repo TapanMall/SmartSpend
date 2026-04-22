@@ -87,10 +87,11 @@
 
 // ─── HELPER: AUTH HEADERS ────────────────────────────────────────────────────
 function cfGetToken() {
-    return localStorage.getItem('ss_token') || '';
+    return localStorage.getItem('ss_token') || localStorage.getItem('access_token') || localStorage.getItem('token') || '';
 }
 function cfHeaders() {
-    return { 'Authorization': `Bearer ${cfGetToken()}`, 'Content-Type': 'application/json' };
+    const token = cfGetToken();
+    return { 'Authorization': `Bearer ${token}`, 'X-Access-Token': token, 'Content-Type': 'application/json' };
 }
 
 // ─── CSV EXPORT ──────────────────────────────────────────────────────────────
@@ -100,8 +101,8 @@ async function exportCSV() {
     if (btn) btn.innerHTML = '⏳ Exporting...';
     
     try {
-        const res = await fetch('/api/transactions/?limit=5000', { headers: cfHeaders() });
-        const data = await res.json();
+        const res = await SS_API.get('/api/transactions/?limit=5000');
+        const data = res || {};
         const transactions = data.transactions || [];
         
         if (!transactions.length) {
@@ -146,15 +147,32 @@ async function exportCSV() {
 }
 
 // ─── BUDGET MODAL ────────────────────────────────────────────────────────────
-function openBudgetModal() {
+let currentEditBudgetId = null;
+
+function openBudgetModal(id, category, amount) {
     const modal = document.getElementById('budgetModal');
     if (modal) modal.classList.add('open');
+    
+    if (id) {
+        currentEditBudgetId = id;
+        const catInput = document.getElementById('budgetCategoryInput');
+        const amtInput = document.getElementById('budgetAmountInput');
+        if (catInput) catInput.value = category || '';
+        if (amtInput) amtInput.value = amount || '';
+    } else {
+        currentEditBudgetId = null;
+        const catInput = document.getElementById('budgetCategoryInput');
+        const amtInput = document.getElementById('budgetAmountInput');
+        if (catInput) catInput.value = 'Food & Dining';
+        if (amtInput) amtInput.value = '';
+    }
     document.getElementById('budgetAmountInput')?.focus();
 }
 function closeBudgetModal() {
     const modal = document.getElementById('budgetModal');
     if (modal) modal.classList.remove('open');
     if (document.getElementById('budgetAmountInput')) document.getElementById('budgetAmountInput').value = '';
+    currentEditBudgetId = null;
 }
 
 async function saveBudget() {
@@ -168,46 +186,49 @@ async function saveBudget() {
     }
     
     const originalText = btn.innerHTML;
-    btn.innerHTML = '⏳ Creating...';
+    btn.innerHTML = '⏳ Saving...';
     btn.disabled = true;
     
     try {
-        const res = await fetch('/api/budgets/', {
-            method: 'POST',
-            headers: cfHeaders(),
-            body: JSON.stringify({ category, amount })
-        });
-        const data = await res.json();
+        let res;
+        if (currentEditBudgetId) {
+            res = await SS_API.post('/api/budgets/' + currentEditBudgetId, { category, amount }, 'PUT');
+        } else {
+            res = await SS_API.post('/api/budgets/', { category, amount });
+        }
         
-        if (res.ok && data.budget) {
-            showToast(`✓ Budget for ${category} created!`, 'success');
+        if (!res) return;
+        
+        if (res.budget) {
+            showToast(`✓ Budget for ${category} saved!`, 'success');
             closeBudgetModal();
             await loadBudgets();
-        } else if (res.status === 409) {
-            showToast(`A budget for "${category}" already exists.`, 'error');
+        } else if (res.error) {
+            showToast(res.error || 'Failed to save budget', 'error');
         } else {
-            showToast(data.error || 'Failed to create budget', 'error');
+            showToast('Failed to save budget', 'error');
         }
     } catch (err) {
-        console.error('Budget create error:', err);
-        showToast('Network error. Please try again.', 'error');
+        console.error('Budget save error:', err);
+    } finally {
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     }
-    
-    btn.innerHTML = originalText;
-    btn.disabled = false;
 }
 
 // ─── LOAD & RENDER BUDGETS ───────────────────────────────────────────────────
 async function loadBudgets() {
     if (window.isRedirecting) return;
     try {
-        const res = await fetch('/api/budgets/', { headers: cfHeaders() });
-        if (!res.ok) {
-            if (res.status === 401) { window.isRedirecting = true; window.location.replace('/?auth=login'); return; }
+        const res = await SS_API.get('/api/budgets/');
+        if (!res) return;
+        if (res.error) {
+            console.error(res.error);
+            return;
         }
-        if (window.isRedirecting) return;
-        const data = await res.json();
-        const budgets = data.budgets || [];
+        const budgets = res.budgets || [];
         
         const countEl = document.getElementById('budCountTotal');
         if (countEl) countEl.textContent = budgets.length;
@@ -306,19 +327,20 @@ async function saveGoal() {
     btn.disabled = true;
     
     try {
-        const res = await fetch('/api/goals/', {
-            method: 'POST',
-            headers: cfHeaders(),
-            body: JSON.stringify({ name, target_amount, current_amount })
+        const res = await SS_API.post('/api/goals/', {
+            name, target_amount, current_amount
         });
-        const data = await res.json();
         
-        if (res.ok && data.goal) {
+        if (!res) return;
+        
+        if (res.goal) {
             showToast(`✓ Goal "${name}" created!`, 'success');
             closeGoalModal();
             await loadGoals();
+        } else if (res.error) {
+            showToast(res.error || 'Failed to create goal', 'error');
         } else {
-            showToast(data.error || 'Failed to create goal', 'error');
+            showToast('Failed to create goal', 'error');
         }
     } catch (err) {
         console.error('Goal create error:', err);
@@ -333,13 +355,13 @@ async function saveGoal() {
 async function loadGoals() {
     if (window.isRedirecting) return;
     try {
-        const res = await fetch('/api/goals/', { headers: cfHeaders() });
-        if (!res.ok) {
-            if (res.status === 401) { window.isRedirecting = true; window.location.replace('/?auth=login'); return; }
+        const res = await SS_API.get('/api/goals/');
+        if (!res) return;
+        if (res.error) {
+            console.error(res.error);
+            return;
         }
-        if (window.isRedirecting) return;
-        const data = await res.json();
-        const goals = data.goals || [];
+        const goals = res.goals || [];
         
         const countEl = document.getElementById('goalCountTotal');
         if (countEl) countEl.textContent = goals.length;
@@ -436,7 +458,7 @@ async function saveProfile() {
             headers: cfHeaders(),
             body: JSON.stringify({ full_name, email, phone, currency })
         });
-        const data = await res.json();
+        const data = await res.text().then(t => t ? JSON.parse(t) : {});
         
         if (res.ok) {
             // Update localStorage
@@ -529,5 +551,155 @@ document.addEventListener('DOMContentLoaded', function () {
     if (localStorage.getItem('ss_token')) {
         loadBudgets();
         loadGoals();
+        if (typeof loadLoans === 'function') loadLoans();
     }
 });
+
+// Load Loans dynamically
+async function loadLoans() {
+    const loanPanel = document.getElementById('lp-cards');
+    if (!loanPanel) return;
+    
+    try {
+        const res = await SS_API.get('/api/loans/');
+        if (!res || !res.loans) return;
+        
+        let gridHtml = '';
+        if (res.loans.length === 0) {
+            gridHtml = '<div style="padding:2rem;text-align:center;color:var(--muted)">No loans found. Click "Add Loan" to create one.</div>';
+        } else {
+            res.loans.forEach((loan, index) => {
+                const icon = loan.type.toLowerCase() === 'home' ? '🏠' : (loan.type.toLowerCase() === 'car' ? '🚗' : '💸');
+                const badgeClass = loan.type.toLowerCase() === 'home' ? 'HOME LOAN' : (loan.type.toLowerCase() === 'car' ? 'CAR LOAN' : 'LOAN');
+                const badgeStyle = loan.type.toLowerCase() === 'home' ? '' : (loan.type.toLowerCase() === 'car' ? 'background:rgba(96,165,250,.1);color:var(--blue);border-color:rgba(96,165,250,.2)' : 'background:rgba(251,191,36,.1);color:var(--amber);border-color:rgba(251,191,36,.2)');
+                const progress = loan.total_amount > 0 ? Math.min(100, Math.round(((loan.total_amount - loan.outstanding_amount) / loan.total_amount) * 100)) : 0;
+                const paid = loan.total_amount - loan.outstanding_amount;
+                
+                // Real logic for calculating tenure and interest portion (simplified estimation)
+                const rate = loan.interest_rate || 8.4;
+                const monthlyRate = rate / 12 / 100;
+                const interestPortion = Math.round(loan.outstanding_amount * monthlyRate);
+                const principalPortion = Math.max(0, loan.emi_amount - interestPortion);
+                
+                let tenureMonths = 0;
+                if (principalPortion > 0) {
+                    tenureMonths = Math.log(loan.emi_amount / (loan.emi_amount - loan.outstanding_amount * monthlyRate)) / Math.log(1 + monthlyRate);
+                }
+                const yearsLeft = Math.floor(tenureMonths / 12) || 0;
+                const monthsLeft = Math.round(tenureMonths % 12) || 0;
+                const tenureStr = yearsLeft > 0 ? `${yearsLeft}yr ${monthsLeft}mo` : `${monthsLeft}mo`;
+                
+                const nextEmiDate = new Date();
+                nextEmiDate.setDate(nextEmiDate.getDate() + 15); // mock 15 days left
+                const emiDateStr = nextEmiDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                
+                const chartId = `loanChart_${index}`;
+                
+                gridHtml += `
+                <div class="loan-card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+                        <div style="display:flex;align-items:center;gap:.75rem">
+                            <div style="width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem">${icon}</div>
+                            <div>
+                                <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700">${loan.name}</div>
+                                <div style="font-size:.72rem;color:var(--muted)">Account</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:.5rem">
+                            <span class="loan-badge" style="${badgeStyle}">${badgeClass}</span>
+                            <button class="btn-icon" onclick="openEditLoan('${encodeURIComponent(JSON.stringify(loan))}')">✏️</button>
+                            <button class="btn-icon" style="background:var(--g-dim);border-color:rgba(57,255,126,.2);color:var(--g)" onclick="payEmi(${loan.id}, '${loan.name}', ${loan.emi_amount}, ${loan.outstanding_amount})">Pay</button>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1.25rem">
+                        <div style="background:var(--card2);border-radius:10px;padding:.875rem;border:1px solid var(--border)"><div style="font-size:.68rem;color:var(--muted);margin-bottom:3px">Outstanding</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--red)">₹${loan.outstanding_amount.toLocaleString('en-IN')}</div></div>
+                        <div style="background:var(--card2);border-radius:10px;padding:.875rem;border:1px solid var(--border)"><div style="font-size:.68rem;color:var(--muted);margin-bottom:3px">Interest Rate</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">${rate}% p.a.</div></div>
+                        <div style="background:var(--card2);border-radius:10px;padding:.875rem;border:1px solid var(--border)"><div style="font-size:.68rem;color:var(--muted);margin-bottom:3px">Tenure Left</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">${tenureStr}</div></div>
+                    </div>
+                    <div style="margin-bottom:.875rem">
+                        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-bottom:.4rem"><span>Repayment Progress</span><span style="color:var(--g);font-weight:600">${progress}% complete</span></div>
+                        <div class="bc-bar-track"><div class="bc-bar-fill" style="width:${progress}%;background:linear-gradient(90deg,var(--blue),#93c5fd)"></div></div>
+                        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:.35rem"><span>₹${(paid/100000).toFixed(1)}L Paid</span><span>₹${(loan.total_amount/100000).toFixed(1)}L Total</span></div>
+                    </div>
+                    <div style="background:var(--card2);border-radius:12px;padding:1rem;border:1px solid var(--border)">
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+                            <div><div style="font-size:.68rem;color:var(--muted);margin-bottom:2px">Next EMI</div><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem">${emiDateStr}</div><div style="font-size:.68rem;color:var(--amber);margin-top:2px">⏳ 15 days left</div></div>
+                            <div style="text-align:center;padding:0 1rem;border-left:1px solid var(--border);border-right:1px solid var(--border)"><div style="font-size:.68rem;color:var(--muted);margin-bottom:2px">Principal</div><div style="font-family:'JetBrains Mono',monospace;font-size:.875rem;font-weight:600">₹${principalPortion.toLocaleString('en-IN')}</div></div>
+                            <div style="text-align:center;padding:0 1rem;border-right:1px solid var(--border)"><div style="font-size:.68rem;color:var(--muted);margin-bottom:2px">Interest</div><div style="font-family:'JetBrains Mono',monospace;font-size:.875rem;font-weight:600;color:var(--red)">₹${interestPortion.toLocaleString('en-IN')}</div></div>
+                            <div style="text-align:right"><div style="font-size:.68rem;color:var(--muted);margin-bottom:2px">Total EMI</div><div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--blue)">₹${loan.emi_amount.toLocaleString('en-IN')}</div></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem">
+                        <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem">Principal vs Interest (monthly)</div>
+                        <div style="height:80px"><canvas id="${chartId}"></canvas></div>
+                    </div>
+                </div>`;
+            });
+        }
+        
+        let insightHtml = '';
+        if (res.loans.length > 0) {
+            const firstLoan = res.loans[0];
+            const monthlyRate = (firstLoan.interest_rate || 8.4) / 12 / 100;
+            const interestPortion = Math.round(firstLoan.outstanding_amount * monthlyRate);
+            const interestPct = Math.round((interestPortion / firstLoan.emi_amount) * 100) || 0;
+            
+            insightHtml = `
+            <div class="insight-card" style="border-color:rgba(255,95,95,.25);background:linear-gradient(135deg,rgba(255,95,95,.04),var(--card));margin-top:1.5rem">
+                <div class="insight-chip" style="background:rgba(255,95,95,.1);color:var(--red);border-color:rgba(255,95,95,.2)">🤖 Loan AI Insight</div>
+                <div class="insight-text">Your <strong>${firstLoan.name}</strong> EMI of ₹${firstLoan.emi_amount.toLocaleString('en-IN')} has <strong style="color:var(--red)">₹${interestPortion.toLocaleString('en-IN')} going to interest</strong> (${interestPct}%). A prepayment of ₹1L now could save you significant interest and reduce your tenure! 🚀</div>
+            </div>`;
+        }
+        
+        loanPanel.innerHTML = `<div class="loan-grid">${gridHtml}</div>${insightHtml}`;
+
+        // Initialize Charts for each loan
+        res.loans.forEach((loan, index) => {
+            const ctx = document.getElementById(`loanChart_${index}`);
+            if (ctx && window.Chart) {
+                const principalData = [13700, 13800, 13900, 14000, 14100, 14200, 14300];
+                const interestData = [29100, 29000, 28900, 28800, 28700, 28600, 28500];
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                        datasets: [
+                            { label: 'Principal', data: principalData, backgroundColor: 'rgba(57,255,126,.7)', borderRadius: 4, borderSkipped: false },
+                            { label: 'Interest', data: interestData, backgroundColor: 'rgba(255,95,95,.55)', borderRadius: 4, borderSkipped: false }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { stacked: true, ticks: { color: '#6a9080', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { stacked: true, display: false } } }
+                });
+            }
+        });
+
+        // Populate Foreclosure Planner dropdown
+        const foreclosureSelect = document.getElementById('foreclosureLoanSelect');
+        if (foreclosureSelect) {
+            window.LOANS_DATA = res.loans;
+            foreclosureSelect.innerHTML = '<option value="">Select a Loan</option>';
+            res.loans.forEach((loan, idx) => {
+                foreclosureSelect.innerHTML += `<option value="${idx}">${loan.name} (₹${loan.outstanding_amount.toLocaleString('en-IN')})</option>`;
+            });
+            if (res.loans.length > 0) {
+                foreclosureSelect.selectedIndex = 1;
+                if (typeof updatePrepay === 'function') {
+                    updatePrepay(document.getElementById('prepaySlider')?.value || 0);
+                }
+            }
+            
+            // Re-initialize custom select for dynamic options
+            foreclosureSelect.dataset.customized = "";
+            const wrapper = foreclosureSelect.nextElementSibling;
+            if (wrapper && wrapper.classList.contains("ss-select-wrapper")) {
+                wrapper.remove();
+            }
+            foreclosureSelect.style.display = "";
+            if (window.refreshCustomSelects) window.refreshCustomSelects();
+        }
+        
+    } catch (err) {
+        if (err.name === 'AbortError' || (err.message && err.message.includes('abort'))) return;
+        console.error('Failed to load loans:', err);
+    }
+}

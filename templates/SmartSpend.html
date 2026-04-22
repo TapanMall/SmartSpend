@@ -3323,7 +3323,7 @@
                     
                     // Small delay for UX feel
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        window.location.href = isLogin ? '/dashboard' : '/onboarding';
                     }, 500);
                 } else {
                     btn.innerHTML = originalText;

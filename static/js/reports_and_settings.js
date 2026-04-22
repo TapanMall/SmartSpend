@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         new_password: newObj.value 
                     })
                 });
-                const data = await res.json();
+                const data = await res.text().then(t => t ? JSON.parse(t) : {});
                 if (res.ok) {
                     alert("Password updated successfully!");
                     currentObj.value = ""; newObj.value = ""; confObj.value = "";
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     headers: getAuthHeaders()
                 });
-                const data = await res.json();
+                const data = await res.text().then(t => t ? JSON.parse(t) : {});
                 if (res.ok) {
                     if (window.showToast) window.showToast("Subscription canceled successfully.", "success");
                     else alert("Subscription canceled successfully.");
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             const res = await fetch('/api/reports/export_json', { headers: { 'Authorization': `Bearer ${token}` }});
-            const data = await res.json();
+            const data = await res.text().then(t => t ? JSON.parse(t) : {});
             
             const user = data.user || {};
             const txs = data.transactions || [];

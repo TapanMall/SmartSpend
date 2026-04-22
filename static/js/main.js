@@ -40,18 +40,50 @@ const SS_API = {
         };
     },
     
-    async get(path) {
-        this.showLoader();
-        try {
-            const r = await fetch(path, { 
-                headers: this.headers(),
-                cache: 'no-store'
-            });
-            if (r.status === 401) {
+    async _fetchWithRefresh(path, options) {
+        let r = await fetch(path, options);
+        if (r.status === 401) {
+            // Try refreshing token
+            try {
+                const refreshRes = await fetch('/api/auth/refresh', { method: 'POST' });
+                if (refreshRes.ok) {
+                    const data = await refreshRes.json();
+                    if (data.access_token) {
+                        localStorage.setItem('ss_token', data.access_token);
+                        // Update headers with new token
+                        if (options.headers && options.headers['Authorization']) {
+                            options.headers['Authorization'] = `Bearer ${data.access_token}`;
+                        }
+                        // Retry request
+                        r = await fetch(path, options);
+                    } else {
+                        window.location.href = '/?auth=login';
+                        return null;
+                    }
+                } else {
+                    window.location.href = '/?auth=login';
+                    return null;
+                }
+            } catch (err) {
+                console.error('Token refresh failed', err);
                 window.location.href = '/?auth=login';
                 return null;
             }
-            return r.json();
+        }
+        return r;
+    },
+
+    async get(path) {
+        this.showLoader();
+        try {
+            const r = await this._fetchWithRefresh(path, { 
+                headers: this.headers(),
+                cache: 'no-store'
+            });
+            if (!r) return null; // Handled by refresh redirect
+            
+            const text = await r.text();
+            return text ? JSON.parse(text) : null;
         } catch (e) {
             console.error('API Error:', e);
             return null;
@@ -68,16 +100,15 @@ const SS_API = {
             if (isFormData) {
                 delete headers['Content-Type'];
             }
-            const r = await fetch(path, {
+            const r = await this._fetchWithRefresh(path, {
                 method: 'POST',
                 headers: headers,
                 body: isFormData ? body : JSON.stringify(body)
             });
-            if (r.status === 401) {
-                window.location.href = '/?auth=login';
-                return null;
-            }
-            return r.json();
+            if (!r) return null;
+            
+            const text = await r.text();
+            return text ? JSON.parse(text) : null;
         } catch (e) {
             console.error('API Error:', e);
             return null;
@@ -89,15 +120,14 @@ const SS_API = {
     async delete(path) {
         this.showLoader();
         try {
-            const r = await fetch(path, {
+            const r = await this._fetchWithRefresh(path, {
                 method: 'DELETE',
                 headers: this.headers()
             });
-            if (r.status === 401) {
-                window.location.href = '/?auth=login';
-                return null;
-            }
-            return r.json();
+            if (!r) return null;
+            
+            const text = await r.text();
+            return text ? JSON.parse(text) : null;
         } catch (e) {
             console.error('API Error:', e);
             return null;

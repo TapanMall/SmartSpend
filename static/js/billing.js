@@ -27,9 +27,10 @@ async function fetchBillingData() {
         });
         if (!res.ok) {
             if (res.status === 401) { window.isRedirecting = true; window.location.replace('/?auth=login'); return; }
+            throw new Error(`HTTP error! status: ${res.status}`);
         }
         if (window.isRedirecting) return;
-        const data = await res.json();
+        const data = await res.text().then(t => t ? JSON.parse(t) : {});
         
         if (data.status === 'success') {
             
@@ -44,6 +45,7 @@ async function fetchBillingData() {
             }
         }
     } catch (e) {
+        if (e.name === 'AbortError' || e.message.includes('abort')) return;
         console.error("Failed to load billing details", e);
     }
 }
@@ -130,7 +132,7 @@ function populateBillingUI(data) {
                     </div>
                     <div style="display: flex; align-items: center; gap: 12px;">
                         ${pm.is_default ? '<span style="font-size: 0.75rem; background: var(--card2); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 12px; color: var(--muted);">Default</span>' : ''}
-                        <button class="btn-icon" onclick="deletePaymentMethod(${pm.id})" style="color: var(--muted); cursor: pointer;" title="Delete">🗑</button>
+                        <button class="btn-icon" onclick="deletePaymentMethod('${pm.id}')" style="color: var(--muted); cursor: pointer;" title="Delete">🗑</button>
                     </div>
                 `;
                 pmList.appendChild(cardDiv);
@@ -189,7 +191,7 @@ window.saveBillingConfig = async function() {
             headers: getAuthHeaders(),
             body: JSON.stringify(payload)
         });
-        const data = await res.json();
+        const data = await res.text().then(t => t ? JSON.parse(t) : {});
         if(res.ok) {
             alert("Billing Configuration successfully updated in production!");
         } else alert(data.error || "Update failed");
@@ -294,7 +296,7 @@ window.savePaymentMethod = async function() {
             closePaymentModal();
             fetchBillingData();
         } else {
-            const err = await res.json();
+            const err = await res.text().then(t => t ? JSON.parse(t) : {});
             alert(err.error || "Failed to add method");
         }
     } catch(e) { console.error(e); }

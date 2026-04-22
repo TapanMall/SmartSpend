@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Any, Tuple
 class Database:
     def __init__(self, db_name=None):
         self.pool_name = "smartspend_pool"
-        self.pool_size = 5
+        self.pool_size = 32
         self.pool = None
         self.db_name = db_name or DB_NAME
         
@@ -214,6 +214,23 @@ class Database:
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             """)
+
+            # Loans Table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS loans (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    name VARCHAR(255) NOT NULL,
+                    type VARCHAR(100) DEFAULT 'Personal',
+                    total_amount DECIMAL(15, 2) NOT NULL,
+                    emi_amount DECIMAL(15, 2) DEFAULT 0,
+                    outstanding_amount DECIMAL(15, 2) DEFAULT 0,
+                    interest_rate DECIMAL(5, 2) DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            """)
+            
             # Billing Config Table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS user_billing (
@@ -446,6 +463,16 @@ class Database:
         if b_id:
             return self.fetch_one("SELECT id, user_id, category, budget_amount as amount, created_at FROM budgets WHERE id = %s", (b_id,))
         return None
+
+    def update_budget(self, user_id, budget_id, category, amount):
+        query = "UPDATE budgets SET category = %s, budget_amount = %s WHERE id = %s AND user_id = %s"
+        self.execute(query, (category, amount, budget_id, user_id))
+        return self.fetch_one("SELECT id, user_id, category, budget_amount as amount, created_at FROM budgets WHERE id = %s AND user_id = %s", (budget_id, user_id))
+
+    def delete_budget(self, user_id, budget_id):
+        query = "DELETE FROM budgets WHERE id = %s AND user_id = %s"
+        self.execute(query, (budget_id, user_id))
+        return True
 
     def get_goals(self, user_id):
         query = "SELECT * FROM goals WHERE user_id = %s"
