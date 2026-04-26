@@ -20,6 +20,7 @@ class User:
             'full_name': user.get('full_name'),
             'phone': user.get('phone', ''),
             'currency': user.get('currency', '₹ INR — Indian Rupee'),
+            'profile_photo': user.get('profile_photo', ''),
             'plan': user.get('plan', 'starter'),
             'created_at': user.get('created_at').isoformat() if hasattr(user.get('created_at'), 'isoformat') else user.get('created_at')
         }

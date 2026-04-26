@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from utils.database import Database
 from utils.auth import token_required
 import decimal
+import math
 
 budgets_bp = Blueprint('budgets', __name__)
 
@@ -20,8 +21,20 @@ def _format_budget(b):
         'user_id': b['user_id'],
         'category': b['category'],
         'amount': float(b['amount']),
+        'spent': float(b.get('spent', 0)),
         'created_at': str(b.get('created_at', ''))
     }
+
+def _parse_positive_amount(value, *, field_name: str = "amount"):
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return None, f"Invalid {field_name} format"
+    if not math.isfinite(amount):
+        return None, f"Invalid {field_name} value"
+    if amount <= 0:
+        return None, f"{field_name} must be greater than zero"
+    return amount, None
 
 @budgets_bp.route('/', methods=['GET', 'POST'])
 @token_required
@@ -31,7 +44,7 @@ def budgets():
         user_id = request.current_user['user_id']
 
         if request.method == 'GET':
-            budget_list = db.get_budgets(user_id)
+            budget_list = db.get_budgets_with_spending(user_id)
             return jsonify({'budgets': [_format_budget(b) for b in budget_list]}), 200
 
         elif request.method == 'POST':
@@ -42,7 +55,11 @@ def budgets():
             if not category or amount is None:
                 return jsonify({'error': 'Missing required fields'}), 400
 
-            budget = db.create_budget(user_id, category, float(amount))
+            amount_val, err = _parse_positive_amount(amount)
+            if err:
+                return jsonify({'error': err}), 400
+
+            budget = db.create_budget(user_id, category, amount_val)
             if budget:
                 return jsonify({'message': 'Budget created successfully', 'budget': _format_budget(budget)}), 201
             return jsonify({'error': 'Failed to create budget'}), 500
@@ -69,7 +86,11 @@ def budget_detail(budget_id):
             if not category or amount is None:
                 return jsonify({'error': 'Missing required fields'}), 400
 
-            budget = db.update_budget(user_id, budget_id, category, float(amount))
+            amount_val, err = _parse_positive_amount(amount)
+            if err:
+                return jsonify({'error': err}), 400
+
+            budget = db.update_budget(user_id, budget_id, category, amount_val)
             if budget:
                 return jsonify({'message': 'Budget updated successfully', 'budget': _format_budget(budget)}), 200
             return jsonify({'error': 'Failed to update budget or budget not found'}), 404

@@ -27,7 +27,7 @@ def test_flow():
     print("List Tx:", len(txs.get("transactions", [])))
     
     # 4. Analytics
-    analytics = requests.get(f"{base}/analytics/", headers=headers)
+    analytics = requests.get(f"{base}/analytics/summary", headers=headers)
     print("Analytics Status:", analytics.status_code)
     print("Analytics Data:", analytics.text)
     

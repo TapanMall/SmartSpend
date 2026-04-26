@@ -20,3 +20,17 @@ def get_summary():
         traceback.print_exc()
         current_app.logger.error(str(e))
         return jsonify({'error': 'An internal server error occurred'}), 500
+
+@analytics_bp.route('/net-worth', methods=['GET'])
+@token_required
+def get_net_worth():
+    try:
+        user_id = request.current_user['user_id']
+        db = get_db()
+        stats = db.get_net_worth_stats(user_id)
+        return jsonify(stats)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        current_app.logger.error(str(e))
+        return jsonify({'error': 'An internal server error occurred'}), 500

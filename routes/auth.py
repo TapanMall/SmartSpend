@@ -65,6 +65,29 @@ def google_auth():
         current_app.logger.error(str(e))
         return jsonify({'error': 'An internal server error occurred'}), 500
 
+@auth_bp.route('/profile-photo', methods=['POST'])
+@token_required
+def upload_profile_photo():
+    try:
+        db = get_db()
+        user_id = request.current_user['user_id']
+        data = request.get_json()
+        
+        photo_data = data.get('profile_photo')
+        if not photo_data:
+            return jsonify({'error': 'No photo data provided'}), 400
+            
+        db.execute("UPDATE users SET profile_photo = %s WHERE id = %s", (photo_data, user_id))
+        
+        updated_user = db.fetch_one("SELECT * FROM users WHERE id = %s", (user_id,))
+        return jsonify({
+            'message': 'Profile photo updated successfully',
+            'user': User.format_user_data(updated_user)
+        }), 200
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return jsonify({'error': 'Failed to upload profile photo'}), 500
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     try:

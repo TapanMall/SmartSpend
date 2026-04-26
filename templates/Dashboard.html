@@ -3578,36 +3578,33 @@
                                 <div class="sc-label">Portfolio Value</div>
                                 <div class="sc-icon sc-icon-green">💼</div>
                             </div>
-                            <div class="sc-value" style="color:var(--g);font-size:1.5rem">₹8,42,000</div>
-                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change up">↑ 7.4%</span><span
-                                    class="sc-change-label">this month</span></div>
+                            <div id="inv-portfolio" class="sc-value" style="color:var(--g);font-size:1.5rem">₹0</div>
+                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label">Current valuation</span></div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-top">
                                 <div class="sc-label">Total Invested</div>
                                 <div class="sc-icon sc-icon-blue">📥</div>
                             </div>
-                            <div class="sc-value" style="font-size:1.5rem">₹6,20,000</div>
+                            <div id="inv-invested" class="sc-value" style="font-size:1.5rem">₹0</div>
                             <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label"
-                                    style="font-size:.72rem">Across 12 holdings</span></div>
+                                    style="font-size:.72rem">Total invested amount</span></div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-top">
                                 <div class="sc-label">Total P&amp;L</div>
                                 <div class="sc-icon sc-icon-green">📊</div>
                             </div>
-                            <div class="sc-value" style="color:var(--g);font-size:1.5rem">+₹2,22,000</div>
-                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change up">↑ 35.8%</span><span
-                                    class="sc-change-label">overall returns</span></div>
+                            <div id="inv-pnl" class="sc-value" style="color:var(--g);font-size:1.5rem">₹0</div>
+                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label">Profit/Loss</span></div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-top">
                                 <div class="sc-label">XIRR</div>
                                 <div class="sc-icon sc-icon-amber">🎯</div>
                             </div>
-                            <div class="sc-value" style="color:var(--amber);font-size:1.5rem">18.4%</div>
-                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change up">↑ 2.1%</span><span
-                                    class="sc-change-label">vs last year</span></div>
+                            <div id="inv-xirr" class="sc-value" style="color:var(--amber);font-size:1.5rem">0%</div>
+                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label">Annualized return</span></div>
                         </div>
                     </div>
 
@@ -4177,15 +4174,14 @@
                                 <div
                                     style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.5rem">
                                     Estimated Net Worth</div>
-                                <div
+                                <div id="nw-estimated"
                                     style="font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;color:var(--g);letter-spacing:-0.05em;line-height:1">
-                                    ₹54,28,450</div>
+                                    ₹0</div>
                                 <div style="display:flex;align-items:center;gap:1rem;margin-top:.75rem;flex-wrap:wrap">
                                     <div style="display:flex;align-items:center;gap:.4rem"><span
                                             style="background:var(--g-dim);color:var(--g);border:1px solid rgba(57,255,126,.2);border-radius:100px;font-size:.75rem;font-weight:700;padding:3px 10px">↑
-                                            +₹4.2L this year</span></div>
-                                    <div style="font-size:.8rem;color:var(--muted)">12.5% YoY growth · On track for ₹1Cr
-                                        by Jan 2029 🎯</div>
+                                            Based on your data</span></div>
+                                    <div style="font-size:.8rem;color:var(--muted)">Net worth reflects assets minus liabilities</div>
                                 </div>
                             </div>
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;text-align:center">
@@ -4194,18 +4190,18 @@
                                     <div
                                         style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem">
                                         Total Assets</div>
-                                    <div
+                                    <div id="nw-total-assets"
                                         style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--g);font-size:1rem">
-                                        ₹1,00,98,450</div>
+                                        ₹0</div>
                                 </div>
                                 <div
                                     style="background:var(--red-dim);border:1px solid rgba(255,95,95,.15);border-radius:14px;padding:1rem">
                                     <div
                                         style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem">
                                         Total Liabilities</div>
-                                    <div
+                                    <div id="nw-total-liabilities"
                                         style="font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--red);font-size:1rem">
-                                        ₹46,70,000</div>
+                                        ₹0</div>
                                 </div>
                             </div>
                         </div>
@@ -5900,13 +5896,13 @@
             if (anaInc) anaInc.textContent = fmt(data.income);
             if (anaExp) anaExp.textContent = fmt(data.expenses);
             if (anaSav) anaSav.textContent = fmt(data.balance);
-            if (anaAvg) anaAvg.textContent = (data.count || 0) > 0 ? fmt(data.income / 30) : '₹2,402';
-            if (anaTotal) anaTotal.textContent = (data.count || 0) > 0 ? data.count : 247;
-            if (anaHigh) anaHigh.textContent = (data.count || 0) > 0 ? fmt(Math.max(data.expenses || 0, 0)) : '₹18,490';
+            if (anaAvg) anaAvg.textContent = (data.count || 0) > 0 ? fmt(data.income / 30) : '₹0';
+            if (anaTotal) anaTotal.textContent = (data.count || 0) > 0 ? data.count : 0;
+            if (anaHigh) anaHigh.textContent = (data.count || 0) > 0 ? fmt(Math.max(data.expenses || 0, 0)) : '₹0';
             const anaHighDetail = document.getElementById('anaHighestDayDetail');
-            if (anaHighDetail) anaHighDetail.textContent = (data.count || 0) > 0 ? 'Based on current month activity' : 'Mar 22 — Online Shopping';
+            if (anaHighDetail) anaHighDetail.textContent = (data.count || 0) > 0 ? 'Based on current month activity' : '-';
             const anaGrowth = document.getElementById('anaNetWorthGrowth');
-            if (anaGrowth) anaGrowth.textContent = (data.count || 0) > 0 ? (data.savings_rate || 0) + '%' : '+18.4%';
+            if (anaGrowth) anaGrowth.textContent = (data.count || 0) > 0 ? (data.savings_rate || 0) + '%' : '0%';
 
             // Quick Stats
             const qsDays = document.getElementById('statDays');
@@ -5919,7 +5915,7 @@
             if (qsAcc) qsAcc.textContent = '1';
 
             // Budget Summary
-            const budTotalVal = 50000; // Plan-based budget target
+            const budTotalVal = data.budget_target || 0; // Plan-based budget target from API
             const budTotal = document.getElementById('budTotal');
             const budSpent = document.getElementById('budSpent');
             const budRem = document.getElementById('budRem');
@@ -5964,6 +5960,33 @@
             const ais = document.getElementById('aiSummaryLong');
             if (ais) {
                 ais.innerHTML = `This month you've spent <strong>${fmt(data.expenses)}</strong> across <strong>${data.count}</strong> transactions. Your savings rate is <strong>${data.savings_rate}%</strong>. ${data.expenses > 10000 ? 'Try to limit non-essential shopping to boost your net worth.' : 'You are maintaining a healthy balance — keep it up!'}`;
+            }
+
+            // Update sparklines with real data
+            const monthly = data?.monthly || [];
+            if (monthly.length >= 2) {
+                // Get last 7 months or all available
+                const recent = monthly.slice(-7);
+                const balances = recent.map(m => m.balance || (m.inc - m.exp) || 0);
+                const incomes = recent.map(m => m.inc || 0);
+                const expenses = recent.map(m => m.exp || 0);
+                const savings = recent.map(m => (m.inc || 0) - (m.exp || 0));
+
+                // Destroy old charts and create new ones with real data
+                const balCtx = document.getElementById('balChart');
+                const incCtx = document.getElementById('incChart');
+                const expCtx = document.getElementById('expChart');
+                const savCtx = document.getElementById('savChart');
+
+                if (balCtx && balCtx.__chart) { balCtx.__chart.destroy(); }
+                if (incCtx && incCtx.__chart) { incCtx.__chart.destroy(); }
+                if (expCtx && expCtx.__chart) { expCtx.__chart.destroy(); }
+                if (savCtx && savCtx.__chart) { savCtx.__chart.destroy(); }
+
+                if (balances.some(v => v > 0)) sparkline('balChart', balances, '#39ff7e');
+                if (incomes.some(v => v > 0)) sparkline('incChart', incomes, '#39ff7e');
+                if (expenses.some(v => v > 0)) sparkline('expChart', expenses, '#ff5f5f');
+                if (savings.some(v => v !== 0)) sparkline('savChart', savings, '#fbbf24');
             }
 
             const acl = document.getElementById('aiCardsList');
@@ -6335,13 +6358,9 @@
             document.getElementById('topbarTitle').textContent = topbarTitles[viewId] || viewId;
             document.getElementById('topbarCrumb').textContent = crumbs[viewId] || viewId;
 
-            if (viewId === 'budget') renderBudgets();
-            if (viewId === 'goals') renderGoals();
-
-            if (viewId === 'budget') renderBudgets();
-            if (viewId === 'goals') renderGoals();
+            if (viewId === 'budget') loadBudgets();
+            if (viewId === 'goals') loadGoals();
             if (viewId === 'dashboard') renderDashboardDoughnut();
-
 
             if (viewId === 'transactions') renderTransactions();
             if (viewId === 'analytics') renderAnalyticsCharts();
@@ -6967,11 +6986,11 @@
                 list.innerHTML = sortedFilteredTx.map((tx) => `
                     <div class="tx-table-row">
                         <div class="tx-cell tx-cell-name">
-                            <div class="tx-emo">${escapeHTML(tx.icon)}</div>
-                            <div><div class="tx-name">${escapeHTML(tx.name)}</div><div class="tx-cat">${escapeHTML(tx.cat)}</div></div>
+                            <div class="tx-emo">${escapeHtml(tx.icon)}</div>
+                            <div><div class="tx-name">${escapeHtml(tx.name)}</div><div class="tx-cat">${escapeHtml(tx.cat)}</div></div>
                         </div>
-                        <div class="tx-cell"><span class="badge ${tx.type === 'credit' ? 'badge-green' : 'badge-red'}">${escapeHTML(tx.cat)}</span></div>
-                        <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${escapeHTML(tx.date)}</div>
+                        <div class="tx-cell"><span class="badge ${tx.type === 'credit' ? 'badge-green' : 'badge-red'}">${escapeHtml(tx.cat)}</span></div>
+                        <div class="tx-cell" style="color:var(--muted);font-size:.8rem">${escapeHtml(tx.date)}</div>
                         <div class="tx-cell mono ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
                         <div class="tx-cell"><button class="btn-icon" onclick="deleteTransaction('${tx.id}', ${TRANSACTIONS.indexOf(tx)})">🗑</button></div>
                     </div>
@@ -6983,10 +7002,10 @@
                 const recent = sortedFilteredTx.slice(0, 4);
                 recentList.innerHTML = recent.map(tx => `
                     <div class="tx-row">
-                        <div class="tx-emo">${escapeHTML(tx.icon)}</div>
+                        <div class="tx-emo">${escapeHtml(tx.icon)}</div>
                         <div class="tx-info">
-                            <div class="tx-name">${escapeHTML(tx.name)}</div>
-                            <div class="tx-cat">${escapeHTML(tx.cat)} · ${escapeHTML(tx.date)}</div>
+                            <div class="tx-name">${escapeHtml(tx.name)}</div>
+                            <div class="tx-cat">${escapeHtml(tx.cat)} · ${escapeHtml(tx.date)}</div>
                         </div>
                         <div class="tx-right">
                             <div class="tx-amt ${tx.type}">${tx.amt > 0 ? '+' : ''}₹${Math.abs(tx.amt).toLocaleString('en-IN')}</div>
@@ -7034,16 +7053,49 @@
         };
 
         function sparkline(id, data, color) {
-            const ctx = document.getElementById(id)?.getContext('2d');
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
             if (!ctx) return;
-            new Chart(ctx, {
+
+            if (canvas.__chart) {
+                canvas.__chart.destroy();
+            }
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 60);
+            gradient.addColorStop(0, color + '40');
+            gradient.addColorStop(1, color + '05');
+
+            canvas.__chart = new Chart(ctx, {
                 type: 'line',
-                data: { labels: data.map((_, i) => i), datasets: [{ data, borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0 }] },
-                options: { ...CHART_DEFAULTS, scales: { x: { display: false }, y: { display: false } } }
+                data: {
+                    labels: data.map((_, i) => i),
+                    datasets: [{
+                        data,
+                        borderColor: color,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.5,
+                        borderWidth: 2.5,
+                        pointRadius: 0,
+                        pointHoverRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    animation: { duration: 1000, easing: 'easeInOutQuart' },
+                    scales: {
+                        x: { display: false, min: 0, max: data.length - 1 },
+                        y: { display: false, beginAtZero: false }
+                    },
+                    layout: { padding: { top: 5, bottom: 5 } }
+                }
             });
         }
 
-        // Dashboard sparklines
+        // Dashboard sparklines (curved visual effect)
         sparkline('balChart', [80, 90, 88, 95, 102, 115, 128], '#39ff7e');
         sparkline('incChart', [60, 65, 70, 68, 75, 80, 85], '#39ff7e');
         sparkline('expChart', [38, 42, 45, 40, 38, 44, 43], '#ff5f5f');
@@ -7051,7 +7103,6 @@
 
         let currentBarChartPeriod = '6m';
 
-        // Main bar chart
         async function renderMainBarChart() {
             const barCtx = document.getElementById('mainBarChart')?.getContext('2d');
             if (!barCtx) return;
@@ -7128,21 +7179,11 @@
             if (cfCtx && !cfCtx.__chartRendered) {
                 cfCtx.__chartRendered = true;
                 SS_API.get('/api/analytics/summary').then(data => {
-                    const demoMonthly = [
-                        { month: 'Oct', inc: 72000, exp: 51000 },
-                        { month: 'Nov', inc: 68000, exp: 43000 },
-                        { month: 'Dec', inc: 85000, exp: 59000 },
-                        { month: 'Jan', inc: 78000, exp: 48000 },
-                        { month: 'Feb', inc: 82000, exp: 41000 },
-                        { month: 'Mar', inc: 80000, exp: 42000 },
-                        { month: 'Apr', inc: 85000, exp: 43240 }
-                    ];
-                    let monthly = (!data || data.error || !(data.monthly || []).length) ? demoMonthly : (data.monthly || []);
-                    if (monthly.length === 0) monthly = demoMonthly;
+                    const monthly = (data && data.monthly) || [];
 
-                    const labels = monthly.map(m => m.month);
-                    const incs = monthly.map(m => m.inc);
-                    const exps = monthly.map(m => m.exp);
+                    const labels = monthly.length ? monthly.map(m => m.month) : ['No Data'];
+                    const incs = monthly.length ? monthly.map(m => m.inc) : [0];
+                    const exps = monthly.length ? monthly.map(m => m.exp) : [0];
 
                     if (cfCtx.__chart) cfCtx.__chart.destroy();
                     cfCtx.__chart = new Chart(cfCtx, {
@@ -7177,16 +7218,7 @@
                     }
                 });
                 const sortedCats = Object.entries(cats).sort((a, b) => b[1] - a[1]);
-                const fallbackCats = [
-                    ['Food', 8420],
-                    ['Transport', 4200],
-                    ['Shopping', 9800],
-                    ['Bills', 5000],
-                    ['Health', 3500],
-                    ['Entertainment', 2100],
-                    ['Other', 2400]
-                ];
-                const renderCats = sortedCats.length ? sortedCats : fallbackCats;
+                const renderCats = sortedCats.length ? sortedCats : [['No Data', 0]];
 
                 catCtx.__chartRendered = true;
                 new Chart(catCtx, {
@@ -7211,20 +7243,10 @@
             if (savCtx && !savCtx.__chartRendered) {
                 savCtx.__chartRendered = true;
                 SS_API.get('/api/analytics/summary').then(data => {
-                    const demoMonthly = [
-                        { month: 'Oct', inc: 72000, exp: 51000 },
-                        { month: 'Nov', inc: 68000, exp: 43000 },
-                        { month: 'Dec', inc: 85000, exp: 59000 },
-                        { month: 'Jan', inc: 78000, exp: 48000 },
-                        { month: 'Feb', inc: 82000, exp: 41000 },
-                        { month: 'Mar', inc: 80000, exp: 42000 },
-                        { month: 'Apr', inc: 85000, exp: 43240 }
-                    ];
-                    let monthly = (!data || data.error || !(data.monthly || []).length) ? demoMonthly : (data.monthly || []);
-                    if (monthly.length === 0) monthly = demoMonthly;
+                    const monthly = (data && data.monthly) || [];
 
-                    const labels = monthly.map(m => m.month);
-                    const savings = monthly.map(m => m.inc - m.exp);
+                    const labels = monthly.length ? monthly.map(m => m.month) : ['No Data'];
+                    const savings = monthly.length ? monthly.map(m => m.inc - m.exp) : [0];
                     const cumulativeSavings = [];
                     savings.reduce((acc, v) => {
                         const next = acc + v;
@@ -7268,8 +7290,8 @@
                     }
                 });
             } else {
-                // Dummy data if no transactions
-                valsByDay.splice(0, 7, 3200, 2400, 1800, 3100, 2200, 4500, 6800);
+                // No transactions - show empty state
+                valsByDay.splice(0, 7, 0, 0, 0, 0, 0, 0, 0);
             }
 
             const dispDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
