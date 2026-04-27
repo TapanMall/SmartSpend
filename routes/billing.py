@@ -154,9 +154,9 @@ def seed_dummy_data():
         
     inv = db.fetch_one("SELECT id FROM user_invoices WHERE user_id = %s", (user_id,))
     if not inv:
-        db.execute("INSERT INTO user_invoices (user_id, amount, invoice_number, status, date_issued) VALUES (%s, 0.00, 'QJTKKF-00003', 'PAID', '2026-03-28')", (user_id,))
-        db.execute("INSERT INTO user_invoices (user_id, amount, invoice_number, status, date_issued) VALUES (%s, 0.00, 'QJTKKF-00002', 'PAID', '2026-02-28')", (user_id,))
-        db.execute("INSERT INTO user_invoices (user_id, amount, invoice_number, status, date_issued) VALUES (%s, 0.00, 'QJTKKF-00001', 'PAID', '2026-01-28')", (user_id,))
+        db.execute("INSERT INTO user_invoices (user_id, amount, invoice_number, status, date_issued) VALUES (%s, 0.00, %s, 'PAID', '2026-03-28')", (user_id, f"QJTKKF-{user_id}-03"))
+        db.execute("INSERT INTO user_invoices (user_id, amount, invoice_number, status, date_issued) VALUES (%s, 0.00, %s, 'PAID', '2026-02-28')", (user_id, f"QJTKKF-{user_id}-02"))
+        db.execute("INSERT INTO user_invoices (user_id, amount, invoice_number, status, date_issued) VALUES (%s, 0.00, %s, 'PAID', '2026-01-28')", (user_id, f"QJTKKF-{user_id}-01"))
             
     return jsonify({'status': 'success'})
 

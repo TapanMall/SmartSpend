@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from utils.database import Database
 from utils.auth import token_required
 import decimal
+import math
 
 goals_bp = Blueprint('goals', __name__)
 
@@ -17,6 +18,25 @@ def _format_goal(g):
         'current_amount': float(g.get('current_amount') or 0),
         'created_at': str(g.get('created_at', ''))
     }
+
+def _parse_non_negative_amount(value, *, field_name: str):
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return None, f"Invalid {field_name} format"
+    if not math.isfinite(amount):
+        return None, f"Invalid {field_name} value"
+    if amount < 0:
+        return None, f"{field_name} must be non-negative"
+    return amount, None
+
+def _parse_positive_amount(value, *, field_name: str):
+    amount, err = _parse_non_negative_amount(value, field_name=field_name)
+    if err:
+        return None, err
+    if amount <= 0:
+        return None, f"{field_name} must be greater than zero"
+    return amount, None
 
 @goals_bp.route('/', methods=['GET', 'POST'])
 @token_required
@@ -38,7 +58,14 @@ def goals():
             if not name or target_amount is None:
                 return jsonify({'error': 'Missing required fields'}), 400
 
-            goal = db.create_goal(user_id, name, float(target_amount), float(current_amount))
+            target_val, err = _parse_positive_amount(target_amount, field_name="target_amount")
+            if err:
+                return jsonify({'error': err}), 400
+            current_val, err = _parse_non_negative_amount(current_amount, field_name="current_amount")
+            if err:
+                return jsonify({'error': err}), 400
+
+            goal = db.create_goal(user_id, name, target_val, current_val)
             if goal:
                 return jsonify({'message': 'Goal created successfully', 'goal': _format_goal(goal)}), 201
             return jsonify({'error': 'Failed to create goal'}), 500
@@ -69,6 +96,18 @@ def add_goal_funds(goal_id):
         db.execute("UPDATE goals SET current_amount = %s WHERE id = %s", (new_total, goal_id))
         
         return jsonify({'message': 'Goal progress updated successfully', 'new_total': new_total}), 200
+    except Exception as e:
+        current_app.logger.error(str(e))
+        return jsonify({'error': 'An internal server error occurred'}), 500
+
+@goals_bp.route('/<int:goal_id>', methods=['DELETE'])
+@token_required
+def delete_goal_route(goal_id):
+    try:
+        db = get_db()
+        user_id = request.current_user['user_id']
+        db.delete_goal(user_id, goal_id)
+        return jsonify({'message': 'Goal deleted successfully'}), 200
     except Exception as e:
         current_app.logger.error(str(e))
         return jsonify({'error': 'An internal server error occurred'}), 500

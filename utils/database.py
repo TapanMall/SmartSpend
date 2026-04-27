@@ -3,11 +3,16 @@ import mysql.connector
 from mysql.connector import Error, pooling
 from config import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
 from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+import os
 
 class Database:
-    def __init__(self, db_name=None):
+    def __init__(self, db_name=None, pool_size: Optional[int] = None):
         self.pool_name = "smartspend_pool"
-        self.pool_size = 5
+        # Default conservatively to avoid exhausting MySQL connections on dev/test.
+        env_pool_size = os.getenv("DB_POOL_SIZE")
+        default_pool_size = int(env_pool_size) if (env_pool_size and env_pool_size.isdigit()) else 5
+        self.pool_size = pool_size or default_pool_size
         self.pool = None
         self.db_name = db_name or DB_NAME
         
@@ -153,6 +158,11 @@ class Database:
                 cursor.execute("ALTER TABLE users ADD COLUMN currency VARCHAR(50) DEFAULT '₹ INR — Indian Rupee'")
             except Error:
                 pass
+
+            try:
+                cursor.execute("ALTER TABLE users ADD COLUMN profile_photo LONGTEXT")
+            except Error:
+                pass
             
             # Transactions Table
             cursor.execute("""
@@ -201,6 +211,11 @@ class Database:
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             """)
+            # Ensure one budget per category per user
+            try:
+                cursor.execute("ALTER TABLE budgets ADD CONSTRAINT uq_budgets_user_category UNIQUE (user_id, category)")
+            except Error:
+                pass
 
             # Goals Table
             cursor.execute("""
@@ -214,6 +229,54 @@ class Database:
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             """)
+
+            # Loans Table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS loans (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    name VARCHAR(255) NOT NULL,
+                    type VARCHAR(100) DEFAULT 'Personal',
+                    total_amount DECIMAL(15, 2) NOT NULL,
+                    emi_amount DECIMAL(15, 2) DEFAULT 0,
+                    outstanding_amount DECIMAL(15, 2) DEFAULT 0,
+                    interest_rate DECIMAL(5, 2) DEFAULT 0,
+                    start_date DATE,
+                    end_date DATE,
+                    tenure_months INT DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            """)
+
+            try:
+                cursor.execute("ALTER TABLE loans ADD COLUMN start_date DATE")
+            except Error:
+                pass
+            try:
+                cursor.execute("ALTER TABLE loans ADD COLUMN end_date DATE")
+            except Error:
+                pass
+            try:
+                cursor.execute("ALTER TABLE loans ADD COLUMN tenure_months INT DEFAULT 0")
+            except Error:
+                pass
+
+            # EMI History Table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS emi_history (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    loan_id INT,
+                    amount_paid DECIMAL(15, 2) NOT NULL,
+                    principal_paid DECIMAL(15, 2) DEFAULT 0,
+                    interest_paid DECIMAL(15, 2) DEFAULT 0,
+                    payment_date DATE NOT NULL,
+                    status ENUM('PAID', 'PENDING', 'MISSED') DEFAULT 'PAID',
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (loan_id) REFERENCES loans(id) ON DELETE CASCADE
+                )
+            """)
+            
             # Billing Config Table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS user_billing (
@@ -294,6 +357,21 @@ class Database:
                     user_id INT,
                     role ENUM('user', 'assistant', 'system') NOT NULL,
                     content TEXT NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            """)
+
+            # Investments Table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS investments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    name VARCHAR(255) NOT NULL,
+                    type VARCHAR(100) DEFAULT 'Stocks',
+                    amount DECIMAL(15, 2) NOT NULL,
+                    date DATE NOT NULL,
+                    notes TEXT,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
@@ -440,12 +518,37 @@ class Database:
         query = "SELECT id, user_id, category, budget_amount as amount, created_at FROM budgets WHERE user_id = %s"
         return self.fetch_all(query, (user_id,))
 
+    def get_budgets_with_spending(self, user_id):
+        query = """
+            SELECT b.id, b.user_id, b.category, b.budget_amount as amount, b.created_at,
+                   COALESCE(SUM(t.amount), 0) as spent
+            FROM budgets b
+            LEFT JOIN transactions t ON b.user_id = t.user_id 
+                                     AND b.category = t.category 
+                                     AND t.type = 'debit'
+                                     AND YEAR(t.date) = YEAR(CURRENT_DATE()) 
+                                     AND MONTH(t.date) = MONTH(CURRENT_DATE())
+            WHERE b.user_id = %s
+            GROUP BY b.id, b.user_id, b.category, b.budget_amount, b.created_at
+        """
+        return self.fetch_all(query, (user_id,))
+
     def create_budget(self, user_id, category, amount):
         query = "INSERT INTO budgets (user_id, category, budget_amount) VALUES (%s, %s, %s)"
         b_id = self.execute(query, (user_id, category, amount))
         if b_id:
             return self.fetch_one("SELECT id, user_id, category, budget_amount as amount, created_at FROM budgets WHERE id = %s", (b_id,))
         return None
+
+    def update_budget(self, user_id, budget_id, category, amount):
+        query = "UPDATE budgets SET category = %s, budget_amount = %s WHERE id = %s AND user_id = %s"
+        self.execute(query, (category, amount, budget_id, user_id))
+        return self.fetch_one("SELECT id, user_id, category, budget_amount as amount, created_at FROM budgets WHERE id = %s AND user_id = %s", (budget_id, user_id))
+
+    def delete_budget(self, user_id, budget_id):
+        query = "DELETE FROM budgets WHERE id = %s AND user_id = %s"
+        self.execute(query, (budget_id, user_id))
+        return True
 
     def get_goals(self, user_id):
         query = "SELECT * FROM goals WHERE user_id = %s"
@@ -457,3 +560,86 @@ class Database:
         if g_id:
             return self.fetch_one("SELECT * FROM goals WHERE id = %s", (g_id,))
         return None
+
+    def update_goal_progress(self, goal_id, current_amount):
+        query = "UPDATE goals SET current_amount = %s WHERE id = %s"
+        return self.execute(query, (current_amount, goal_id))
+
+    def delete_goal(self, user_id, goal_id):
+        query = "DELETE FROM goals WHERE id = %s AND user_id = %s"
+        self.execute(query, (goal_id, user_id))
+        return True
+
+    # Investment Methods
+    def get_investments(self, user_id):
+        query = "SELECT * FROM investments WHERE user_id = %s ORDER BY date DESC"
+        return self.fetch_all(query, (user_id,))
+
+    def create_investment(self, user_id, name, type, amount, date, notes=''):
+        query = "INSERT INTO investments (user_id, name, type, amount, date, notes) VALUES (%s, %s, %s, %s, %s, %s)"
+        inv_id = self.execute(query, (user_id, name, type, amount, date, notes))
+        if inv_id:
+            return self.fetch_one("SELECT * FROM investments WHERE id = %s", (inv_id,))
+        return None
+
+    def delete_investment(self, investment_id, user_id):
+        query = "DELETE FROM investments WHERE id = %s AND user_id = %s"
+        if not self.pool:
+            if not self.init_pool():
+                print("Failed to initialize database pool.")
+                return False
+
+        connection = None
+        cursor = None
+        try:
+            connection = self.pool.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (investment_id, user_id))
+            connection.commit()
+            return cursor.rowcount > 0
+        except Error as e:
+            if connection:
+                connection.rollback()
+            print(f"Error executing query: {e}")
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
+    # Net Worth Calculation
+    def get_net_worth_stats(self, user_id):
+        """Aggregate data for the Net Worth view"""
+        # 1. Total Balance from transactions (Credits - Debits)
+        balance_query = """
+            SELECT 
+                SUM(CASE WHEN type = 'credit' THEN amount ELSE 0 END) - 
+                SUM(CASE WHEN type = 'debit' THEN amount ELSE 0 END) as balance
+            FROM transactions 
+            WHERE user_id = %s
+        """
+        balance_res = self.fetch_one(balance_query, (user_id,))
+        total_balance = float(balance_res['balance'] or 0) if balance_res else 0
+
+        # 2. Total Investments
+        inv_query = "SELECT SUM(amount) as total FROM investments WHERE user_id = %s"
+        inv_res = self.fetch_one(inv_query, (user_id,))
+        total_investments = float(inv_res['total'] or 0) if inv_res else 0
+
+        # 3. Total Liabilities (Outstanding Loans)
+        loan_query = "SELECT SUM(outstanding_amount) as total FROM loans WHERE user_id = %s"
+        loan_res = self.fetch_one(loan_query, (user_id,))
+        total_liabilities = float(loan_res['total'] or 0) if loan_res else 0
+
+        total_assets = total_balance + total_investments
+        net_worth = total_assets - total_liabilities
+
+        return {
+            'total_balance': total_balance,
+            'total_investments': total_investments,
+            'total_liabilities': total_liabilities,
+            'total_assets': total_assets,
+            'net_worth': net_worth,
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }

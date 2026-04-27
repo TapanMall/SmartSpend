@@ -3320,11 +3320,7 @@
                     // Success! Store token and user info
                     localStorage.setItem('ss_token', data.access_token);
                     localStorage.setItem('ss_user', JSON.stringify(data.user));
-                    
-                    // Small delay for UX feel
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 500);
+                    window.location.href = isLogin ? '/dashboard' : '/onboarding';
                 } else {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
