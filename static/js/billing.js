@@ -305,7 +305,13 @@ window.savePaymentMethod = async function() {
 };
 
 window.deletePaymentMethod = async function(id) {
-    if(!confirm("Are you sure you want to delete this payment method?")) return;
+    let isConfirmed = true;
+    if (window.appConfirm) {
+        isConfirmed = await window.appConfirm("Are you sure you want to delete this payment method?");
+    } else {
+        isConfirmed = confirm("Are you sure you want to delete this payment method?");
+    }
+    if(!isConfirmed) return;
     
     try {
         const res = await fetch(`/api/billing/delete_method/${id}`, {

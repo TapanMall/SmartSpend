@@ -1,9 +1,10 @@
 __pycache__/
 *.pyc
 .env
+.agent/
+graphify-out/
 instance/
 uploads/
 node_modules/
 playwright-report/
 test-results/
-
