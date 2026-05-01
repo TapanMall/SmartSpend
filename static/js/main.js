@@ -127,6 +127,9 @@ const SS_API = {
             if (!r) return null;
             
             const text = await r.text();
+            if (!r.ok) {
+                console.error('API Delete Error Response:', r.status, text);
+            }
             return text ? JSON.parse(text) : null;
         } catch (e) {
             console.error('API Error:', e);
@@ -234,8 +237,15 @@ function checkAuth() {
 }
 
 // Logout Function
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
+async function logout() {
+    let isConfirmed = true;
+    if (window.appConfirm) {
+        isConfirmed = await window.appConfirm('Are you sure you want to logout?');
+    } else {
+        isConfirmed = confirm('Are you sure you want to logout?');
+    }
+    
+    if (isConfirmed) {
         localStorage.removeItem('ss_token');
         localStorage.removeItem('ss_user');
         window.location.href = '/?auth=login';

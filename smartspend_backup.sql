@@ -419,7 +419,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (13,'sanjaynegi101125@gmail.com','pbkdf2:sha256:600000$8kkCAJXFpuzdwglJ$fd9ccbe88426ec5487fb9e1629c38537d11d8dfd2ed1dcdb19301d9ca4543211','Sanjay Negi','pro','2026-04-11 09:20:23','2026-04-18 13:38:46',NULL,'8265888526','₹ INR — Indian Rupee'),(443,'test@test.com','pbkdf2:sha256:600000$yzmyZ1jkwSnPcRFP$12c82853fef3a3e7b32fb953617e3d8d5caffd568da5c3f2a449d00a5f129421','Test User','starter','2026-04-22 15:19:28','2026-04-22 15:19:28',NULL,'','₹ INR — Indian Rupee'),(444,'test_3711@test.com','pbkdf2:sha256:600000$jNjwXavNy3InJgTy$0cb56b00757d16a64e18ff5ae3c89a87b6369fa91e45bba65d8b25668782f731','Test Flow','starter','2026-04-22 15:22:23','2026-04-22 15:22:23',NULL,'','₹ INR — Indian Rupee'),(445,'test_2887@test.com','pbkdf2:sha256:600000$nDpOkenYlIE2wvcc$eb3c846b89df8f5265c9cab059c072d7340cc056b92a9c15ad23b93e6d216562','Test Flow','starter','2026-04-22 15:22:41','2026-04-22 15:22:41',NULL,'','₹ INR — Indian Rupee');
+INSERT INTO `users` VALUES (13,'sanjaynegi101125@gmail.com','pbkdf2:sha256:600000$8kkCAJXFpuzdwglJ$fd9ccbe88426ec5487fb9e1629c38537d11d8dfd2ed1dcdb19301d9ca4543211','Sanjay Negi','pro','2026-04-11 09:20:23','2026-04-18 13:38:46',NULL,'8265888526','₹ INR — Indian Rupee');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

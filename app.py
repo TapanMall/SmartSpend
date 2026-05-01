@@ -22,7 +22,7 @@ def create_app(*, init_db: bool = True) -> Flask:
     app = Flask(__name__)
     # For production readiness, handle proxies and use whitenoise for static files
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
-    app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
+    app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/', autorefresh=True)
 
     CORS(app, origins=CORS_ORIGINS.split(','), supports_credentials=True)
     app.config['SECRET_KEY'] = SECRET_KEY
