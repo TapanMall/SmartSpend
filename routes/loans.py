@@ -108,11 +108,11 @@ def create_loan():
         return jsonify({"error": "interest_rate is unrealistically high"}), 400
         
     query = """
-        INSERT INTO loans (user_id, name, type, total_amount, emi_amount, outstanding_amount, interest_rate, start_date, end_date, tenure_months, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        INSERT INTO loans (user_id, name, type, total_amount, emi_amount, outstanding_amount, interest_rate, emi_day, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
     """
     try:
-        loan_id = db.execute(query, (user_id, name, type, total_val, emi_val, outstanding_val, rate_val, start_date, end_date, tenure_months))
+        loan_id = db.execute(query, (user_id, name, type, total_val, emi_val, outstanding_val, rate_val, data.get('emi_day', 5)))
         
         loan = db.fetch_one("SELECT * FROM loans WHERE id = %s", (loan_id,))
         if loan:
@@ -165,6 +165,9 @@ def update_loan(loan_id):
     if interest_rate is not None:
         update_fields.append("interest_rate = %s")
         params.append(interest_rate)
+    if data.get('emi_day') is not None:
+        update_fields.append("emi_day = %s")
+        params.append(data.get('emi_day'))
         
     if not update_fields:
         return jsonify({"error": "No fields to update"}), 400

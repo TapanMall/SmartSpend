@@ -945,20 +945,33 @@ async function loadNotifications() {
             loanRes.loans.forEach(loan => {
                 if (loan.outstanding_amount > 0) {
                     let emiDate = new Date(today.getFullYear(), today.getMonth(), 5);
-                    if (loan.start_date) {
+                    if (loan.emi_day) {
+                        emiDate = new Date(today.getFullYear(), today.getMonth(), loan.emi_day);
+                    } else if (loan.start_date) {
                         const sDate = new Date(loan.start_date);
                         emiDate = new Date(today.getFullYear(), today.getMonth(), sDate.getDate());
                     }
                     if (emiDate < today) {
                         emiDate.setMonth(emiDate.getMonth() + 1);
                     }
+                    
+                    // Also advance if already paid for this specific month
+                    const alreadyPaid = (loan.emi_history || []).some(emi => {
+                        const pDate = new Date(emi.payment_date);
+                        return pDate.getMonth() === emiDate.getMonth() && pDate.getFullYear() === emiDate.getFullYear();
+                    });
+                    if (alreadyPaid) {
+                        emiDate.setMonth(emiDate.getMonth() + 1);
+                    }
+
                     const diffDays = Math.ceil((emiDate - today) / (1000 * 60 * 60 * 24));
+
                     if (diffDays <= 7) {
                         notifications.push({
                             icon: '💳', bg: 'rgba(251,191,36,.1)',
                             title: 'Upcoming EMI',
-                            body: `Your ${loan.name} EMI of ₹${loan.emi_amount.toLocaleString('en-IN')} is due in ${diffDays} days.`,
-                            time: 'Upcoming', unread: true
+                            body: `Your ${loan.name} EMI of ₹${loan.emi_amount.toLocaleString('en-IN')} is due on ${emiDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })} (${diffDays} days left).`,
+                            time: 'Action Required', unread: true
                         });
                     }
                 }
@@ -1040,7 +1053,9 @@ async function loadLoans() {
                 today0.setHours(0, 0, 0, 0);
 
                 let nextEmiDate = new Date(today0.getFullYear(), today0.getMonth(), 5); // default 5th
-                if (loan.start_date) {
+                if (loan.emi_day) {
+                    nextEmiDate = new Date(today0.getFullYear(), today0.getMonth(), loan.emi_day);
+                } else if (loan.start_date) {
                     const sDate = new Date(loan.start_date);
                     nextEmiDate = new Date(today0.getFullYear(), today0.getMonth(), sDate.getDate());
                 }
@@ -1294,12 +1309,18 @@ async function loadLoans() {
                 interestPaid += row.i;
                 if (row.status === 'Paid') paymentsOnTime++;
             });
-            const statCards = document.querySelectorAll('#lp-history .stat-card .sc-value');
-            if (statCards && statCards.length >= 3) {
-                statCards[0].textContent = `${paymentsOnTime} / ${window.historyRows.length || 1}`;
-                statCards[1].textContent = `₹${totalPaid.toLocaleString('en-IN')}`;
-                statCards[2].textContent = `₹${interestPaid.toLocaleString('en-IN')}`;
+            const elOnTime = document.getElementById('loanHistOnTime');
+            const elTrack = document.getElementById('loanHistTrackRecord');
+            const elTotalPaid = document.getElementById('loanHistTotalPaid');
+            const elIntPaid = document.getElementById('loanHistInterestPaid');
+
+            if (elOnTime) elOnTime.textContent = `${paymentsOnTime} / ${window.historyRows.length || 0}`;
+            if (elTrack) {
+                const trackPct = window.historyRows.length > 0 ? Math.round((paymentsOnTime / window.historyRows.length) * 100) : 100;
+                elTrack.textContent = `${trackPct}% track record`;
             }
+            if (elTotalPaid) elTotalPaid.textContent = `₹${totalPaid.toLocaleString('en-IN')}`;
+            if (elIntPaid) elIntPaid.textContent = `₹${interestPaid.toLocaleString('en-IN')}`;
         }
 
         // Generate Real Upcoming EMI Calendar
@@ -1311,11 +1332,22 @@ async function loadLoans() {
             res.loans.forEach(loan => {
                 if (loan.outstanding_amount > 0) {
                     let emiDate = new Date(today.getFullYear(), today.getMonth(), 5); // default 5th
-                    if (loan.start_date) {
+                    if (loan.emi_day) {
+                        emiDate = new Date(today.getFullYear(), today.getMonth(), loan.emi_day);
+                    } else if (loan.start_date) {
                         const sDate = new Date(loan.start_date);
                         emiDate = new Date(today.getFullYear(), today.getMonth(), sDate.getDate());
                     }
                     if (emiDate < today) {
+                        emiDate.setMonth(emiDate.getMonth() + 1);
+                    }
+                    
+                    // Also advance if already paid for this specific month
+                    const alreadyPaidThisMonth = (loan.emi_history || []).some(emi => {
+                        const pDate = new Date(emi.payment_date);
+                        return pDate.getMonth() === emiDate.getMonth() && pDate.getFullYear() === emiDate.getFullYear();
+                    });
+                    if (alreadyPaidThisMonth) {
                         emiDate.setMonth(emiDate.getMonth() + 1);
                     }
 
@@ -1368,6 +1400,78 @@ async function loadLoans() {
             const totalBadge = timelineList.previousElementSibling?.querySelector('.badge');
             if (totalBadge) {
                 totalBadge.textContent = `₹${monthlyTotal.toLocaleString('en-IN')}/month`;
+            }
+
+            // Update Amortization Chart (10 Year Projection)
+            const amortCtx = document.getElementById('amortChart');
+            if (amortCtx && res.loans.length > 0) {
+                const yearlyLabels = [];
+                const yearlyPrincipal = [];
+                const yearlyInterest = [];
+                const currentYear = new Date().getFullYear();
+
+                // Project for 10 years
+                for (let y = 0; y < 10; y++) {
+                    yearlyLabels.push(`Y${y + 1}`);
+                    let yearP = 0;
+                    let yearI = 0;
+
+                    res.loans.forEach(loan => {
+                        if (loan.outstanding_amount > 0) {
+                            let balance = loan.outstanding_amount;
+                            const monthlyRate = (loan.interest_rate || 8.4) / 12 / 100;
+                            const emi = loan.emi_amount;
+
+                            // We need to advance the balance based on how many months have passed in previous "years" of projection
+                            // To keep it simple but accurate for each year:
+                            for (let prevY = 0; prevY < y; prevY++) {
+                                for (let m = 0; m < 12; m++) {
+                                    const interest = balance * monthlyRate;
+                                    const principal = Math.min(balance, emi - interest);
+                                    balance -= Math.max(0, principal);
+                                }
+                            }
+
+                            // Now calculate the 12 months for the CURRENT projection year 'y'
+                            for (let m = 0; m < 12; m++) {
+                                const interest = balance * monthlyRate;
+                                const principal = Math.min(balance, emi - interest);
+                                if (balance > 0) {
+                                    yearP += Math.max(0, principal);
+                                    yearI += interest;
+                                    balance -= Math.max(0, principal);
+                                }
+                            }
+                        }
+                    });
+
+                    // Convert to Lakhs for better chart display
+                    yearlyPrincipal.push(parseFloat((yearP / 100000).toFixed(2)));
+                    yearlyInterest.push(parseFloat((yearI / 100000).toFixed(2)));
+                }
+
+                if (window.amortChartInstance) window.amortChartInstance.destroy();
+                window.amortChartInstance = new Chart(amortCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: yearlyLabels,
+                        datasets: [
+                            { label: 'Principal', data: yearlyPrincipal, backgroundColor: 'rgba(57,255,126,.7)', borderRadius: 4, borderSkipped: false },
+                            { label: 'Interest', data: yearlyInterest, backgroundColor: 'rgba(255,95,95,.55)', borderRadius: 4, borderSkipped: false }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#6a9080', font: { size: 10 }, boxWidth: 10, boxHeight: 10 } }
+                        },
+                        scales: {
+                            x: { stacked: true, ticks: { color: '#6a9080', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                            y: { stacked: true, ticks: { color: '#6a9080', callback: v => '₹' + v + 'L' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                        }
+                    }
+                });
             }
         }
 
