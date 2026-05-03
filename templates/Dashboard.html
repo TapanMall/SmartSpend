@@ -3982,37 +3982,34 @@
                                 <div class="sc-label">Total Outstanding</div>
                                 <div class="sc-icon sc-icon-red">&#x1F3E6;</div>
                             </div>
-                            <div class="sc-value" style="font-size:1.5rem;color:var(--red)">&#x20B9;46,70,000</div>
-                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change down">2 Active
-                                    Loans</span></div>
+                            <div class="sc-value" id="loanTotalOutstanding" style="font-size:1.5rem;color:var(--red)">—</div>
+                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change down" id="loanActiveCount">Loading…</span></div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-top">
                                 <div class="sc-label">Monthly EMI Burden</div>
                                 <div class="sc-icon sc-icon-amber">&#x1F4C5;</div>
                             </div>
-                            <div class="sc-value" style="font-size:1.5rem;color:var(--amber)">&#x20B9;61,000</div>
-                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label"
-                                    style="font-size:.72rem">71.8% of income</span></div>
+                            <div class="sc-value" id="loanMonthlyEMI" style="font-size:1.5rem;color:var(--amber)">—</div>
+                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label" id="loanEmiBurden"
+                                    style="font-size:.72rem">Loading…</span></div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-top">
                                 <div class="sc-label">Total Paid So Far</div>
                                 <div class="sc-icon sc-icon-green">&#x2705;</div>
                             </div>
-                            <div class="sc-value" style="font-size:1.5rem;color:var(--g)">&#x20B9;22,80,000</div>
-                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change up">&#x2191; 32.8%
-                                    repaid</span></div>
+                            <div class="sc-value" id="loanTotalPaid" style="font-size:1.5rem;color:var(--g)">—</div>
+                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change up" id="loanRepaidPercent">Loading…</span></div>
                         </div>
                         <div class="stat-card">
                             <div class="sc-top">
                                 <div class="sc-label">Next EMI Due</div>
                                 <div class="sc-icon sc-icon-blue">&#x23F0;</div>
                             </div>
-                            <div class="sc-value" style="font-size:1.4rem">May 5</div>
-                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label"
-                                    style="font-size:.72rem;color:var(--red)">&#x20B9;42,800 &middot; 16 days
-                                    left</span></div>
+                            <div class="sc-value" id="loanNextEmiDate" style="font-size:1.4rem">—</div>
+                            <div class="sc-meta" style="margin-top:.4rem"><span class="sc-change-label" id="loanNextEmiMeta"
+                                    style="font-size:.72rem;color:var(--red)">Loading…</span></div>
                         </div>
                     </div>
 
@@ -4310,18 +4307,16 @@
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
                             <div class="stat-card">
                                 <div class="sc-label">Payments On Time</div>
-                                <div class="sc-value" style="color:var(--g);font-size:1.5rem;margin-top:.5rem">36 / 36
-                                </div>
-                                <div class="sc-change up" style="margin-top:4px">100% track record</div>
+                                <div class="sc-value" id="loanHistOnTime" style="color:var(--g);font-size:1.5rem;margin-top:.5rem">—</div>
+                                <div class="sc-change up" style="margin-top:4px" id="loanHistTrackRecord">Loading…</div>
                             </div>
                             <div class="stat-card">
                                 <div class="sc-label">Total Paid (All Time)</div>
-                                <div class="sc-value" style="font-size:1.5rem;margin-top:.5rem">&#x20B9;22,80,000</div>
+                                <div class="sc-value" id="loanHistTotalPaid" style="font-size:1.5rem;margin-top:.5rem">—</div>
                             </div>
                             <div class="stat-card">
                                 <div class="sc-label">Interest Paid (All Time)</div>
-                                <div class="sc-value" style="color:var(--red);font-size:1.5rem;margin-top:.5rem">
-                                    &#x20B9;8,34,000</div>
+                                <div class="sc-value" id="loanHistInterestPaid" style="color:var(--red);font-size:1.5rem;margin-top:.5rem">—</div>
                             </div>
                         </div>
                         <div class="card-box">
@@ -4331,8 +4326,6 @@
                                     <select id="historyFilter" onchange="filterHistory()" class="filter-input"
                                         style="border-radius:8px;padding:.35rem .75rem;font-size:.78rem">
                                         <option value="all">All Loans</option>
-                                        <option value="HDFC Home">HDFC Home Loan</option>
-                                        <option value="ICICI Auto">ICICI Auto Loan</option>
                                     </select>
                                     <select id="historySort" onchange="filterHistory()" class="filter-input"
                                         style="border-radius:8px;padding:.35rem .75rem;font-size:.78rem">
@@ -5895,6 +5888,7 @@
             if (expEl) expEl.textContent = fmt(data.expenses);
             if (savEl) savEl.textContent = data.savings_rate + '%';
             if (sbBalVal) sbBalVal.textContent = fmt(data.balance);
+            if (data.income > 0) window.TOTAL_INCOME = data.income;
 
             // Analytics IDs
             const anaInc = document.getElementById('anaIncome');
@@ -7549,29 +7543,133 @@
         }
 
         function openBankSyncModal() {
+            let overlay = document.getElementById('bankSyncOverlay');
+            if (overlay) {
+                overlay.remove();
+            }
+
             let content = '<div style="display:flex;flex-direction:column;gap:1rem;">' +
-                '<div style="text-align:center;margin-bottom:1rem;"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Finvu_Logo.png" onerror="this.style.display=\'none\'" height="40" alt="AA Logo"/><div style="font-weight:700;margin-top:0.5rem">Account Aggregator Framework</div></div>' +
-                '<div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="simulateAASync(this)">' +
-                '<div style="display:flex;align-items:center;gap:1rem;"><div style="font-size:1.5rem">🏦</div><div><div style="font-weight:600">HDFC Bank</div><div style="font-size:0.75rem;color:var(--muted)">Savings Account xxxx4589</div></div></div>' +
-                '<button class="btn btn-ghost" style="padding:0.3rem 0.8rem;border-color:var(--g);color:var(--g)">Connect</button>' +
+                '<div style="text-align:center;margin-bottom:0.5rem;"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Finvu_Logo.png" onerror="this.style.display=\'none\'" height="40" alt="AA Logo"/><div style="font-weight:700;margin-top:0.5rem">Account Aggregator Framework</div></div>' +
+                '<div style="position:relative;margin-bottom:0.5rem;">' +
+                '<input type="text" id="bankSearchInput" placeholder="Search your bank..." style="width:100%;padding:0.75rem 2.5rem 0.75rem 2.5rem;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:inherit;outline:none;" oninput="filterBanks()"/>' +
+                '<span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--muted)">🔍</span>' +
+                '<span id="bankSearchClear" onclick="document.getElementById(\'bankSearchInput\').value=\'\'; filterBanks();" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:var(--muted);cursor:pointer;display:none;">✖</span>' +
                 '</div>' +
-                '<div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="simulateAASync(this)">' +
-                '<div style="display:flex;align-items:center;gap:1rem;"><div style="font-size:1.5rem">🏦</div><div><div style="font-weight:600">ICICI Bank</div><div style="font-size:0.75rem;color:var(--muted)">Salary Account xxxx9901</div></div></div>' +
-                '<button class="btn btn-ghost" style="padding:0.3rem 0.8rem;border-color:var(--g);color:var(--g)">Connect</button>' +
+                '<div id="bankListContainer" style="max-height:350px;overflow-y:auto;display:flex;flex-direction:column;gap:0.75rem;padding-right:0.5rem;">' +
                 '</div>' +
-                '<div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:1rem;">Protected by RBI\'s Account Aggregator framework. Read-only access.</div>' +
+                '<div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.5rem;">Protected by RBI\'s Account Aggregator framework. Read-only access.</div>' +
                 '</div>';
             createGenericModal('bankSync', 'Link Bank Account', 'Securely sync your transactions via RBI AA', content);
+            
+            const style = document.createElement('style');
+            style.id = 'bankScrollStyle';
+            style.innerHTML = '#bankListContainer::-webkit-scrollbar { width: 6px; } #bankListContainer::-webkit-scrollbar-track { background: transparent; } #bankListContainer::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; } #bankListContainer::-webkit-scrollbar-thumb:hover { background: var(--muted); }';
+            if(!document.getElementById('bankScrollStyle')) document.head.appendChild(style);
+            
+            renderBankList('');
+        }
+        
+        const ALL_BANKS = [
+            "Airtel Payments Bank", "Andhra Pradesh Grameena Vikas Bank", "Andhra Pragathi Grameena Bank", "Arunachal Pradesh Rural Bank", "Aryavart Bank", "Assam Gramin Vikash Bank", "Axis Bank",
+            "Bandhan Bank", "Bangiya Gramin Vikash Bank", "Bank of Baroda", "Bank of India", "Bank of Maharashtra", "Baroda Gujarat Gramin Bank", "Baroda Rajasthan Kshetriya Gramin Bank", "Baroda UP Bank",
+            "CSB Bank", "Canara Bank", "Catholic Syrian Bank", "Central Bank of India", "Chaitanya Godavari Grameena Bank", "Chhattisgarh Rajya Gramin Bank", "City Union Bank",
+            "DBS Bank India", "DCB Bank", "Dakshin Bihar Gramin Bank", "Deutsche Bank", "Dhanlaxmi Bank",
+            "Ellaquai Dehati Bank", "Federal Bank", "Fino Payments Bank",
+            "HDFC Bank", "Himachal Pradesh Gramin Bank",
+            "ICICI Bank", "IDBI Bank", "IDFC FIRST Bank", "India Post Payments Bank", "Indian Bank", "Indian Overseas Bank", "IndusInd Bank",
+            "J&K Grameen Bank", "Jammu & Kashmir Bank", "Jharkhand Rajya Gramin Bank", "Jio Payments Bank",
+            "Karnataka Bank", "Karnataka Gramin Bank", "Karnataka Vikas Grameena Bank", "Karur Vysya Bank", "Kashi Gomti Samyut Gramin Bank", "Kerala Gramin Bank", "Kotak Mahindra Bank",
+            "Lakshmi Vilas Bank",
+            "Madhya Pradesh Gramin Bank", "Madhyanchal Gramin Bank", "Maharashtra Gramin Bank", "Manipur Rural Bank", "Meghalaya Rural Bank", "Mizoram Rural Bank",
+            "NSDL Payments Bank", "Nagaland Rural Bank", "Nainital Bank",
+            "Odisha Gramya Bank",
+            "Paschim Banga Gramin Bank", "Prathama UP Gramin Bank", "Puduvai Bharathiar Grama Bank", "Punjab & Sind Bank", "Punjab Gramin Bank", "Punjab National Bank",
+            "RBL Bank", "Rajasthan Marudhara Gramin Bank",
+            "Saptagiri Grameena Bank", "Sarva Haryana Gramin Bank", "Saurashtra Gramin Bank", "South Indian Bank", "Standard Chartered Bank", "State Bank of India (SBI)",
+            "Tamil Nadu Grama Bank", "Tamilnad Mercantile Bank", "Telangana Grameena Bank", "Tripura Gramin Bank",
+            "UCO Bank", "Union Bank of India", "Utkal Grameen Bank", "Uttarbanga Kshetriya Gramin Bank", "Uttarakhand Gramin Bank",
+            "Vidharbha Konkan Gramin Bank",
+            "YES Bank"
+        ];
+        
+        const SUGGESTED_BANKS = ["HDFC Bank", "ICICI Bank", "State Bank of India (SBI)", "Axis Bank", "Kotak Mahindra Bank"];
+        
+        function renderBankList(filterText) {
+            const container = document.getElementById('bankListContainer');
+            if (!container) return;
+            
+            const lowerFilter = filterText.toLowerCase();
+            let html = '';
+            
+            let suggestedMatches = SUGGESTED_BANKS.filter(b => b.toLowerCase().includes(lowerFilter));
+            if (suggestedMatches.length > 0) {
+                if (!filterText) {
+                    html += '<div style="font-size:0.8rem;color:var(--muted);font-weight:600;margin-top:0.25rem;text-transform:uppercase;">Suggested Banks</div>';
+                }
+                suggestedMatches.forEach(b => { html += getBankRowHtml(b); });
+            }
+            
+            let allMatches = ALL_BANKS.filter(b => b.toLowerCase().includes(lowerFilter));
+            if (allMatches.length > 0) {
+                if (!filterText) {
+                    html += '<div style="font-size:0.8rem;color:var(--muted);font-weight:600;margin-top:0.75rem;text-transform:uppercase;">All Banks</div>';
+                } else if (suggestedMatches.length > 0) {
+                    html += '<div style="font-size:0.8rem;color:var(--muted);font-weight:600;margin-top:0.75rem;text-transform:uppercase;">Other Results</div>';
+                }
+                
+                if (!filterText) {
+                    let currentLetter = '';
+                    allMatches.forEach(b => {
+                        const firstChar = b.charAt(0).toUpperCase();
+                        if (firstChar !== currentLetter) {
+                            currentLetter = firstChar;
+                            html += `<div style="font-size:0.8rem;color:var(--g);font-weight:700;margin-top:0.5rem;padding-bottom:0.25rem;border-bottom:1px solid var(--border);">${currentLetter}</div>`;
+                        }
+                        html += getBankRowHtml(b);
+                    });
+                } else {
+                    allMatches.forEach(b => { html += getBankRowHtml(b); });
+                }
+            }
+            
+            if (suggestedMatches.length === 0 && allMatches.length === 0) {
+                html = '<div style="text-align:center;padding:2rem;color:var(--muted);">No banks found matching "'+filterText+'"</div>';
+            }
+            container.innerHTML = html;
+        }
+        
+        function getBankRowHtml(bankName) {
+            return '<div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor=\'var(--g)\';this.style.background=\'rgba(57,255,126,0.05)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.background=\'var(--card2)\'" onclick="simulateAASync(this, \''+bankName+'\')">' +
+                '<div style="display:flex;align-items:center;gap:1rem;"><div style="font-size:1.5rem">🏦</div><div><div style="font-weight:600;font-size:0.9rem">'+bankName+'</div></div></div>' +
+                '<button class="btn btn-ghost" style="padding:0.3rem 0.8rem;border-color:var(--border);color:var(--muted);font-size:0.8rem;">Select</button>' +
+                '</div>';
+        }
+        
+        function filterBanks() {
+            const input = document.getElementById('bankSearchInput');
+            const clearBtn = document.getElementById('bankSearchClear');
+            if (input) {
+                if (clearBtn) {
+                    clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
+                }
+                renderBankList(input.value);
+            }
         }
 
-        function simulateAASync(btnEl) {
-            const btn = btnEl.querySelector('button');
-            btn.innerHTML = '<span class="spin"></span>';
+        function simulateAASync(rowEl, bankName) {
+            const btn = rowEl.querySelector('button');
+            if (btn) {
+                btn.innerHTML = '<span class="spin"></span>';
+                btn.style.borderColor = 'var(--g)';
+                btn.style.color = 'var(--g)';
+            }
             setTimeout(() => {
-                btn.innerHTML = 'Connected ✓';
-                btn.style.background = 'var(--g)';
-                btn.style.color = '#000';
-                showToast('🏦 Bank connected successfully! Syncing past 6 months data...', 'success');
+                if (btn) {
+                    btn.innerHTML = 'Connected ✓';
+                    btn.style.background = 'var(--g)';
+                    btn.style.color = '#000';
+                }
+                showToast('🏦 ' + (bankName || 'Bank') + ' connected successfully! Syncing...', 'success');
                 setTimeout(() => {
                     closeGenericModal('bankSync');
                 }, 1500);
@@ -7986,43 +8084,8 @@
         }
 
         function initTimeline() {
-            var list = document.getElementById('emiTimelineList');
-            if (!list || list.innerHTML.trim()) return;
-            var months = ['May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026'];
-            var rows = '';
-            months.forEach(function (m, i) {
-                var parts = m.split(' ');
-                var urgency = i === 0
-                    ? '<span style="font-size:.68rem;color:var(--amber);font-weight:600">&#x23F0; Upcoming</span>'
-                    : '<span style="font-size:.68rem;color:var(--g);font-weight:600">Scheduled</span>';
-                rows += '<div style="display:flex;gap:1rem;padding:.875rem 1.5rem;border-bottom:1px solid var(--border)">';
-                rows += '<div style="width:60px;flex-shrink:0;text-align:center"><div style="font-size:.68rem;color:var(--muted)">' + parts[0] + '</div><div style="font-family:Syne,sans-serif;font-weight:800">' + parts[1] + '</div></div>';
-                rows += '<div style="flex:1;display:flex;flex-direction:column;gap:.5rem">';
-                rows += '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:10px;padding:.6rem .875rem;border:1px solid var(--border)">';
-                rows += '<div style="display:flex;align-items:center;gap:.5rem"><span>&#x1F3E0;</span><div><div style="font-size:.8rem;font-weight:600">HDFC Home</div><div style="font-size:.68rem;color:var(--muted)">Due ' + (i === 0 ? 'May 5' : '5th') + '</div></div></div>';
-                rows += '<div style="display:flex;align-items:center;gap:.875rem"><span style="font-size:.72rem;color:var(--muted)">&#x20B9;14,300 + &#x20B9;28,500</span><span style="font-family:Syne,sans-serif;font-weight:800;color:var(--red)">&#x20B9;42,800</span>' + urgency + '</div></div>';
-                rows += '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:10px;padding:.6rem .875rem;border:1px solid var(--border)">';
-                rows += '<div style="display:flex;align-items:center;gap:.5rem"><span>&#x1F697;</span><div><div style="font-size:.8rem;font-weight:600">ICICI Auto</div><div style="font-size:.68rem;color:var(--muted)">Due ' + (i === 0 ? 'May 12' : '12th') + '</div></div></div>';
-                rows += '<div style="display:flex;align-items:center;gap:.875rem"><span style="font-family:Syne,sans-serif;font-weight:800;color:var(--blue)">&#x20B9;18,200</span><span style="font-size:.68rem;color:var(--g);font-weight:600">Scheduled</span></div></div>';
-                rows += '</div></div>';
-            });
-            list.innerHTML = rows;
-
-            var ctx = document.getElementById('amortChart');
-            if (ctx && !ctx._done) {
-                ctx._done = true;
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Y1', 'Y2', 'Y3', 'Y4', 'Y5', 'Y6', 'Y7', 'Y8', 'Y9', 'Y10'],
-                        datasets: [
-                            { label: 'Principal', data: [1.8, 2.0, 2.2, 2.4, 2.6, 2.9, 3.1, 3.4, 3.7, 4.0], backgroundColor: 'rgba(57,255,126,.7)', borderRadius: 4, borderSkipped: false },
-                            { label: 'Interest', data: [4.4, 4.2, 4.0, 3.8, 3.6, 3.3, 3.1, 2.8, 2.5, 2.2], backgroundColor: 'rgba(255,95,95,.55)', borderRadius: 4, borderSkipped: false }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#6a9080', font: { size: 10 }, boxWidth: 10, boxHeight: 10 } } }, scales: { x: { stacked: true, ticks: { color: '#6a9080', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { stacked: true, ticks: { color: '#6a9080', callback: function (v) { return '₹' + v + 'L'; } }, grid: { color: 'rgba(255,255,255,0.04)' } } } }
-                });
-            }
+            // The timeline and amortization chart are now handled dynamically by loadLoans() in custom_features.js
+            // This function remains for tab-switch compatibility.
         }
 
         function updatePrepay(val) {
@@ -8198,13 +8261,12 @@
         }
 
         function payEmi(id, name, amt, outstanding) {
-            var newOut = Math.max(0, outstanding - amt);
-            SS_API.post('/api/loans/' + id, { outstanding_amount: newOut }, 'PUT').then(res => {
+            SS_API.post('/api/loans/' + id + '/pay', { amount_paid: amt }).then(res => {
                 if (res && !res.error) {
-                    showToast('✓ EMI payment of ' + amt + ' successful for ' + name, 'success');
+                    showToast('✓ EMI payment of ₹' + amt.toLocaleString('en-IN') + ' successful for ' + name, 'success');
                     if (typeof loadLoans === 'function') loadLoans();
                 } else {
-                    showToast('Payment failed', 'error');
+                    showToast((res && res.error) ? res.error : 'Payment failed', 'error');
                 }
             });
         }
@@ -8235,7 +8297,8 @@
                     'lm-principal': loanData.total_amount,
                     'lm-outstanding': loanData.outstanding_amount,
                     'lm-rate': loanData.interest_rate,
-                    'lm-emi': loanData.emi_amount
+                    'lm-emi': loanData.emi_amount,
+                    'lm-day': loanData.emi_day
                 };
                 for (var id in elMap) {
                     var el = o.querySelector('#' + id);
@@ -8323,7 +8386,8 @@
                 total_amount: parseFloat(amountEl.value) || 0,
                 emi_amount: emiEl ? parseFloat(emiEl.value) || 0 : 0,
                 outstanding_amount: outEl ? parseFloat(outEl.value) || 0 : 0,
-                interest_rate: rateEl ? parseFloat(rateEl.value) || 0 : 0
+                interest_rate: rateEl ? parseFloat(rateEl.value) || 0 : 0,
+                emi_day: document.getElementById('lm-day') ? parseInt(document.getElementById('lm-day').value) || 5 : 5
             };
 
             var req;
