@@ -103,7 +103,7 @@ def create_app(*, init_db: bool = True) -> Flask:
 
     nvidia_client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
-        api_key=NVIDIA_API_KEY
+        api_key=NVIDIA_API_KEY or "dummy_key_for_testing"
     )
 
     @app.route('/api/chat/', methods=['POST'])
